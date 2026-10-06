@@ -98,6 +98,14 @@ const LOCAL_AUDIOS = [
   `${baseUrl}audio/lofi-chill-cafe.mp3`,
 ];
 
+export const POPULAR_SOUNDS = [
+  { title: 'Nightcall (Drive Synthwave)', author: 'Kavinsky', audio: LOCAL_AUDIOS[0] },
+  { title: 'Brazilian Phonk Automotivo', author: 'PHONK & OCD F42', audio: LOCAL_AUDIOS[1] },
+  { title: 'Snowfall (Viral Ambient)', author: 'Øneheart & reidenshi', audio: LOCAL_AUDIOS[2] },
+  { title: 'Animal I Have Become', author: 'Three Days Grace', audio: LOCAL_AUDIOS[3] },
+  { title: 'Lofi Chill Hop Beats', author: 'Chillhop Music', audio: LOCAL_AUDIOS[4] },
+];
+
 const WIKIMEDIA_STREAM = 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm';
 
 export const INITIAL_REELS: Reel[] = [
@@ -915,8 +923,8 @@ export function ensureRichContent(
       countryFlag: targetCountry.flag,
       countryName: targetCountry.label,
       hashtags: [`#${targetCountry.code.toLowerCase()}`, `#trend`, `#${targetNiche}`, `#viral`],
-      soundTitle: `${targetCountry.label} Viral Sound #${rank}`,
-      soundAuthor: `Sound Studio ${targetCountry.code}`,
+      soundTitle: POPULAR_SOUNDS[audioIndex % POPULAR_SOUNDS.length].title,
+      soundAuthor: POPULAR_SOUNDS[audioIndex % POPULAR_SOUNDS.length].author,
       soundIsTrending: true,
       publishedAt: new Date(Date.now() - 3600000 * rank).toISOString(),
       trendingRank: rank,
@@ -925,7 +933,7 @@ export function ensureRichContent(
       thumbnailUrl: `https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80`,
       videoUrl: LOCAL_VIDEOS[videoIndex],
       backupVideoUrl: WIKIMEDIA_STREAM,
-      audioUrl: LOCAL_AUDIOS[audioIndex],
+      audioUrl: POPULAR_SOUNDS[audioIndex % POPULAR_SOUNDS.length].audio,
       originalUrl: isTt
         ? `https://www.tiktok.com/@mrbeast`
         : `https://www.instagram.com/explore/tags/${targetNiche}/`,

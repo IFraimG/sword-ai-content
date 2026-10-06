@@ -2,7 +2,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import BaseModal from '@/shared/ui/BaseModal.vue';
-import { getMatchedTracksForReel } from '@/entities/reel/model/mockData';
+import { searchLiveMusicTracks } from '@/shared/api/musicService';
 import type { MatchedMusicTrack } from '@/entities/reel/model/types';
 import { downloadReelAudio } from '@/shared/lib/export/audioExporter';
 import {
@@ -17,7 +17,12 @@ import {
   Search,
   CheckCircle2,
   Radio,
-  Disc3
+  Disc3,
+  Info,
+  Loader2,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-vue-next';
 
 const store = useReelsStore();
@@ -33,27 +38,54 @@ const isMuted = ref(false);
 // Platform tracks state
 const matchedTracks = ref<MatchedMusicTrack[]>([]);
 const searchQuery = ref('');
+const isLoadingTracks = ref(false);
 const downloadingTrackId = ref<string | null>(null);
 const downloadStatusText = ref<string>('');
+const showApiHelp = ref(false);
 
 // Currently playing preview track (if any)
 const activePreviewTrackId = ref<string | null>(null);
 const previewAudioElement = ref<HTMLAudioElement | null>(null);
 
+let debounceTimer: number | null = null;
+
 // Watch active reel change
 watch(
   () => reel.value,
-  (newReel) => {
+  async (newReel) => {
     stopAllAudio();
     if (newReel) {
-      matchedTracks.value = getMatchedTracksForReel(newReel);
       searchQuery.value = '';
+      await loadTracks('');
     } else {
       matchedTracks.value = [];
     }
   },
   { immediate: true }
 );
+
+// Watch search query changes
+watch(searchQuery, (newQuery) => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+  debounceTimer = window.setTimeout(() => {
+    loadTracks(newQuery);
+  }, 350);
+});
+
+async function loadTracks(query: string) {
+  if (!reel.value) return;
+  isLoadingTracks.value = true;
+  try {
+    const results = await searchLiveMusicTracks(query, reel.value);
+    matchedTracks.value = results;
+  } catch (err) {
+    console.error('Ошибка загрузки треков:', err);
+  } finally {
+    isLoadingTracks.value = false;
+  }
+}
 
 function stopAllAudio() {
   if (audioElement.value) {
@@ -71,6 +103,9 @@ function stopAllAudio() {
 
 onUnmounted(() => {
   stopAllAudio();
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
 });
 
 // Audio events
@@ -199,18 +234,6 @@ async function handleDownloadTrack(track: MatchedMusicTrack) {
   }
 }
 
-// Filter tracks by in-modal search
-const filteredTracks = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase();
-  if (!q) return matchedTracks.value;
-  return matchedTracks.value.filter(
-    (t) =>
-      t.title.toLowerCase().includes(q) ||
-      t.artist.toLowerCase().includes(q) ||
-      t.platform.toLowerCase().includes(q)
-  );
-});
-
 // Platform helpers
 function getPlatformColor(platform: string): string {
   switch (platform) {
@@ -261,18 +284,19 @@ function getPlatformLabel(platform: string): string {
         <div>
           <h2 class="text-base font-extrabold text-white flex items-center gap-2">
             <span>Музыкальный поиск & Экспорт MP3</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-mono">
-              Hi-Fi Audio
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-500/40 text-emerald-300 font-mono flex items-center gap-1">
+              <ShieldCheck class="w-3 h-3 text-emerald-400" />
+              <span>100% Free Live Stream</span>
             </span>
           </h2>
           <p class="text-xs text-sword-muted">
-            Поиск трека на 5 стриминговых платформах и мгновенная загрузка оригинального MP3
+            Поиск реальных треков на 5 стриминговых платформах и мгновенная загрузка оригинального MP3
           </p>
         </div>
       </div>
     </template>
 
-    <div v-if="reel" class="flex flex-col gap-6 pt-2">
+    <div v-if="reel" class="flex flex-col gap-5 pt-2">
       <!-- Original Audio Card with Player -->
       <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sword-surface via-sword-card to-slate-900 border border-sword-accent/30 p-4 sm:p-5 shadow-xl">
         <div class="flex flex-col sm:flex-row items-center gap-4">
@@ -301,7 +325,7 @@ function getPlatformLabel(platform: string): string {
             <div class="flex flex-wrap items-center gap-2 mb-1">
               <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-tiktok-pink/20 text-tiktok-pink border border-tiktok-pink/30 flex items-center gap-1">
                 <Music class="w-3 h-3 animate-bounce" />
-                <span>Оригинал из ролика</span>
+                <span>Оригинальная дорожка</span>
               </span>
               <span v-if="reel.soundIsTrending" class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
                 <Sparkles class="w-3 h-3 text-emerald-400" />
@@ -373,26 +397,60 @@ function getPlatformLabel(platform: string): string {
         ></audio>
       </div>
 
+      <!-- Free Accounts & API Info Accordion -->
+      <div class="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs">
+        <button
+          type="button"
+          class="w-full flex items-center justify-between text-left text-cyan-300 font-semibold cursor-pointer"
+          @click="showApiHelp = !showApiHelp"
+        >
+          <div class="flex items-center gap-2">
+            <Info class="w-4 h-4 text-cyan-400 flex-shrink-0" />
+            <span>Как работает бесплатный доступ и получение данных из API</span>
+          </div>
+          <ChevronUp v-if="showApiHelp" class="w-4 h-4 text-cyan-400" />
+          <ChevronDown v-else class="w-4 h-4 text-cyan-400" />
+        </button>
+
+        <div v-if="showApiHelp" class="mt-2.5 pt-2.5 border-t border-cyan-500/20 text-slate-300 leading-relaxed space-y-2">
+          <p>
+            ✨ <strong>Аудиостриминг и поиск музыки</strong> работают прямо сейчас на 100% бесплатно через открытый каталог <strong>Apple Music / iTunes API</strong> без регистрации и ограничений по времени.
+          </p>
+          <p>
+            🔑 <strong>Прямой сбор видео TikTok / Instagram (по желанию):</strong>
+            Если вы хотите подключить собственный бесплатный ключ парсинга видеопотоков в реальном времени:
+          </p>
+          <ul class="list-disc pl-5 space-y-1 text-slate-400">
+            <li><strong>RapidAPI (TikTok Feed API)</strong>: Зарегистрируйтесь на <a href="https://rapidapi.com" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline">rapidapi.com</a>, выберите бесплатный тариф «Basic» (500 запросов/мес бесплатно) и укажите ключ в файле <code>.env</code>.</li>
+            <li><strong>TikTok for Developers</strong>: Бесплатный аккаунт на <a href="https://developers.tiktok.com" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline">developers.tiktok.com</a> для прямого доступа к Display API.</li>
+          </ul>
+        </div>
+      </div>
+
       <!-- Platforms Search & Match Section -->
       <div class="flex flex-col gap-3">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <Radio class="w-4 h-4 text-cyan-400 animate-pulse" />
             <h4 class="text-sm font-bold text-white">
-              Доступно на стриминговых платформах
+              Результаты поиска в музыкальных стримингах
             </h4>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-              5 сервисов
+            <span v-if="isLoadingTracks" class="flex items-center gap-1 text-[11px] text-cyan-400">
+              <Loader2 class="w-3.5 h-3.5 animate-spin" />
+              <span>Поиск...</span>
+            </span>
+            <span v-else class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              {{ matchedTracks.length }} найдено
             </span>
           </div>
 
           <!-- Quick Filter Input -->
-          <div class="relative w-full sm:w-64">
+          <div class="relative w-full sm:w-72">
             <Search class="w-3.5 h-3.5 text-sword-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Поиск по названию..."
+              placeholder="Поиск по названию или исполнителю..."
               class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-sword-card border border-sword-border text-white placeholder-sword-muted focus:outline-none focus:border-sword-accent transition-colors"
             />
           </div>
@@ -401,13 +459,18 @@ function getPlatformLabel(platform: string): string {
         <!-- Platforms Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div
-            v-for="track in filteredTracks"
+            v-for="track in matchedTracks"
             :key="track.id"
-            class="flex items-center justify-between gap-3 p-3 rounded-xl bg-sword-card/80 hover:bg-sword-card border border-sword-border/60 hover:border-sword-accent/40 transition-all shadow-sm"
+            :class="[
+              'flex items-center justify-between gap-3 p-3 rounded-xl border transition-all shadow-sm',
+              activePreviewTrackId === track.id
+                ? 'bg-cyan-950/40 border-cyan-500/70 shadow-[0_0_15px_rgba(0,240,255,0.15)]'
+                : 'bg-sword-card/80 hover:bg-sword-card border-sword-border/60 hover:border-sword-accent/40'
+            ]"
           >
             <!-- Platform Info & Thumbnail -->
             <div class="flex items-center gap-3 min-w-0 flex-1">
-              <div class="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 border border-sword-border/60">
+              <div class="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-sword-border/60">
                 <img
                   :src="track.coverUrl"
                   :alt="track.title"
@@ -420,8 +483,8 @@ function getPlatformLabel(platform: string): string {
                   :title="activePreviewTrackId === track.id ? 'Остановить' : 'Слушать превью'"
                   @click="togglePlayPreview(track)"
                 >
-                  <Pause v-if="activePreviewTrackId === track.id" class="w-4 h-4 fill-white" />
-                  <Play v-else class="w-4 h-4 fill-white ml-0.5" />
+                  <Pause v-if="activePreviewTrackId === track.id" class="w-5 h-5 fill-white animate-pulse" />
+                  <Play v-else class="w-5 h-5 fill-white ml-0.5" />
                 </button>
               </div>
 
@@ -442,14 +505,23 @@ function getPlatformLabel(platform: string): string {
                 <div class="font-bold text-xs text-white truncate">
                   {{ track.title }}
                 </div>
-                <div class="text-[11px] text-sword-muted truncate">
-                  {{ track.artist }} • {{ track.duration }}
+                <div class="text-[11px] text-sword-muted truncate flex items-center gap-1.5">
+                  <span>{{ track.artist }}</span>
+                  <span>•</span>
+                  <span>{{ track.duration }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Action Buttons: Open Link & Download MP3 -->
             <div class="flex items-center gap-1.5 flex-shrink-0">
+              <!-- Equalizer Indicator when Playing -->
+              <div v-if="activePreviewTrackId === track.id" class="flex items-end gap-0.5 h-4 px-1">
+                <span class="w-1 bg-cyan-400 rounded-full animate-bounce h-2"></span>
+                <span class="w-1 bg-emerald-400 rounded-full animate-bounce h-4 delay-75"></span>
+                <span class="w-1 bg-pink-400 rounded-full animate-bounce h-3 delay-150"></span>
+              </div>
+
               <!-- Download Track MP3 -->
               <button
                 type="button"
