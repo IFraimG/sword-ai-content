@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import type { Platform, Reel } from '@/entities/reel/model/types';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import ReelCard from '@/entities/reel/ui/ReelCard.vue';
+import InfiniteScrollSentinel from '@/shared/ui/InfiniteScrollSentinel.vue';
 import { formatCompactNumber } from '@/shared/lib/formatters';
-import { TrendingUp, Eye, Sparkles, AlertCircle } from 'lucide-vue-next';
+import { Eye, Sparkles, AlertCircle } from 'lucide-vue-next';
 
 interface Props {
   platform: Platform;
@@ -15,6 +16,36 @@ const props = defineProps<Props>();
 const store = useReelsStore();
 
 const isTikTok = computed(() => props.platform === 'tiktok');
+
+const PAGE_SIZE = 10;
+const visibleCount = ref(PAGE_SIZE);
+const isLoadingMore = ref(false);
+
+// Reset visible items count whenever input list changes (search, geo, or niche filter)
+watch(
+  () => props.reels,
+  () => {
+    visibleCount.value = Math.min(PAGE_SIZE, props.reels.length || PAGE_SIZE);
+  },
+  { immediate: true }
+);
+
+const visibleReels = computed(() => {
+  return props.reels.slice(0, visibleCount.value);
+});
+
+const hasMore = computed(() => {
+  return visibleCount.value < props.reels.length;
+});
+
+function handleLoadMore() {
+  if (isLoadingMore.value || !hasMore.value) return;
+  isLoadingMore.value = true;
+  setTimeout(() => {
+    visibleCount.value = Math.min(visibleCount.value + PAGE_SIZE, props.reels.length);
+    isLoadingMore.value = false;
+  }, 250);
+}
 
 const platformStats = computed(() => {
   const list = props.reels;
@@ -100,14 +131,26 @@ function handleTagClick(tag: string) {
     </div>
 
     <!-- Feed Body -->
-    <div class="flex-1 p-4 overflow-y-auto">
-      <div v-if="reels.length > 0" class="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <ReelCard
-          v-for="reel in reels"
-          :key="reel.id"
-          :reel="reel"
-          @select="store.openDetail"
-          @tag-click="handleTagClick"
+    <div class="flex-1 p-4 flex flex-col">
+      <div v-if="props.reels.length > 0" class="flex flex-col gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <ReelCard
+            v-for="reel in visibleReels"
+            :key="reel.id"
+            :reel="reel"
+            @select="store.openDetail"
+            @tag-click="handleTagClick"
+          />
+        </div>
+
+        <!-- Infinite Scroll Sentinel & Batch Loader -->
+        <InfiniteScrollSentinel
+          :has-more="hasMore"
+          :is-loading="isLoadingMore"
+          :visible-count="visibleReels.length"
+          :total-count="props.reels.length"
+          :platform="platform"
+          @load-more="handleLoadMore"
         />
       </div>
 

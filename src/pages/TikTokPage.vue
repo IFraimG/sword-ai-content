@@ -1,11 +1,41 @@
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import ReelFilterBar from '@/features/filter-reels/ui/ReelFilterBar.vue';
 import ReelCard from '@/entities/reel/ui/ReelCard.vue';
-import { formatCompactNumber } from '@/shared/lib/formatters';
-import { Eye, TrendingUp, Sparkles, AlertCircle } from 'lucide-vue-next';
+import InfiniteScrollSentinel from '@/shared/ui/InfiniteScrollSentinel.vue';
+import { AlertCircle } from 'lucide-vue-next';
 
 const store = useReelsStore();
+
+const PAGE_SIZE = 10;
+const visibleCount = ref(PAGE_SIZE);
+const isLoadingMore = ref(false);
+
+watch(
+  () => store.tiktokReels,
+  () => {
+    visibleCount.value = Math.min(PAGE_SIZE, store.tiktokReels.length || PAGE_SIZE);
+  },
+  { immediate: true }
+);
+
+const visibleReels = computed(() => {
+  return store.tiktokReels.slice(0, visibleCount.value);
+});
+
+const hasMore = computed(() => {
+  return visibleCount.value < store.tiktokReels.length;
+});
+
+function handleLoadMore() {
+  if (isLoadingMore.value || !hasMore.value) return;
+  isLoadingMore.value = true;
+  setTimeout(() => {
+    visibleCount.value = Math.min(visibleCount.value + PAGE_SIZE, store.tiktokReels.length);
+    isLoadingMore.value = false;
+  }, 250);
+}
 
 function handleTagClick(tag: string) {
   store.searchQuery = tag;
@@ -45,14 +75,26 @@ function handleTagClick(tag: string) {
     <!-- Filter Bar -->
     <ReelFilterBar />
 
-    <!-- TikTok Reels Grid -->
-    <div v-if="store.tiktokReels.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      <ReelCard
-        v-for="reel in store.tiktokReels"
-        :key="reel.id"
-        :reel="reel"
-        @select="store.openDetail"
-        @tag-click="handleTagClick"
+    <!-- TikTok Reels Grid with Infinite Scroll -->
+    <div v-if="store.tiktokReels.length > 0" class="flex flex-col gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <ReelCard
+          v-for="reel in visibleReels"
+          :key="reel.id"
+          :reel="reel"
+          @select="store.openDetail"
+          @tag-click="handleTagClick"
+        />
+      </div>
+
+      <!-- Infinite Scroll Sentinel & Batch Loader -->
+      <InfiniteScrollSentinel
+        :has-more="hasMore"
+        :is-loading="isLoadingMore"
+        :visible-count="visibleReels.length"
+        :total-count="store.tiktokReels.length"
+        platform="tiktok"
+        @load-more="handleLoadMore"
       />
     </div>
 
