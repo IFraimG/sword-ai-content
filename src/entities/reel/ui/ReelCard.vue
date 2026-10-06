@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { Reel } from '../model/types';
+import { useReelsStore } from '../model/reelsStore';
 import { formatCompactNumber, formatPercentage } from '@/shared/lib/formatters';
 import { downloadReelVideo } from '@/shared/lib/export/videoExporter';
 import {
@@ -17,7 +18,8 @@ import {
   ArrowDownRight,
   Minus,
   Download,
-  Check
+  Check,
+  Disc3
 } from 'lucide-vue-next';
 
 interface Props {
@@ -25,6 +27,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const store = useReelsStore();
 
 const emit = defineEmits<{
   (e: 'select', reel: Reel): void;
@@ -188,6 +191,7 @@ async function handleDownload(e: MouseEvent) {
         </div>
 
         <div class="flex items-center gap-1">
+          <!-- Download MP4 -->
           <button
             type="button"
             class="p-1.5 text-sword-muted hover:text-sword-accent hover:bg-sword-surface rounded-lg transition-colors cursor-pointer"
@@ -198,6 +202,17 @@ async function handleDownload(e: MouseEvent) {
             <Download v-else class="w-4 h-4" :class="{ 'animate-bounce text-cyan-400': isDownloading }" />
           </button>
 
+          <!-- Music Search & MP3 Discovery -->
+          <button
+            type="button"
+            class="p-1.5 text-sword-muted hover:text-pink-400 hover:bg-pink-500/10 rounded-lg transition-colors cursor-pointer"
+            title="Найти трек на Spotify, Apple Music, YouTube Music и скачать MP3"
+            @click.stop="store.openMusicSearch(reel)"
+          >
+            <Disc3 class="w-4 h-4 text-pink-400/90 hover:text-pink-300 hover:rotate-90 transition-transform" />
+          </button>
+
+          <!-- External Original Link -->
           <a
             :href="reel.originalUrl"
             target="_blank"
@@ -234,11 +249,21 @@ async function handleDownload(e: MouseEvent) {
         </button>
       </div>
 
-      <!-- Trending Sound Info -->
-      <div class="flex items-center gap-1.5 py-1 px-2 rounded-lg bg-sword-surface/50 border border-sword-border/40 text-[11px] text-sword-muted">
-        <Music class="w-3.5 h-3.5 text-tiktok-pink flex-shrink-0 animate-bounce" />
-        <span class="truncate">{{ reel.soundTitle }}</span>
-      </div>
+      <!-- Trending Sound Info (Clickable for Music Search) -->
+      <button
+        type="button"
+        class="flex items-center justify-between gap-1.5 py-1 px-2.5 rounded-lg bg-sword-surface/70 hover:bg-sword-surface border border-sword-border/40 hover:border-pink-500/40 text-[11px] text-sword-muted hover:text-white transition-all group/sound cursor-pointer w-full text-left"
+        title="Найти трек на Spotify, Apple Music, YouTube Music, SoundCloud и скачать MP3"
+        @click.stop="store.openMusicSearch(reel)"
+      >
+        <div class="flex items-center gap-1.5 min-w-0">
+          <Music class="w-3.5 h-3.5 text-tiktok-pink flex-shrink-0 animate-bounce" />
+          <span class="truncate">{{ reel.soundTitle }}</span>
+        </div>
+        <span class="text-[10px] text-pink-400 opacity-0 group-hover/sound:opacity-100 transition-opacity font-semibold flex items-center gap-0.5 flex-shrink-0">
+          Музыка →
+        </span>
+      </button>
 
       <!-- Bottom Metrics Grid -->
       <div class="pt-2 border-t border-sword-border/60 grid grid-cols-3 gap-2 text-center text-xs">

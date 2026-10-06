@@ -34,6 +34,7 @@ export const useReelsStore = defineStore('reels', () => {
   // Modals state
   const activeReelDetail = ref<Reel | null>(null);
   const isExportModalOpen = ref(false);
+  const activeMusicSearchReel = ref<Reel | null>(null);
 
   // Sorting helper
   function sortReels(items: Reel[], criteria: SortBy): Reel[] {
@@ -274,6 +275,14 @@ export const useReelsStore = defineStore('reels', () => {
     isExportModalOpen.value = false;
   }
 
+  function openMusicSearch(reel: Reel) {
+    activeMusicSearchReel.value = reel;
+  }
+
+  function closeMusicSearch() {
+    activeMusicSearchReel.value = null;
+  }
+
   return {
     // State
     reels,
@@ -290,6 +299,7 @@ export const useReelsStore = defineStore('reels', () => {
     lastSyncTime,
     activeReelDetail,
     isExportModalOpen,
+    activeMusicSearchReel,
 
     // Getters
     availableCountries,
@@ -313,5 +323,7 @@ export const useReelsStore = defineStore('reels', () => {
     closeDetail,
     openExport,
     closeExport,
+    openMusicSearch,
+    closeMusicSearch,
   };
 });
