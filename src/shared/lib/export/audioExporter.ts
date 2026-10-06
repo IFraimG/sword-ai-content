@@ -20,7 +20,11 @@ export async function downloadReelAudio(
 
   onProgress?.('Подготовка MP3 аудио...');
 
-  const audioUrl = customAudioUrl || reel.audioUrl || (import.meta.env.BASE_URL + 'audio/synthwave-cyberpunk.mp3');
+  const audioUrl = customAudioUrl || reel.audioUrl;
+
+  if (!audioUrl) {
+    throw new Error('Аудиодорожка временно недоступна для скачивания на платформе');
+  }
 
   try {
     onProgress?.('Загрузка MP3 дорожки...');

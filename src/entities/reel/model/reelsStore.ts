@@ -10,10 +10,12 @@ import {
   REGION_POPULAR_NICHES,
   ensureRichContent
 } from './mockData';
+import { fetchTrends } from '@/shared/api/reelsApi';
 
 export const useReelsStore = defineStore('reels', () => {
   // State
   const reels = ref<Reel[]>([...INITIAL_REELS]);
+  const isApiConnected = ref(false);
   const searchQuery = ref('');
   const selectedNiche = ref<Niche>('all');
   const sortBy = ref<SortBy>('rank');
@@ -218,15 +220,32 @@ export const useReelsStore = defineStore('reels', () => {
     selectedCountry.value = 'all';
   }
 
-  function triggerRefresh() {
+  async function triggerRefresh() {
     isRefreshing.value = true;
-    setTimeout(() => {
+    try {
+      const res = await fetchTrends({
+        limit: 100,
+        continent: selectedContinent.value !== 'all' ? selectedContinent.value : undefined,
+        country: selectedCountry.value !== 'all' ? selectedCountry.value : undefined,
+        niche: selectedNiche.value !== 'all' ? selectedNiche.value : undefined,
+      });
+      if (res && res.items && res.items.length > 0) {
+        reels.value = res.items;
+        isApiConnected.value = true;
+      } else {
+        reels.value = simulateRealtimeTick(reels.value);
+      }
+    } catch {
       reels.value = simulateRealtimeTick(reels.value);
+    } finally {
       countdown.value = SYNC_INTERVAL_SECONDS;
       lastSyncTime.value = new Date().toISOString();
       isRefreshing.value = false;
-    }, 400);
+    }
   }
+
+  // Load live trends from Fastify backend upon mounting
+  triggerRefresh();
 
   function startAutoRefresh() {
     if (timerId !== null) return;
@@ -286,6 +305,7 @@ export const useReelsStore = defineStore('reels', () => {
   return {
     // State
     reels,
+    isApiConnected,
     searchQuery,
     selectedNiche,
     sortBy,

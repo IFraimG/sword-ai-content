@@ -29,8 +29,10 @@ import {
   Film,
   Radio,
   Disc3,
-  Search
+  Search,
+  ShieldCheck
 } from 'lucide-vue-next';
+import { resolveReelStream } from '@/shared/api/reelsApi';
 
 const store = useReelsStore();
 
@@ -42,6 +44,8 @@ const downloadStatus = ref('');
 const isDownloadingAudio = ref(false);
 const audioDownloadStatus = ref('');
 const videoFailed = ref(false);
+const isResolvingStream = ref(false);
+const streamUnavailableReason = ref('');
 const currentVideoUrl = ref('');
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoReady = ref(false);
@@ -54,12 +58,14 @@ const displayDuration = computed(() => {
   return reel.value?.durationSeconds || 30;
 });
 
-// Reset video state when active reel changes
+// Dynamically resolve platform stream when active reel changes
 watch(
   () => reel.value?.id,
-  (newId) => {
+  async (newId) => {
     isVideoReady.value = false;
     videoFailed.value = false;
+    isResolvingStream.value = false;
+    streamUnavailableReason.value = '';
     videoDuration.value = null;
     downloadStatus.value = '';
     isDownloading.value = false;
@@ -70,10 +76,40 @@ watch(
       videoRef.value.currentTime = 0;
     }
 
-    if (reel.value) {
-      currentVideoUrl.value = reel.value.videoUrl || reel.value.backupVideoUrl || '';
-    } else {
+    if (!reel.value) {
       currentVideoUrl.value = '';
+      return;
+    }
+
+    // If reel already has a stream URL
+    if (reel.value.videoUrl) {
+      currentVideoUrl.value = reel.value.videoUrl;
+      return;
+    }
+
+    // Dynamically query Fastify stream resolver
+    if (reel.value.originalUrl) {
+      isResolvingStream.value = true;
+      try {
+        const resolved = await resolveReelStream(reel.value.platform, reel.value.originalUrl);
+        if (resolved && resolved.available && resolved.videoUrl) {
+          currentVideoUrl.value = resolved.videoUrl;
+          if (resolved.duration) {
+            videoDuration.value = resolved.duration;
+          }
+        } else {
+          videoFailed.value = true;
+          streamUnavailableReason.value = resolved?.reason || 'Прямой веб-стриминг видеопотока ограничен платформой';
+        }
+      } catch (err: any) {
+        videoFailed.value = true;
+        streamUnavailableReason.value = 'Сервер разрешения потоков временно недоступен';
+      } finally {
+        isResolvingStream.value = false;
+      }
+    } else {
+      videoFailed.value = true;
+      streamUnavailableReason.value = 'Ссылка на оригинальное видео платформы отсутствует';
     }
   },
   { immediate: true }
@@ -96,16 +132,21 @@ function handleVideoLoaded() {
 }
 
 function handleVideoError() {
-  console.warn('Основной видеопоток недоступен, пробуем резервный...');
-  if (reel.value?.backupVideoUrl && currentVideoUrl.value !== reel.value.backupVideoUrl) {
-    currentVideoUrl.value = reel.value.backupVideoUrl;
-  } else {
-    videoFailed.value = true;
-  }
+  console.warn('Стриминг видеопотока ограничен платформой');
+  videoFailed.value = true;
+  streamUnavailableReason.value = 'Платформа заблокировала прямой браузерный стриминг или доступ ограничен вашим регионом.';
 }
 
 async function handleDownloadMp4() {
   if (!reel.value) return;
+  if (!currentVideoUrl.value || videoFailed.value) {
+    downloadStatus.value = 'Видео защищено платформой';
+    window.open(reel.value.originalUrl, '_blank');
+    setTimeout(() => {
+      downloadStatus.value = '';
+    }, 2500);
+    return;
+  }
   isDownloading.value = true;
   try {
     await downloadReelVideo(reel.value, (status) => {
@@ -123,6 +164,14 @@ async function handleDownloadMp4() {
 
 async function handleDownloadMp3() {
   if (!reel.value) return;
+  if (!reel.value.audioUrl) {
+    audioDownloadStatus.value = 'Аудио защищено платформой';
+    window.open(reel.value.originalUrl, '_blank');
+    setTimeout(() => {
+      audioDownloadStatus.value = '';
+    }, 2500);
+    return;
+  }
   isDownloadingAudio.value = true;
   try {
     await downloadReelAudio(reel.value, (status: string) => {
@@ -181,20 +230,22 @@ function handleOpenMusicDiscovery() {
       <div class="md:col-span-5 flex flex-col items-center">
         <!-- Player Container -->
         <div class="relative w-full aspect-[9/16] max-h-[480px] rounded-2xl overflow-hidden bg-black border border-sword-border/80 shadow-2xl flex items-center justify-center group">
-          <!-- Poster / Loading placeholder while new video initializes -->
+          <!-- Loading placeholder while platform stream resolves -->
           <div
-            v-if="!isVideoReady && !videoFailed"
+            v-if="(isResolvingStream || (!isVideoReady && !videoFailed)) && currentVideoUrl"
             class="absolute inset-0 z-10 flex items-center justify-center bg-black transition-opacity duration-200"
           >
             <img
               :src="reel.thumbnailUrl"
               :alt="reel.title"
-              class="w-full h-full object-cover filter brightness-[0.7]"
+              class="w-full h-full object-cover filter brightness-[0.6]"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
             <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
               <div class="w-10 h-10 rounded-full border-2 border-sword-accent border-t-transparent animate-spin"></div>
-              <span class="text-[11px] font-semibold text-cyan-300 drop-shadow">Загрузка видео...</span>
+              <span class="text-[11px] font-semibold text-cyan-300 drop-shadow">
+                {{ isResolvingStream ? 'Разрешение потока с платформы...' : 'Буферизация видео...' }}
+              </span>
             </div>
           </div>
 
@@ -221,48 +272,62 @@ function handleOpenMusicDiscovery() {
             @error="handleVideoError"
           ></video>
 
-          <!-- Fallback Simulated Player (if video stream is CORS-blocked or restricted) -->
+          <!-- Platform Restricted / Stream Unavailable State -->
           <div
             v-else
-            class="relative w-full h-full flex flex-col justify-between overflow-hidden"
+            class="relative w-full h-full flex flex-col justify-between overflow-hidden p-4"
           >
-            <!-- Background Image with Ambient Pulse -->
+            <!-- Background Image with Soft Blur -->
             <img
               :src="reel.thumbnailUrl"
               :alt="reel.title"
-              class="absolute inset-0 w-full h-full object-cover filter brightness-[0.75] scale-105 animate-pulse-slow"
+              class="absolute inset-0 w-full h-full object-cover filter brightness-[0.25] blur-sm scale-105"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            <div class="absolute inset-0 bg-black/70"></div>
 
             <!-- Top Indicator -->
-            <div class="relative z-10 p-3 flex items-center justify-between">
-              <span class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/50 text-[10px] text-cyan-300 font-bold">
-                <Radio class="w-3 h-3 text-cyan-400 animate-pulse" />
-                <span>AI Live Stream</span>
+            <div class="relative z-10 flex items-center justify-between">
+              <span class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-[11px] text-amber-300 font-bold">
+                <AlertCircle class="w-3.5 h-3.5 text-amber-400" />
+                <span>Ограничение платформы</span>
               </span>
-              <span class="text-[10px] text-slate-300 bg-black/60 px-2 py-0.5 rounded-full">
-                HD Preview
+              <span class="text-[10px] text-slate-300 bg-black/70 px-2 py-0.5 rounded-full border border-white/10">
+                {{ isTikTok ? 'TikTok' : 'Instagram' }}
               </span>
             </div>
 
-            <!-- Equalizer Sound Wave Animation in Center -->
-            <div class="relative z-10 flex flex-col items-center justify-center gap-2 px-4 text-center">
-              <div class="flex items-end gap-1 h-12 py-2">
-                <span class="w-1.5 bg-cyan-400 rounded-full animate-bounce h-6"></span>
-                <span class="w-1.5 bg-tiktok-pink rounded-full animate-bounce h-10 delay-75"></span>
-                <span class="w-1.5 bg-sword-accent rounded-full animate-bounce h-8 delay-150"></span>
-                <span class="w-1.5 bg-emerald-400 rounded-full animate-bounce h-11 delay-100"></span>
-                <span class="w-1.5 bg-pink-500 rounded-full animate-bounce h-5 delay-200"></span>
+            <!-- Center Alert Message -->
+            <div class="relative z-10 flex flex-col items-center justify-center gap-3 text-center px-2">
+              <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg">
+                <ShieldCheck v-if="!isTikTok" class="w-6 h-6 text-pink-400" />
+                <Film v-else class="w-6 h-6 text-tiktok-cyan" />
               </div>
-              <p class="text-xs font-bold text-white drop-shadow-md">
-                Трендовый аудиопоток активен
-              </p>
+              
+              <div>
+                <h4 class="text-xs font-bold text-white mb-1.5 drop-shadow">
+                  Видео недоступно для прямого веб-стриминга
+                </h4>
+                <p class="text-[11px] text-slate-300 leading-relaxed max-w-[240px] mx-auto">
+                  {{ streamUnavailableReason || 'Платформа блокирует прямой стриминг без авторизации или в данном регионе.' }}
+                </p>
+              </div>
+
+              <!-- Direct Button to Open Canonical Platform Reel -->
+              <a
+                :href="reel.originalUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/20 transition-all hover:scale-105 shadow-md"
+              >
+                <span>Открыть оригинал на платформе</span>
+                <ExternalLink class="w-3.5 h-3.5 text-sword-accent" />
+              </a>
             </div>
 
             <!-- Bottom Video Overlay -->
-            <div class="relative z-10 p-3 text-left">
+            <div class="relative z-10 text-left">
               <span class="text-xs font-bold text-white block truncate">{{ reel.title }}</span>
-              <span class="text-[10px] text-slate-300 block truncate">{{ reel.authorUsername }}</span>
+              <span class="text-[10px] text-slate-400 block truncate">{{ reel.authorUsername }}</span>
             </div>
           </div>
         </div>
