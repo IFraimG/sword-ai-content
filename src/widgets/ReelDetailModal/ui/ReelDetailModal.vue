@@ -43,22 +43,41 @@ const isDownloadingAudio = ref(false);
 const audioDownloadStatus = ref('');
 const videoFailed = ref(false);
 const currentVideoUrl = ref('');
+const videoRef = ref<HTMLVideoElement | null>(null);
+const isVideoReady = ref(false);
 
 // Reset video state when active reel changes
 watch(
-  () => reel.value,
-  (newReel) => {
+  () => reel.value?.id,
+  (newId) => {
+    isVideoReady.value = false;
     videoFailed.value = false;
     downloadStatus.value = '';
     isDownloading.value = false;
-    if (newReel) {
-      currentVideoUrl.value = newReel.videoUrl || newReel.backupVideoUrl || '';
+
+    // Immediately stop previous video playback if still playing
+    if (videoRef.value) {
+      videoRef.value.pause();
+      videoRef.value.currentTime = 0;
+    }
+
+    if (reel.value) {
+      currentVideoUrl.value = reel.value.videoUrl || reel.value.backupVideoUrl || '';
     } else {
       currentVideoUrl.value = '';
     }
   },
   { immediate: true }
 );
+
+function handleVideoLoaded() {
+  isVideoReady.value = true;
+  if (videoRef.value) {
+    videoRef.value.play().catch(() => {
+      // Browser autoplay policy might require user click or mute
+    });
+  }
+}
 
 function handleVideoError() {
   console.warn('Основной видеопоток недоступен, пробуем резервный...');
@@ -146,10 +165,28 @@ function handleOpenMusicDiscovery() {
       <div class="md:col-span-5 flex flex-col items-center">
         <!-- Player Container -->
         <div class="relative w-full aspect-[9/16] max-h-[480px] rounded-2xl overflow-hidden bg-black border border-sword-border/80 shadow-2xl flex items-center justify-center group">
-          <!-- Active Video Player with 403 prevention attributes -->
+          <!-- Poster / Loading placeholder while new video initializes -->
+          <div
+            v-if="!isVideoReady && !videoFailed"
+            class="absolute inset-0 z-10 flex items-center justify-center bg-black transition-opacity duration-200"
+          >
+            <img
+              :src="reel.thumbnailUrl"
+              :alt="reel.title"
+              class="w-full h-full object-cover filter brightness-[0.7]"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <div class="w-10 h-10 rounded-full border-2 border-sword-accent border-t-transparent animate-spin"></div>
+              <span class="text-[11px] font-semibold text-cyan-300 drop-shadow">Загрузка видео...</span>
+            </div>
+          </div>
+
+          <!-- Active Video Player with 403 prevention attributes and reel.id key -->
           <video
             v-if="currentVideoUrl && !videoFailed"
-            :key="currentVideoUrl"
+            ref="videoRef"
+            :key="reel.id"
             :src="currentVideoUrl"
             :poster="reel.thumbnailUrl"
             referrerpolicy="no-referrer"
@@ -159,7 +196,10 @@ function handleOpenMusicDiscovery() {
             muted
             loop
             playsinline
-            class="w-full h-full object-cover"
+            class="w-full h-full object-cover transition-opacity duration-300"
+            :class="{ 'opacity-100': isVideoReady, 'opacity-0': !isVideoReady }"
+            @loadeddata="handleVideoLoaded"
+            @canplay="handleVideoLoaded"
             @error="handleVideoError"
           ></video>
 
