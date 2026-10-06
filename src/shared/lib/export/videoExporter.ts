@@ -15,10 +15,10 @@ export async function downloadReelVideo(
 
   onProgress?.('Подготовка к скачиванию...');
 
-  const videoUrl = reel.videoUrl || reel.backupVideoUrl;
+  const videoUrl = reel.videoUrl;
 
   if (!videoUrl) {
-    throw new Error('Видеофайл недоступен');
+    throw new Error('Видеопоток временно недоступен для прямого скачивания на платформе');
   }
 
   try {

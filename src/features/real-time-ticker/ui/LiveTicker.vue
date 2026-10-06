@@ -63,5 +63,21 @@ const formattedTime = computed(() => formatDuration(store.countdown));
         />
       </button>
     </div>
+
+    <!-- Fastify API Server Status indicator -->
+    <div
+      class="hidden md:flex items-center gap-1.5 pl-2 border-l border-sword-border/60 text-[10px]"
+      :title="store.isApiConnected ? 'Fastify API бэкенд подключен' : 'Fastify API стриминг-шлюз активен'"
+    >
+      <span
+        :class="[
+          'w-1.5 h-1.5 rounded-full',
+          store.isApiConnected ? 'bg-cyan-400 shadow-[0_0_8px_#00f0ff]' : 'bg-emerald-400'
+        ]"
+      ></span>
+      <span class="text-slate-400 font-medium font-mono">
+        {{ store.isApiConnected ? 'API: Fastify 3.0' : 'API: Standby' }}
+      </span>
+    </div>
   </div>
 </template>

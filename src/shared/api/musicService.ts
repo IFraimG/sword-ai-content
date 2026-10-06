@@ -1,4 +1,5 @@
 import type { MatchedMusicTrack, Reel } from '@/entities/reel/model/types';
+import { searchMusic } from './reelsApi';
 
 // In-memory cache for fast responsive previews
 const trackCache = new Map<string, MatchedMusicTrack[]>();
@@ -8,8 +9,8 @@ export interface LiveMusicSearchOptions {
 }
 
 /**
- * Searches Apple Music / iTunes public catalog for authentic 30s audio previews
- * completely free of charge without requiring API keys or user authentication.
+ * Searches platform tracks with authentic 30s audio previews
+ * via Fastify backend or direct public API.
  */
 export async function searchLiveMusicTracks(
   query: string,
@@ -24,26 +25,37 @@ export async function searchLiveMusicTracks(
   }
 
   const limit = options.limit || 5;
-  const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&entity=song&limit=${limit}`;
 
+  // 1. Try Fastify server API first
   try {
+    const serverResult = await searchMusic(cleanQuery, limit);
+    if (serverResult && serverResult.items && serverResult.items.length > 0) {
+      trackCache.set(cacheKey, serverResult.items);
+      return serverResult.items;
+    }
+  } catch (err) {
+    console.warn('Fastify music API unreachable, trying direct lookup:', err);
+  }
+
+  // 2. Direct browser lookup to iTunes public catalog
+  try {
+    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&entity=song&limit=${limit}`;
     const response = await fetch(itunesUrl, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
       },
+      signal: AbortSignal.timeout(5000),
     });
 
     if (response.ok) {
       const data = await response.json();
       if (data.results && data.results.length > 0) {
         const tracks: MatchedMusicTrack[] = data.results.map((item: any, idx: number) => {
-          // Get high-res cover art (600x600 instead of default 100x100)
           const highResCover = item.artworkUrl100
             ? item.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg')
             : reel.thumbnailUrl;
 
-          // Format track duration from millis
           const durationSeconds = Math.round((item.trackTimeMillis || 180000) / 1000);
           const mins = Math.floor(durationSeconds / 60);
           const secs = durationSeconds % 60;
@@ -54,7 +66,7 @@ export async function searchLiveMusicTracks(
             'spotify',
             'youtube',
             'tiktok',
-            'soundcloud'
+            'soundcloud',
           ];
           const platform = platforms[idx % platforms.length];
 
@@ -64,7 +76,7 @@ export async function searchLiveMusicTracks(
           } else if (platform === 'youtube') {
             externalUrl = `https://music.youtube.com/search?q=${encodeURIComponent(item.trackName + ' ' + item.artistName)}`;
           } else if (platform === 'tiktok') {
-            externalUrl = `https://www.tiktok.com/tag/${encodeURIComponent(item.trackName.replace(/[\s\W]+/g, ''))}`;
+            externalUrl = reel.originalUrl;
           } else if (platform === 'soundcloud') {
             externalUrl = `https://soundcloud.com/search?q=${encodeURIComponent(item.trackName + ' ' + item.artistName)}`;
           }
@@ -88,20 +100,19 @@ export async function searchLiveMusicTracks(
       }
     }
   } catch (err) {
-    console.warn('Сетевой запрос к iTunes Search API ограничен, используем проверенные студийные аудиопотоки:', err);
+    console.warn('Сетевой запрос к iTunes Search API ограничен:', err);
   }
 
-  // Fallback to local high-fidelity studio tracks
+  // 3. Fallback without local media files
   const fallback = generateFallbackTracks(reel);
   trackCache.set(cacheKey, fallback);
   return fallback;
 }
 
 function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
-  const baseUrl = import.meta.env.BASE_URL || '/sword-ai-content/';
-  const localAudio = reel.audioUrl || `${baseUrl}audio/synthwave-cyberpunk.mp3`;
   const cleanTitle = reel.soundTitle || 'Viral Track';
   const cleanArtist = reel.soundAuthor || 'Sound Studio';
+  const audioSample = reel.audioUrl || '';
 
   return [
     {
@@ -113,7 +124,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       duration: '03:15',
       platform: 'apple',
       matchScore: 99,
-      previewUrl: localAudio,
+      previewUrl: audioSample,
       externalUrl: `https://music.apple.com/search?term=${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
     },
     {
@@ -125,7 +136,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       duration: '02:50',
       platform: 'spotify',
       matchScore: 97,
-      previewUrl: localAudio,
+      previewUrl: audioSample,
       externalUrl: `https://open.spotify.com/search/${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
     },
     {
@@ -137,32 +148,32 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       duration: '03:30',
       platform: 'youtube',
       matchScore: 95,
-      previewUrl: localAudio,
+      previewUrl: audioSample,
       externalUrl: `https://music.youtube.com/search?q=${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
     },
     {
       id: `${reel.id}-live-tiktok`,
-      title: `${cleanTitle} (TikTok Viral Sound Cut)`,
+      title: `${cleanTitle} (TikTok Viral Sound)`,
       artist: cleanArtist,
       album: 'TikTok Sounds Trending',
       coverUrl: reel.thumbnailUrl,
       duration: '00:30',
       platform: 'tiktok',
       matchScore: 100,
-      previewUrl: localAudio,
-      externalUrl: `https://www.tiktok.com/tag/${encodeURIComponent(cleanTitle.replace(/[\s\W]+/g, ''))}`,
+      previewUrl: audioSample,
+      externalUrl: reel.originalUrl,
     },
     {
       id: `${reel.id}-live-soundcloud`,
-      title: `${cleanTitle} (Phonk / Club Remix)`,
+      title: `${cleanTitle} (Club Remix)`,
       artist: cleanArtist,
       album: 'SoundCloud Pulse',
       coverUrl: reel.thumbnailUrl,
       duration: '02:45',
       platform: 'soundcloud',
       matchScore: 92,
-      previewUrl: localAudio,
+      previewUrl: audioSample,
       externalUrl: `https://soundcloud.com/search?q=${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
-    }
+    },
   ];
 }

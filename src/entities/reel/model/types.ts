@@ -93,7 +93,6 @@ export interface Reel {
   rankChangeDelta: number;
   thumbnailUrl: string;
   videoUrl?: string;
-  backupVideoUrl?: string;
   audioUrl?: string;
   originalUrl: string;
   durationSeconds: number;
