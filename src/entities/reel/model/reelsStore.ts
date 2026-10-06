@@ -1,7 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { Reel, Niche, SortBy, Platform, ContinentId, CountryId, NicheInfo } from './types';
-import { INITIAL_REELS, simulateRealtimeTick, CONTINENTS, COUNTRIES, ALL_NICHES, REGION_POPULAR_NICHES } from './mockData';
+import {
+  INITIAL_REELS,
+  simulateRealtimeTick,
+  CONTINENTS,
+  COUNTRIES,
+  ALL_NICHES,
+  REGION_POPULAR_NICHES,
+  ensureRichContent
+} from './mockData';
 
 export const useReelsStore = defineStore('reels', () => {
   // State
@@ -179,13 +187,13 @@ export const useReelsStore = defineStore('reels', () => {
   // Actions
   function setContinent(continent: ContinentId) {
     selectedContinent.value = continent;
-    // If the currently selected country does not belong to the newly selected continent, reset country
     if (selectedCountry.value !== 'all') {
       const countryObj = COUNTRIES.find((c) => c.id === selectedCountry.value);
       if (countryObj && continent !== 'all' && countryObj.continent !== continent) {
         selectedCountry.value = 'all';
       }
     }
+    reels.value = ensureRichContent(reels.value, selectedContinent.value, selectedCountry.value, selectedNiche.value);
   }
 
   function setCountry(country: CountryId) {
@@ -196,6 +204,12 @@ export const useReelsStore = defineStore('reels', () => {
         selectedContinent.value = countryObj.continent;
       }
     }
+    reels.value = ensureRichContent(reels.value, selectedContinent.value, selectedCountry.value, selectedNiche.value);
+  }
+
+  function setNiche(niche: Niche) {
+    selectedNiche.value = niche;
+    reels.value = ensureRichContent(reels.value, selectedContinent.value, selectedCountry.value, selectedNiche.value);
   }
 
   function resetGeoFilter() {
@@ -289,6 +303,7 @@ export const useReelsStore = defineStore('reels', () => {
     // Actions
     setContinent,
     setCountry,
+    setNiche,
     resetGeoFilter,
     triggerRefresh,
     startAutoRefresh,

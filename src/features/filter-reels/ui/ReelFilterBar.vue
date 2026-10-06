@@ -48,7 +48,7 @@ const sortOptions: { id: SortBy; label: string }[] = [
 ];
 
 function setNiche(niche: Niche) {
-  store.selectedNiche = niche;
+  store.setNiche(niche);
 }
 
 function setSort(sort: SortBy) {
