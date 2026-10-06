@@ -83,14 +83,19 @@ export const NICHES = ALL_NICHES;
 // Bulletproof self-contained video streams (served directly via Vite/GitHub Pages)
 const baseUrl = import.meta.env.BASE_URL || '/';
 
-const LOCAL_VIDEOS = [
+export const LOCAL_VIDEOS = [
   `${baseUrl}videos/reel-cyberpunk-tech.mp4`,
   `${baseUrl}videos/reel-dance-club.mp4`,
   `${baseUrl}videos/reel-nature-travel.mp4`,
   `${baseUrl}videos/reel-supercars.mp4`,
+  `${baseUrl}videos/reel-fitness-health.mp4`,
+  `${baseUrl}videos/reel-cooking-food.mp4`,
+  `${baseUrl}videos/reel-business-finance.mp4`,
+  `${baseUrl}videos/reel-fashion-beauty.mp4`,
+  `${baseUrl}videos/reel-gaming-esports.mp4`,
 ];
 
-const LOCAL_AUDIOS = [
+export const LOCAL_AUDIOS = [
   `${baseUrl}audio/synthwave-cyberpunk.mp3`,
   `${baseUrl}audio/viral-funk-beat.mp3`,
   `${baseUrl}audio/ambient-golden-hour.mp3`,
@@ -98,17 +103,76 @@ const LOCAL_AUDIOS = [
   `${baseUrl}audio/lofi-chill-cafe.mp3`,
 ];
 
-export const POPULAR_SOUNDS = [
-  { title: 'Nightcall (Drive Synthwave)', author: 'Kavinsky', audio: LOCAL_AUDIOS[0] },
-  { title: 'Brazilian Phonk Automotivo', author: 'PHONK & OCD F42', audio: LOCAL_AUDIOS[1] },
-  { title: 'Snowfall (Viral Ambient)', author: 'Øneheart & reidenshi', audio: LOCAL_AUDIOS[2] },
-  { title: 'Animal I Have Become', author: 'Three Days Grace', audio: LOCAL_AUDIOS[3] },
-  { title: 'Lofi Chill Hop Beats', author: 'Chillhop Music', audio: LOCAL_AUDIOS[4] },
-];
+export const NICHE_MEDIA: Record<string, { video: string; audio: string; soundTitle: string; soundAuthor: string }> = {
+  ai_tech: {
+    video: `${baseUrl}videos/reel-cyberpunk-tech.mp4`,
+    audio: `${baseUrl}audio/synthwave-cyberpunk.mp3`,
+    soundTitle: 'Nightcall (Drive Synthwave)',
+    soundAuthor: 'Kavinsky'
+  },
+  business_finance: {
+    video: `${baseUrl}videos/reel-business-finance.mp4`,
+    audio: `${baseUrl}audio/synthwave-cyberpunk.mp3`,
+    soundTitle: 'Wall Street Synth Pulse',
+    soundAuthor: 'FinAudio Lab'
+  },
+  fitness_health: {
+    video: `${baseUrl}videos/reel-fitness-health.mp4`,
+    audio: `${baseUrl}audio/viral-funk-beat.mp3`,
+    soundTitle: 'Brazilian Phonk Automotivo',
+    soundAuthor: 'PHONK & OCD F42'
+  },
+  travel: {
+    video: `${baseUrl}videos/reel-nature-travel.mp4`,
+    audio: `${baseUrl}audio/ambient-golden-hour.mp3`,
+    soundTitle: 'Snowfall (Viral Ambient)',
+    soundAuthor: 'Øneheart & reidenshi'
+  },
+  travel_nature: {
+    video: `${baseUrl}videos/reel-nature-travel.mp4`,
+    audio: `${baseUrl}audio/ambient-golden-hour.mp3`,
+    soundTitle: 'Snowfall (Viral Ambient)',
+    soundAuthor: 'Øneheart & reidenshi'
+  },
+  cooking_food: {
+    video: `${baseUrl}videos/reel-cooking-food.mp4`,
+    audio: `${baseUrl}audio/lofi-chill-cafe.mp3`,
+    soundTitle: 'Lofi Chill Hop Beats',
+    soundAuthor: 'Chillhop Music'
+  },
+  fashion_beauty: {
+    video: `${baseUrl}videos/reel-fashion-beauty.mp4`,
+    audio: `${baseUrl}audio/ambient-golden-hour.mp3`,
+    soundTitle: 'Golden Hour Fashion Chill',
+    soundAuthor: 'Aesthetic Studio'
+  },
+  gaming_esports: {
+    video: `${baseUrl}videos/reel-gaming-esports.mp4`,
+    audio: `${baseUrl}audio/luxury-trap-bass.mp3`,
+    soundTitle: 'Animal I Have Become',
+    soundAuthor: 'Three Days Grace'
+  },
+  music_dance: {
+    video: `${baseUrl}videos/reel-dance-club.mp4`,
+    audio: `${baseUrl}audio/luxury-trap-bass.mp3`,
+    soundTitle: 'Night Club EDM Bass',
+    soundAuthor: 'Club Master'
+  },
+  auto_moto: {
+    video: `${baseUrl}videos/reel-supercars.mp4`,
+    audio: `${baseUrl}audio/viral-funk-beat.mp3`,
+    soundTitle: 'Drift Phonk Automotivo',
+    soundAuthor: 'PHONK & OCD F42'
+  },
+};
+
+export function getNicheMedia(niche: string) {
+  return NICHE_MEDIA[niche] || NICHE_MEDIA.ai_tech;
+}
 
 const WIKIMEDIA_STREAM = 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm';
 
-export const INITIAL_REELS: Reel[] = [
+const RAW_INITIAL_REELS: Reel[] = [
   // ================= NORTH AMERICA (USA & CANADA) =================
   {
     id: 'tt-us-1',
@@ -794,6 +858,17 @@ export const INITIAL_REELS: Reel[] = [
   }
 ];
 
+export const INITIAL_REELS: Reel[] = RAW_INITIAL_REELS.map((reel) => {
+  const media = getNicheMedia(reel.niche);
+  return {
+    ...reel,
+    videoUrl: media.video,
+    audioUrl: media.audio,
+    soundTitle: media.soundTitle,
+    soundAuthor: media.soundAuthor,
+  };
+});
+
 /**
  * Returns a list of matched tracks across external streaming platforms
  * (Spotify, YouTube Music, Apple Music, TikTok, SoundCloud)
@@ -904,8 +979,7 @@ export function ensureRichContent(
   for (let i = 0; i < generatedCount; i++) {
     const isTt = i % 2 === 0;
     const rank = matched.length + i + 1;
-    const videoIndex = (rank + i) % LOCAL_VIDEOS.length;
-    const audioIndex = (rank + i) % LOCAL_AUDIOS.length;
+    const media = getNicheMedia(targetNiche);
 
     newItems.push({
       id: `gen-${targetCountry.id}-${targetNiche}-${rank}-${Date.now()}`,
@@ -923,17 +997,17 @@ export function ensureRichContent(
       countryFlag: targetCountry.flag,
       countryName: targetCountry.label,
       hashtags: [`#${targetCountry.code.toLowerCase()}`, `#trend`, `#${targetNiche}`, `#viral`],
-      soundTitle: POPULAR_SOUNDS[audioIndex % POPULAR_SOUNDS.length].title,
-      soundAuthor: POPULAR_SOUNDS[audioIndex % POPULAR_SOUNDS.length].author,
+      soundTitle: media.soundTitle,
+      soundAuthor: media.soundAuthor,
       soundIsTrending: true,
       publishedAt: new Date(Date.now() - 3600000 * rank).toISOString(),
       trendingRank: rank,
       rankChange: 'new',
       rankChangeDelta: 0,
       thumbnailUrl: `https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80`,
-      videoUrl: LOCAL_VIDEOS[videoIndex],
+      videoUrl: media.video,
       backupVideoUrl: WIKIMEDIA_STREAM,
-      audioUrl: POPULAR_SOUNDS[audioIndex % POPULAR_SOUNDS.length].audio,
+      audioUrl: media.audio,
       originalUrl: isTt
         ? `https://www.tiktok.com/@mrbeast`
         : `https://www.instagram.com/explore/tags/${targetNiche}/`,
