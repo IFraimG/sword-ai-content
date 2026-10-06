@@ -15,6 +15,8 @@ import {
   Layers
 } from 'lucide-vue-next';
 
+import type { NicheInfo } from '@/entities/reel/model/types';
+
 const store = useReelsStore();
 
 const ttViews = computed(() =>
@@ -46,7 +48,7 @@ const topTrendingSounds = computed(() => {
 });
 
 const nicheStats = computed(() => {
-  return NICHES.filter((n) => n.id !== 'all').map((niche) => {
+  return NICHES.filter((n: NicheInfo) => n.id !== 'all').map((niche: NicheInfo) => {
     const reelsInNiche = store.reels.filter((r) => r.niche === niche.id);
     const count = reelsInNiche.length;
     const views = reelsInNiche.reduce((acc, r) => acc + r.metrics.views, 0);

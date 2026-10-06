@@ -48,8 +48,15 @@ const isTikTok = computed(() => reel.value?.platform === 'tiktok');
         >
           {{ isTikTok ? 'TikTok Trend' : 'Instagram Reel' }}
         </div>
+        <div
+          v-if="reel.countryFlag"
+          class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-sword-card border border-sword-border text-sword-text"
+        >
+          <span>{{ reel.countryFlag }}</span>
+          <span>{{ reel.countryName }} ({{ reel.country.toUpperCase() }})</span>
+        </div>
         <div class="flex items-center gap-1.5 text-xs text-sword-muted">
-          <span class="font-bold text-sword-accent">#{{ reel.trendingRank }}</span> в глобальном топе
+          <span class="font-bold text-sword-accent">#{{ reel.trendingRank }}</span> в топе
         </div>
       </div>
     </template>
