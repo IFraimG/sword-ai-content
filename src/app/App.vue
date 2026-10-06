@@ -4,6 +4,7 @@ import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import AppHeader from '@/widgets/Header/ui/AppHeader.vue';
 import ReelDetailModal from '@/widgets/ReelDetailModal/ui/ReelDetailModal.vue';
 import ExportModal from '@/features/export-report/ui/ExportModal.vue';
+import MusicSearchModal from '@/widgets/MusicSearchModal/ui/MusicSearchModal.vue';
 import { formatDate } from '@/shared/lib/formatters';
 
 const store = useReelsStore();
@@ -34,6 +35,7 @@ onUnmounted(() => {
     <!-- Global Modals -->
     <ReelDetailModal />
     <ExportModal />
+    <MusicSearchModal />
 
     <!-- Footer -->
     <footer class="border-t border-sword-border/60 bg-sword-surface/40 py-6 px-4">

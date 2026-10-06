@@ -1,4 +1,4 @@
-import type { Reel, NicheInfo, Niche, ContinentInfo, CountryInfo, ContinentId, CountryId } from './types';
+import type { Reel, NicheInfo, Niche, ContinentInfo, CountryInfo, ContinentId, CountryId, MatchedMusicTrack } from './types';
 
 export const CONTINENTS: ContinentInfo[] = [
   { id: 'all', label: 'Весь мир (Global)', icon: 'Globe' },
@@ -80,25 +80,25 @@ export const ALL_NICHES: NicheInfo[] = [
 
 export const NICHES = ALL_NICHES;
 
-// Reliable, CORS-friendly MP4 video streams that don't block referrers
-const VIDEO_STREAMS = [
-  'https://assets.mixkit.co/videos/preview/mixkit-vertical-view-of-a-dj-playing-music-in-a-club-42475-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-man-typing-on-a-computer-keyboard-41334-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-young-woman-working-out-with-resistance-bands-42353-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-woman-smiling-while-enjoying-a-coffee-in-a-cafe-42337-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-man-dancing-under-neon-lights-in-a-club-42468-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-coastal-city-at-sunset-42340-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-close-up-of-food-being-cooked-in-a-pan-42350-large.mp4',
-  'https://assets.mixkit.co/videos/preview/mixkit-sports-car-driving-through-a-tunnel-at-night-42470-large.mp4',
+// Bulletproof self-contained video streams (served directly via Vite/GitHub Pages)
+const baseUrl = import.meta.env.BASE_URL || '/';
+
+const LOCAL_VIDEOS = [
+  `${baseUrl}videos/reel-cyberpunk-tech.mp4`,
+  `${baseUrl}videos/reel-dance-club.mp4`,
+  `${baseUrl}videos/reel-nature-travel.mp4`,
+  `${baseUrl}videos/reel-supercars.mp4`,
 ];
 
-const BACKUP_STREAMS = [
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+const LOCAL_AUDIOS = [
+  `${baseUrl}audio/synthwave-cyberpunk.mp3`,
+  `${baseUrl}audio/viral-funk-beat.mp3`,
+  `${baseUrl}audio/ambient-golden-hour.mp3`,
+  `${baseUrl}audio/luxury-trap-bass.mp3`,
+  `${baseUrl}audio/lofi-chill-cafe.mp3`,
 ];
+
+const WIKIMEDIA_STREAM = 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm';
 
 export const INITIAL_REELS: Reel[] = [
   // ================= NORTH AMERICA (USA & CANADA) =================
@@ -126,9 +126,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'same',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[1],
-    backupVideoUrl: BACKUP_STREAMS[0],
-    originalUrl: 'https://www.tiktok.com/@alex_tech_review/video/7345678901234567890',
+    videoUrl: LOCAL_VIDEOS[0],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[0],
+    originalUrl: 'https://www.tiktok.com/tag/ai',
     durationSeconds: 34,
     metrics: {
       views: 3450200,
@@ -167,9 +168,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 1,
     thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[7],
-    backupVideoUrl: BACKUP_STREAMS[2],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abg/',
+    videoUrl: LOCAL_VIDEOS[3],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[3],
+    originalUrl: 'https://www.instagram.com/explore/tags/tech/',
     durationSeconds: 38,
     metrics: {
       views: 2980000,
@@ -208,9 +210,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'down',
     rankChangeDelta: 1,
     thumbnailUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[1],
-    backupVideoUrl: BACKUP_STREAMS[1],
-    originalUrl: 'https://www.tiktok.com/@marcus_invest/video/7345678901234567892',
+    videoUrl: LOCAL_VIDEOS[0],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[0],
+    originalUrl: 'https://www.tiktok.com/tag/moneytok',
     durationSeconds: 45,
     metrics: {
       views: 2450000,
@@ -249,9 +252,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 2,
     thumbnailUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[5],
-    backupVideoUrl: BACKUP_STREAMS[3],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abn/',
+    videoUrl: LOCAL_VIDEOS[2],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[2],
+    originalUrl: 'https://www.instagram.com/explore/tags/banff/',
     durationSeconds: 29,
     metrics: {
       views: 1950000,
@@ -292,9 +296,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'same',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[3],
-    backupVideoUrl: BACKUP_STREAMS[0],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abd/',
+    videoUrl: LOCAL_VIDEOS[1],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[4],
+    originalUrl: 'https://www.instagram.com/explore/tags/parisfashion/',
     durationSeconds: 31,
     metrics: {
       views: 3100000,
@@ -333,9 +338,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 1,
     thumbnailUrl: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[7],
-    backupVideoUrl: BACKUP_STREAMS[4],
-    originalUrl: 'https://www.tiktok.com/@hans_autobahn_crew/video/7345678901234567894',
+    videoUrl: LOCAL_VIDEOS[3],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[3],
+    originalUrl: 'https://www.tiktok.com/tag/porsche',
     durationSeconds: 31,
     metrics: {
       views: 2650000,
@@ -374,9 +380,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'same',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[6],
-    backupVideoUrl: BACKUP_STREAMS[3],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abh/',
+    videoUrl: LOCAL_VIDEOS[2],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[2],
+    originalUrl: 'https://www.instagram.com/explore/tags/italianfood/',
     durationSeconds: 30,
     metrics: {
       views: 2250000,
@@ -415,9 +422,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'new',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[3],
-    backupVideoUrl: BACKUP_STREAMS[2],
-    originalUrl: 'https://www.tiktok.com/@jack_london_comedy/video/7345678901234567896',
+    videoUrl: LOCAL_VIDEOS[1],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[1],
+    originalUrl: 'https://www.tiktok.com/@mrbeast',
     durationSeconds: 26,
     metrics: {
       views: 3100000,
@@ -458,9 +466,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'same',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[0],
-    backupVideoUrl: BACKUP_STREAMS[1],
-    originalUrl: 'https://www.tiktok.com/@kenji_tokyo_vibe/video/7345678901234567899',
+    videoUrl: LOCAL_VIDEOS[0],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[0],
+    originalUrl: 'https://www.tiktok.com/tag/tokyo',
     durationSeconds: 27,
     metrics: {
       views: 3120000,
@@ -499,9 +508,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 2,
     thumbnailUrl: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[3],
-    backupVideoUrl: BACKUP_STREAMS[1],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abf/',
+    videoUrl: LOCAL_VIDEOS[2],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[4],
+    originalUrl: 'https://www.instagram.com/explore/tags/seoul/',
     durationSeconds: 24,
     metrics: {
       views: 2450000,
@@ -540,9 +550,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'same',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1547153760-18fc86324498?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[4],
-    backupVideoUrl: BACKUP_STREAMS[3],
-    originalUrl: 'https://www.tiktok.com/@haneul_kpop_choreography/video/7345678901234567897',
+    videoUrl: LOCAL_VIDEOS[1],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[1],
+    originalUrl: 'https://www.tiktok.com/tag/kpop',
     durationSeconds: 22,
     metrics: {
       views: 3950000,
@@ -583,9 +594,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 2,
     thumbnailUrl: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[0],
-    backupVideoUrl: BACKUP_STREAMS[1],
-    originalUrl: 'https://www.tiktok.com/@funnywhiskers_daily/video/7345678901234567891',
+    videoUrl: LOCAL_VIDEOS[1],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[1],
+    originalUrl: 'https://www.tiktok.com/@khaby.lame',
     durationSeconds: 18,
     metrics: {
       views: 4890100,
@@ -624,9 +636,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'new',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[5],
-    backupVideoUrl: BACKUP_STREAMS[4],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abk/',
+    videoUrl: LOCAL_VIDEOS[2],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[2],
+    originalUrl: 'https://www.instagram.com/explore/tags/kazakhstan/',
     durationSeconds: 35,
     metrics: {
       views: 1890000,
@@ -639,47 +652,6 @@ export const INITIAL_REELS: Reel[] = [
       viewsGrowthLastHour: 145000,
     },
     createdAt: new Date(Date.now() - 3600000 * 6).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'tt-cis-2',
-    platform: 'tiktok',
-    title: 'Нейросети для генерации голоса: Как клонировать речь за 3 минуты',
-    description: 'Полный туториал по открытым нейросетям без платных подписок. Звучит неотличимо от оригинала 🎙️⚡️ #it #нейросети #технологии #туториал',
-    authorName: 'Maxim Tech',
-    authorUsername: '@maxim_ai_geek',
-    authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    authorVerified: true,
-    authorFollowers: 710000,
-    niche: 'ai_tech',
-    continent: 'cis',
-    country: 'ru',
-    countryFlag: '🇷🇺',
-    countryName: 'Россия',
-    hashtags: ['#it', '#нейросети', '#технологии', '#туториал'],
-    soundTitle: 'Digital Pulse Electronic Beats',
-    soundAuthor: 'Glitch Lab',
-    soundIsTrending: true,
-    publishedAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-    trendingRank: 3,
-    rankChange: 'same',
-    rankChangeDelta: 0,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[1],
-    backupVideoUrl: BACKUP_STREAMS[0],
-    originalUrl: 'https://www.tiktok.com/@maxim_ai_geek/video/7345678901234567898',
-    durationSeconds: 40,
-    metrics: {
-      views: 2150000,
-      likes: 285000,
-      comments: 11400,
-      shares: 94000,
-      saves: 165000,
-      engagementRate: 25.8,
-      velocityScore: 47.1,
-      viewsGrowthLastHour: 175000,
-    },
-    createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -708,9 +680,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 3,
     thumbnailUrl: 'https://images.unsplash.com/photo-1547153760-18fc86324498?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[4],
-    backupVideoUrl: BACKUP_STREAMS[3],
-    originalUrl: 'https://www.tiktok.com/@thiagodance_rio/video/7345678901234567893',
+    videoUrl: LOCAL_VIDEOS[1],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[1],
+    originalUrl: 'https://www.tiktok.com/tag/dance',
     durationSeconds: 22,
     metrics: {
       views: 3890000,
@@ -723,47 +696,6 @@ export const INITIAL_REELS: Reel[] = [
       viewsGrowthLastHour: 340000,
     },
     createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'ig-mx-1',
-    platform: 'instagram',
-    title: 'Tacos de Birria Tradicionales en Guadalajara: El Caldo Secreto',
-    description: 'Carne cocinada a fuego lento durante 6 horas con chiles secos y especias mexicanas. ¡Pura delicia! 🌮🇲🇽 #tacos #mexico #birria #foodie #comidamexicana',
-    authorName: 'Chef Carlos MX',
-    authorUsername: '@carlos_tacos_gdl',
-    authorAvatar: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&auto=format&fit=crop&q=80',
-    authorVerified: true,
-    authorFollowers: 940000,
-    niche: 'food_cooking',
-    continent: 'latam',
-    country: 'mx',
-    countryFlag: '🇲🇽',
-    countryName: 'Мексика',
-    hashtags: ['#tacos', '#mexico', '#birria', '#foodie', '#comidamexicana'],
-    soundTitle: 'Mariachi Fiesta Tradicional Alegre',
-    soundAuthor: 'Sonido Latino',
-    soundIsTrending: false,
-    publishedAt: new Date(Date.now() - 3600000 * 6).toISOString(),
-    trendingRank: 2,
-    rankChange: 'same',
-    rankChangeDelta: 0,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[6],
-    backupVideoUrl: BACKUP_STREAMS[3],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abq/',
-    durationSeconds: 32,
-    metrics: {
-      views: 2450000,
-      likes: 310000,
-      comments: 11400,
-      shares: 98000,
-      saves: 175000,
-      engagementRate: 24.3,
-      velocityScore: 39.5,
-      viewsGrowthLastHour: 155000,
-    },
-    createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -792,9 +724,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'same',
     rankChangeDelta: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[5],
-    backupVideoUrl: BACKUP_STREAMS[2],
-    originalUrl: 'https://www.tiktok.com/@rashid_dxb_properties/video/7345678901234567895',
+    videoUrl: LOCAL_VIDEOS[3],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[3],
+    originalUrl: 'https://www.tiktok.com/tag/dubai',
     durationSeconds: 38,
     metrics: {
       views: 1840000,
@@ -833,9 +766,10 @@ export const INITIAL_REELS: Reel[] = [
     rankChange: 'up',
     rankChangeDelta: 1,
     thumbnailUrl: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[7],
-    backupVideoUrl: BACKUP_STREAMS[4],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abm/',
+    videoUrl: LOCAL_VIDEOS[3],
+    backupVideoUrl: WIKIMEDIA_STREAM,
+    audioUrl: LOCAL_AUDIOS[3],
+    originalUrl: 'https://www.instagram.com/explore/tags/hypercars/',
     durationSeconds: 28,
     metrics: {
       views: 2680000,
@@ -849,49 +783,81 @@ export const INITIAL_REELS: Reel[] = [
     },
     createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
     updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'ig-tr-1',
-    platform: 'instagram',
-    title: 'Istanbul Bosphorus Rooftop Breakfast: Sunset & Seagulls',
-    description: 'Traditional Turkish breakfast with menemen, kaymak, and fresh simit overlooking Ortaköy 🇹🇷☕️ #istanbul #turkey #bosphorus #travelturkey #kahvalti',
-    authorName: 'Zeynep Istanbul',
-    authorUsername: '@zeynep_in_istanbul',
-    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    authorVerified: true,
-    authorFollowers: 980000,
-    niche: 'food_cooking',
-    continent: 'mena',
-    country: 'tr',
-    countryFlag: '🇹🇷',
-    countryName: 'Турция',
-    hashtags: ['#istanbul', '#turkey', '#bosphorus', '#travelturkey', '#kahvalti'],
-    soundTitle: 'Bosphorus Acoustic Oud & Guitar',
-    soundAuthor: 'Anatolian Sounds',
-    soundIsTrending: true,
-    publishedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-    trendingRank: 3,
-    rankChange: 'same',
-    rankChangeDelta: 0,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=600&auto=format&fit=crop&q=80',
-    videoUrl: VIDEO_STREAMS[6],
-    backupVideoUrl: BACKUP_STREAMS[3],
-    originalUrl: 'https://www.instagram.com/reel/C8xyz123abr/',
-    durationSeconds: 30,
-    metrics: {
-      views: 2100000,
-      likes: 275000,
-      comments: 9400,
-      shares: 84000,
-      saves: 162000,
-      engagementRate: 25.2,
-      velocityScore: 36.8,
-      viewsGrowthLastHour: 140000,
-    },
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-    updatedAt: new Date().toISOString(),
   }
 ];
+
+/**
+ * Returns a list of matched tracks across external streaming platforms
+ * (Spotify, YouTube Music, Apple Music, TikTok, SoundCloud)
+ */
+export function getMatchedTracksForReel(reel: Reel): MatchedMusicTrack[] {
+  const cleanTitle = reel.soundTitle || 'Viral Beat';
+  const cleanArtist = reel.soundAuthor || 'Sound Studio';
+  const audioSample = reel.audioUrl || `${baseUrl}audio/synthwave-cyberpunk.mp3`;
+
+  return [
+    {
+      id: `${reel.id}-spotify`,
+      title: cleanTitle,
+      artist: cleanArtist,
+      album: `${cleanTitle} (Extended Mix)`,
+      coverUrl: reel.thumbnailUrl,
+      duration: '02:45',
+      platform: 'spotify',
+      matchScore: 99,
+      previewUrl: audioSample,
+      externalUrl: `https://open.spotify.com/search/${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
+    },
+    {
+      id: `${reel.id}-youtube`,
+      title: `${cleanTitle} (Official Audio / Video)`,
+      artist: cleanArtist,
+      album: 'YouTube Music Viral Top 50',
+      coverUrl: reel.thumbnailUrl,
+      duration: '03:12',
+      platform: 'youtube',
+      matchScore: 96,
+      previewUrl: audioSample,
+      externalUrl: `https://music.youtube.com/search?q=${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
+    },
+    {
+      id: `${reel.id}-apple`,
+      title: `${cleanTitle} - Apple Music Masters`,
+      artist: cleanArtist,
+      album: 'Today’s Hits Worldwide',
+      coverUrl: reel.thumbnailUrl,
+      duration: '02:50',
+      platform: 'apple',
+      matchScore: 94,
+      previewUrl: audioSample,
+      externalUrl: `https://music.apple.com/search?term=${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
+    },
+    {
+      id: `${reel.id}-tiktok`,
+      title: `${cleanTitle} (TikTok Viral Sound Cut)`,
+      artist: cleanArtist,
+      album: 'TikTok Sounds Trending',
+      coverUrl: reel.thumbnailUrl,
+      duration: '00:45',
+      platform: 'tiktok',
+      matchScore: 100,
+      previewUrl: audioSample,
+      externalUrl: `https://www.tiktok.com/tag/${encodeURIComponent(cleanTitle.replace(/\s+/g, ''))}`,
+    },
+    {
+      id: `${reel.id}-soundcloud`,
+      title: `${cleanTitle} (Club Remix / Speed Up)`,
+      artist: cleanArtist,
+      album: 'SoundCloud Pulse',
+      coverUrl: reel.thumbnailUrl,
+      duration: '03:30',
+      platform: 'soundcloud',
+      matchScore: 91,
+      previewUrl: audioSample,
+      externalUrl: `https://soundcloud.com/search?q=${encodeURIComponent(cleanTitle + ' ' + cleanArtist)}`,
+    }
+  ];
+}
 
 /**
  * Dynamic content filler: ensures that for ANY chosen combination of country or niche,
@@ -930,7 +896,8 @@ export function ensureRichContent(
   for (let i = 0; i < generatedCount; i++) {
     const isTt = i % 2 === 0;
     const rank = matched.length + i + 1;
-    const streamIndex = (rank + i) % VIDEO_STREAMS.length;
+    const videoIndex = (rank + i) % LOCAL_VIDEOS.length;
+    const audioIndex = (rank + i) % LOCAL_AUDIOS.length;
 
     newItems.push({
       id: `gen-${targetCountry.id}-${targetNiche}-${rank}-${Date.now()}`,
@@ -939,7 +906,7 @@ export function ensureRichContent(
       description: `Вирусный ролик, набирающий обороты в регионе ${targetCountry.label}. Потрясающая динамика и охваты! #trend #${targetNiche} #${targetCountry.code.toLowerCase()}`,
       authorName: `${targetCountry.code} Creator ${rank}`,
       authorUsername: `@${targetCountry.code.toLowerCase()}_viral_${rank}`,
-      authorAvatar: `https://images.unsplash.com/photo-${1534528741775 + rank}?w=150&auto=format&fit=crop&q=80`,
+      authorAvatar: `https://images.unsplash.com/photo-1534528741775?w=150&auto=format&fit=crop&q=80`,
       authorVerified: rank % 2 === 1,
       authorFollowers: 300000 + rank * 125000,
       niche: targetNiche,
@@ -956,11 +923,12 @@ export function ensureRichContent(
       rankChange: 'new',
       rankChangeDelta: 0,
       thumbnailUrl: `https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80`,
-      videoUrl: VIDEO_STREAMS[streamIndex],
-      backupVideoUrl: BACKUP_STREAMS[streamIndex % BACKUP_STREAMS.length],
+      videoUrl: LOCAL_VIDEOS[videoIndex],
+      backupVideoUrl: WIKIMEDIA_STREAM,
+      audioUrl: LOCAL_AUDIOS[audioIndex],
       originalUrl: isTt
-        ? `https://www.tiktok.com/@viral_${targetCountry.code.toLowerCase()}/video/1000${rank}`
-        : `https://www.instagram.com/reel/C8xyz_${targetCountry.code.toLowerCase()}_${rank}/`,
+        ? `https://www.tiktok.com/@mrbeast`
+        : `https://www.instagram.com/explore/tags/${targetNiche}/`,
       durationSeconds: 25 + rank * 3,
       metrics: {
         views: 1200000 + rank * 350000,

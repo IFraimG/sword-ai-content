@@ -4,6 +4,7 @@ import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import BaseModal from '@/shared/ui/BaseModal.vue';
 import BaseButton from '@/shared/ui/BaseButton.vue';
 import { downloadReelVideo } from '@/shared/lib/export/videoExporter';
+import { downloadReelAudio } from '@/shared/lib/export/audioExporter';
 import {
   formatCompactNumber,
   formatFullNumber,
@@ -26,7 +27,9 @@ import {
   Download,
   AlertCircle,
   Film,
-  Radio
+  Radio,
+  Disc3,
+  Search
 } from 'lucide-vue-next';
 
 const store = useReelsStore();
@@ -36,6 +39,8 @@ const isTikTok = computed(() => reel.value?.platform === 'tiktok');
 
 const isDownloading = ref(false);
 const downloadStatus = ref('');
+const isDownloadingAudio = ref(false);
+const audioDownloadStatus = ref('');
 const videoFailed = ref(false);
 const currentVideoUrl = ref('');
 
@@ -79,6 +84,29 @@ async function handleDownloadMp4() {
       isDownloading.value = false;
     }, 1500);
   }
+}
+
+async function handleDownloadMp3() {
+  if (!reel.value) return;
+  isDownloadingAudio.value = true;
+  try {
+    await downloadReelAudio(reel.value, (status: string) => {
+      audioDownloadStatus.value = status;
+    });
+  } catch (err: any) {
+    console.error('Ошибка скачивания аудио:', err);
+    audioDownloadStatus.value = 'Ошибка скачивания';
+  } finally {
+    setTimeout(() => {
+      isDownloadingAudio.value = false;
+      audioDownloadStatus.value = '';
+    }, 1500);
+  }
+}
+
+function handleOpenMusicDiscovery() {
+  if (!reel.value) return;
+  store.openMusicSearch(reel.value);
 }
 </script>
 
@@ -194,6 +222,17 @@ async function handleDownloadMp4() {
             <span>{{ downloadStatus || 'Скачать видео (.mp4)' }}</span>
           </button>
 
+          <!-- Download MP3 Button -->
+          <button
+            type="button"
+            :disabled="isDownloadingAudio"
+            class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-emerald-600/90 hover:bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all cursor-pointer disabled:opacity-50"
+            @click="handleDownloadMp3"
+          >
+            <Music class="w-4 h-4" :class="{ 'animate-bounce': isDownloadingAudio }" />
+            <span>{{ audioDownloadStatus || 'Скачать звук (.mp3)' }}</span>
+          </button>
+
           <!-- Original Platform Link -->
           <a
             :href="reel.originalUrl"
@@ -238,18 +277,30 @@ async function handleDownloadMp4() {
           </p>
         </div>
 
-        <!-- Sound & Music Track -->
-        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-sword-card/60 border border-sword-border/60 text-xs">
-          <div class="w-8 h-8 rounded-lg bg-tiktok-pink/20 flex items-center justify-center text-tiktok-pink">
-            <Music class="w-4 h-4 animate-spin" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1">
-              <span class="font-bold text-sword-text truncate">{{ reel.soundTitle }}</span>
-              <span v-if="reel.soundIsTrending" class="text-[10px] text-emerald-400 font-semibold px-1.5 py-0.2 bg-emerald-500/10 rounded">TREND</span>
+        <!-- Sound & Music Track with Platform Discovery Action -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-sword-card/60 border border-sword-border/60 text-xs">
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="w-9 h-9 rounded-lg bg-tiktok-pink/20 flex items-center justify-center text-tiktok-pink flex-shrink-0">
+              <Music class="w-4 h-4 animate-spin" />
             </div>
-            <span class="text-[11px] text-sword-muted block truncate">{{ reel.soundAuthor }}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-sword-text truncate">{{ reel.soundTitle }}</span>
+                <span v-if="reel.soundIsTrending" class="text-[10px] text-emerald-400 font-semibold px-1.5 py-0.2 bg-emerald-500/10 rounded">TREND</span>
+              </div>
+              <span class="text-[11px] text-sword-muted block truncate">{{ reel.soundAuthor }}</span>
+            </div>
           </div>
+
+          <button
+            type="button"
+            class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-cyan-300 bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 hover:border-cyan-400 transition-all cursor-pointer shadow-sm"
+            title="Найти трек на Spotify, Apple Music, YouTube Music, TikTok, SoundCloud"
+            @click="handleOpenMusicDiscovery"
+          >
+            <Search class="w-3.5 h-3.5 text-cyan-400" />
+            <span>Найти на площадках</span>
+          </button>
         </div>
 
         <!-- Viral Metrics Analytics Grid -->

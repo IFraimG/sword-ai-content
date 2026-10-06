@@ -94,11 +94,27 @@ export interface Reel {
   thumbnailUrl: string;
   videoUrl?: string;
   backupVideoUrl?: string;
+  audioUrl?: string;
   originalUrl: string;
   durationSeconds: number;
   metrics: ReelMetrics;
   createdAt: string;
   updatedAt: string;
+}
+
+export type MusicPlatform = 'spotify' | 'apple' | 'youtube' | 'tiktok' | 'soundcloud';
+
+export interface MatchedMusicTrack {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  coverUrl: string;
+  duration: string;
+  platform: MusicPlatform;
+  matchScore: number; // e.g. 98
+  previewUrl: string; // playable audio stream
+  externalUrl: string; // link to open on Spotify, Apple Music, YouTube Music, etc.
 }
 
 export type SortBy = 'rank' | 'views' | 'velocity' | 'engagement' | 'recent';
