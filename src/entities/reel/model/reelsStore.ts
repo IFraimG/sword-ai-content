@@ -233,9 +233,11 @@ export const useReelsStore = defineStore('reels', () => {
         reels.value = res.items;
         isApiConnected.value = true;
       } else {
+        isApiConnected.value = false;
         reels.value = simulateRealtimeTick(reels.value);
       }
     } catch {
+      isApiConnected.value = false;
       reels.value = simulateRealtimeTick(reels.value);
     } finally {
       countdown.value = SYNC_INTERVAL_SECONDS;

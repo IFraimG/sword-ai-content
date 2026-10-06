@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import { formatDuration } from '@/shared/lib/formatters';
-import { RefreshCw, Radio, Pause, Play } from 'lucide-vue-next';
+import { RefreshCw, Radio, Pause, Play, Settings2 } from 'lucide-vue-next';
+import ApiSettingsModal from '@/widgets/ApiSettingsModal/ui/ApiSettingsModal.vue';
 
 const store = useReelsStore();
+const isSettingsModalOpen = ref(false);
 
 const formattedTime = computed(() => formatDuration(store.countdown));
 </script>
@@ -64,20 +66,25 @@ const formattedTime = computed(() => formatDuration(store.countdown));
       </button>
     </div>
 
-    <!-- Fastify API Server Status indicator -->
-    <div
-      class="hidden md:flex items-center gap-1.5 pl-2 border-l border-sword-border/60 text-[10px]"
-      :title="store.isApiConnected ? 'Fastify API бэкенд подключен' : 'Fastify API стриминг-шлюз активен'"
+    <!-- Fastify API Server Status indicator (Clickable for settings) -->
+    <button
+      type="button"
+      class="hidden md:flex items-center gap-1.5 pl-2 border-l border-sword-border/60 text-[10px] hover:opacity-80 transition-opacity cursor-pointer group"
+      :title="store.isApiConnected ? 'Fastify API бэкенд подключен (нажмите для настройки)' : 'Автономный режим (нажмите для подключения Fastify)'"
+      @click="isSettingsModalOpen = true"
     >
       <span
         :class="[
-          'w-1.5 h-1.5 rounded-full',
-          store.isApiConnected ? 'bg-cyan-400 shadow-[0_0_8px_#00f0ff]' : 'bg-emerald-400'
+          'w-1.5 h-1.5 rounded-full transition-transform group-hover:scale-125',
+          store.isApiConnected ? 'bg-cyan-400 shadow-[0_0_8px_#00f0ff]' : 'bg-amber-400'
         ]"
       ></span>
-      <span class="text-slate-400 font-medium font-mono">
+      <span class="text-slate-400 font-medium font-mono group-hover:text-sword-text">
         {{ store.isApiConnected ? 'API: Fastify 3.0' : 'API: Standby' }}
       </span>
-    </div>
+      <Settings2 class="w-3 h-3 text-slate-500 group-hover:text-sword-accent transition-colors ml-0.5" />
+    </button>
+
+    <ApiSettingsModal v-model="isSettingsModalOpen" />
   </div>
 </template>
