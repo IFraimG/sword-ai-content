@@ -103,105 +103,122 @@ export const LOCAL_AUDIOS = [
   `${baseUrl}audio/lofi-chill-cafe.mp3`,
 ];
 
-export const NICHE_MEDIA: Record<string, { video: string; audio: string; soundTitle: string; soundAuthor: string }> = {
+export const NICHE_MEDIA: Record<string, { video: string; audio: string; poster: string; soundTitle: string; soundAuthor: string }> = {
   ai_tech: {
     video: `${baseUrl}videos/reel-cyberpunk-tech.mp4`,
+    poster: `${baseUrl}thumbnails/poster-ai_tech-1.jpg`,
     audio: `${baseUrl}audio/synthwave-cyberpunk.mp3`,
     soundTitle: 'Nightcall (Drive Synthwave)',
     soundAuthor: 'Kavinsky'
   },
   business_finance: {
     video: `${baseUrl}videos/reel-business-finance.mp4`,
+    poster: `${baseUrl}thumbnails/poster-business_finance-1.jpg`,
     audio: `${baseUrl}audio/synthwave-cyberpunk.mp3`,
     soundTitle: 'Wall Street Synth Pulse',
     soundAuthor: 'FinAudio Lab'
   },
   fitness_sport: {
     video: `${baseUrl}videos/reel-fitness-health.mp4`,
+    poster: `${baseUrl}thumbnails/poster-fitness_sport-1.jpg`,
     audio: `${baseUrl}audio/viral-funk-beat.mp3`,
     soundTitle: 'Brazilian Phonk Automotivo',
     soundAuthor: 'PHONK & OCD F42'
   },
   fitness_health: {
     video: `${baseUrl}videos/reel-fitness-health.mp4`,
+    poster: `${baseUrl}thumbnails/poster-fitness_sport-1.jpg`,
     audio: `${baseUrl}audio/viral-funk-beat.mp3`,
     soundTitle: 'Brazilian Phonk Automotivo',
     soundAuthor: 'PHONK & OCD F42'
   },
   travel: {
     video: `${baseUrl}videos/reel-nature-travel.mp4`,
+    poster: `${baseUrl}thumbnails/poster-travel-1.jpg`,
     audio: `${baseUrl}audio/ambient-golden-hour.mp3`,
     soundTitle: 'Snowfall (Viral Ambient)',
     soundAuthor: 'Øneheart & reidenshi'
   },
   travel_nature: {
     video: `${baseUrl}videos/reel-nature-travel.mp4`,
+    poster: `${baseUrl}thumbnails/poster-travel-1.jpg`,
     audio: `${baseUrl}audio/ambient-golden-hour.mp3`,
     soundTitle: 'Snowfall (Viral Ambient)',
     soundAuthor: 'Øneheart & reidenshi'
   },
   food_cooking: {
     video: `${baseUrl}videos/reel-cooking-food.mp4`,
+    poster: `${baseUrl}thumbnails/poster-food_cooking-1.jpg`,
     audio: `${baseUrl}audio/lofi-chill-cafe.mp3`,
     soundTitle: 'Lofi Chill Hop Beats',
     soundAuthor: 'Chillhop Music'
   },
   cooking_food: {
     video: `${baseUrl}videos/reel-cooking-food.mp4`,
+    poster: `${baseUrl}thumbnails/poster-food_cooking-1.jpg`,
     audio: `${baseUrl}audio/lofi-chill-cafe.mp3`,
     soundTitle: 'Lofi Chill Hop Beats',
     soundAuthor: 'Chillhop Music'
   },
   fashion_beauty: {
     video: `${baseUrl}videos/reel-fashion-beauty.mp4`,
+    poster: `${baseUrl}thumbnails/poster-fashion_beauty-1.jpg`,
     audio: `${baseUrl}audio/ambient-golden-hour.mp3`,
     soundTitle: 'Golden Hour Fashion Chill',
     soundAuthor: 'Aesthetic Studio'
   },
   gaming_anime: {
     video: `${baseUrl}videos/reel-gaming-esports.mp4`,
+    poster: `${baseUrl}thumbnails/poster-gaming_anime-1.jpg`,
     audio: `${baseUrl}audio/luxury-trap-bass.mp3`,
     soundTitle: 'Animal I Have Become',
     soundAuthor: 'Three Days Grace'
   },
   gaming_esports: {
     video: `${baseUrl}videos/reel-gaming-esports.mp4`,
+    poster: `${baseUrl}thumbnails/poster-gaming_anime-1.jpg`,
     audio: `${baseUrl}audio/luxury-trap-bass.mp3`,
     soundTitle: 'Animal I Have Become',
     soundAuthor: 'Three Days Grace'
   },
   dance_music: {
     video: `${baseUrl}videos/reel-dance-club.mp4`,
+    poster: `${baseUrl}thumbnails/poster-dance_music-1.jpg`,
     audio: `${baseUrl}audio/luxury-trap-bass.mp3`,
     soundTitle: 'Night Club EDM Bass',
     soundAuthor: 'Club Master'
   },
   music_dance: {
     video: `${baseUrl}videos/reel-dance-club.mp4`,
+    poster: `${baseUrl}thumbnails/poster-dance_music-1.jpg`,
     audio: `${baseUrl}audio/luxury-trap-bass.mp3`,
     soundTitle: 'Night Club EDM Bass',
     soundAuthor: 'Club Master'
   },
   auto_tech: {
     video: `${baseUrl}videos/reel-supercars.mp4`,
+    poster: `${baseUrl}thumbnails/poster-auto_tech-1.jpg`,
     audio: `${baseUrl}audio/viral-funk-beat.mp3`,
     soundTitle: 'Drift Phonk Automotivo',
     soundAuthor: 'PHONK & OCD F42'
   },
   auto_moto: {
     video: `${baseUrl}videos/reel-supercars.mp4`,
+    poster: `${baseUrl}thumbnails/poster-auto_tech-1.jpg`,
     audio: `${baseUrl}audio/viral-funk-beat.mp3`,
     soundTitle: 'Drift Phonk Automotivo',
     soundAuthor: 'PHONK & OCD F42'
   },
   humor_memes: {
     video: `${baseUrl}videos/reel-dance-club.mp4`,
+    poster: `${baseUrl}thumbnails/poster-humor_memes-1.jpg`,
     audio: `${baseUrl}audio/viral-funk-beat.mp3`,
     soundTitle: 'Funny Viral Funk Loop',
     soundAuthor: 'Meme Central'
   },
   lifestyle: {
     video: `${baseUrl}videos/reel-fashion-beauty.mp4`,
+    poster: `${baseUrl}thumbnails/poster-lifestyle-1.jpg`,
     audio: `${baseUrl}audio/lofi-chill-cafe.mp3`,
     soundTitle: 'Slow Life Ambient Lofi',
     soundAuthor: 'Chillhop Music'
@@ -242,15 +259,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T17:05:21.119Z",
+    "publishedAt": "2026-10-06T17:30:44.409Z",
     "trendingRank": 1,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/ai_tech",
+    "originalUrl": "https://www.tiktok.com/@alex_tech_creator_usa/video/7420918274019283100",
     "durationSeconds": 20,
     "metrics": {
       "views": 15100000,
@@ -262,8 +279,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 55,
       "viewsGrowthLastHour": 679500
     },
-    "createdAt": "2026-10-06T12:47:21.128Z",
-    "updatedAt": "2026-10-06T18:17:21.128Z"
+    "createdAt": "2026-10-06T13:12:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-ca-2",
@@ -292,15 +309,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T15:53:21.128Z",
+    "publishedAt": "2026-10-06T16:18:44.417Z",
     "trendingRank": 2,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/business_finance",
+    "originalUrl": "https://www.tiktok.com/@elena_aesthetic_can/video/7420918274019283101",
     "durationSeconds": 27,
     "metrics": {
       "views": 14297000,
@@ -312,8 +329,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 55.7,
       "viewsGrowthLastHour": 643365
     },
-    "createdAt": "2026-10-06T11:17:21.128Z",
-    "updatedAt": "2026-10-06T18:17:21.128Z"
+    "createdAt": "2026-10-06T11:42:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-gb-3",
@@ -342,15 +359,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T14:41:21.128Z",
+    "publishedAt": "2026-10-06T15:06:44.417Z",
     "trendingRank": 3,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fitness_sport",
+    "originalUrl": "https://www.tiktok.com/@marcus_invest_gbr/video/7420918274019283102",
     "durationSeconds": 34,
     "metrics": {
       "views": 13540080,
@@ -362,8 +379,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 56.4,
       "viewsGrowthLastHour": 609303
     },
-    "createdAt": "2026-10-06T09:47:21.128Z",
-    "updatedAt": "2026-10-06T18:17:21.128Z"
+    "createdAt": "2026-10-06T10:12:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-de-4",
@@ -392,15 +409,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T13:29:21.128Z",
+    "publishedAt": "2026-10-06T13:54:44.417Z",
     "trendingRank": 4,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/travel",
+    "originalUrl": "https://www.tiktok.com/@chloe_paris_style_deu/video/7420918274019283103",
     "durationSeconds": 41,
     "metrics": {
       "views": 12826475,
@@ -412,8 +429,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 57.1,
       "viewsGrowthLastHour": 577191
     },
-    "createdAt": "2026-10-06T08:17:21.128Z",
-    "updatedAt": "2026-10-06T18:17:21.128Z"
+    "createdAt": "2026-10-06T08:42:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-fr-5",
@@ -442,15 +459,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T12:17:21.129Z",
+    "publishedAt": "2026-10-06T12:42:44.417Z",
     "trendingRank": 5,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/food_cooking",
+    "originalUrl": "https://www.tiktok.com/@lucas_fit_power_fra/video/7420918274019283104",
     "durationSeconds": 48,
     "metrics": {
       "views": 12153586,
@@ -462,8 +479,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 57.8,
       "viewsGrowthLastHour": 546911
     },
-    "createdAt": "2026-10-06T06:47:21.129Z",
-    "updatedAt": "2026-10-06T18:17:21.129Z"
+    "createdAt": "2026-10-06T07:12:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-it-6",
@@ -492,15 +509,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T11:05:21.129Z",
+    "publishedAt": "2026-10-06T11:30:44.417Z",
     "trendingRank": 6,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fashion_beauty",
+    "originalUrl": "https://www.tiktok.com/@kenji_tokyo_drift_ita/video/7420918274019283105",
     "durationSeconds": 20,
     "metrics": {
       "views": 11518971,
@@ -512,8 +529,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 51,
       "viewsGrowthLastHour": 518353
     },
-    "createdAt": "2026-10-06T05:17:21.129Z",
-    "updatedAt": "2026-10-06T18:17:21.129Z"
+    "createdAt": "2026-10-06T05:42:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-es-7",
@@ -542,15 +559,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T09:53:21.129Z",
+    "publishedAt": "2026-10-06T10:18:44.417Z",
     "trendingRank": 7,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/gaming_anime",
+    "originalUrl": "https://www.tiktok.com/@sophia_italia_food_esp/video/7420918274019283106",
     "durationSeconds": 27,
     "metrics": {
       "views": 10920333,
@@ -562,8 +579,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 51.7,
       "viewsGrowthLastHour": 491414
     },
-    "createdAt": "2026-10-06T03:47:21.129Z",
-    "updatedAt": "2026-10-06T18:17:21.129Z"
+    "createdAt": "2026-10-06T04:12:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-jp-8",
@@ -592,15 +609,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T08:41:21.129Z",
+    "publishedAt": "2026-10-06T09:06:44.417Z",
     "trendingRank": 8,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/dance_music",
+    "originalUrl": "https://www.tiktok.com/@david_tech_kr_jpn/video/7420918274019283107",
     "durationSeconds": 34,
     "metrics": {
       "views": 10355513,
@@ -612,8 +629,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 52.4,
       "viewsGrowthLastHour": 465998
     },
-    "createdAt": "2026-10-06T02:17:21.129Z",
-    "updatedAt": "2026-10-06T18:17:21.129Z"
+    "createdAt": "2026-10-06T02:42:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-kr-9",
@@ -642,15 +659,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T07:29:21.129Z",
+    "publishedAt": "2026-10-06T07:54:44.417Z",
     "trendingRank": 9,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/auto_tech",
+    "originalUrl": "https://www.tiktok.com/@amina_dubai_luxury_kor/video/7420918274019283108",
     "durationSeconds": 41,
     "metrics": {
       "views": 9822482,
@@ -662,8 +679,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 53.1,
       "viewsGrowthLastHour": 442011
     },
-    "createdAt": "2026-10-06T00:47:21.129Z",
-    "updatedAt": "2026-10-06T18:17:21.129Z"
+    "createdAt": "2026-10-06T01:12:44.417Z",
+    "updatedAt": "2026-10-06T18:42:44.417Z"
   },
   {
     "id": "tt-in-10",
@@ -692,15 +709,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T06:17:21.129Z",
+    "publishedAt": "2026-10-06T06:42:44.418Z",
     "trendingRank": 10,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/humor_memes",
+    "originalUrl": "https://www.tiktok.com/@max_autobahn_ind/video/7420918274019283109",
     "durationSeconds": 48,
     "metrics": {
       "views": 9319333,
@@ -712,8 +729,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 53.8,
       "viewsGrowthLastHour": 419369
     },
-    "createdAt": "2026-10-05T23:17:21.129Z",
-    "updatedAt": "2026-10-06T18:17:21.129Z"
+    "createdAt": "2026-10-05T23:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ru-11",
@@ -742,15 +759,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Aarav Patel",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T05:05:21.131Z",
+    "publishedAt": "2026-10-06T05:30:44.418Z",
     "trendingRank": 11,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/lifestyle",
+    "originalUrl": "https://www.tiktok.com/@aarav_code_ai_rus/video/7420918274019283110",
     "durationSeconds": 20,
     "metrics": {
       "views": 8844273,
@@ -762,8 +779,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 47,
       "viewsGrowthLastHour": 397992
     },
-    "createdAt": "2026-10-05T21:47:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T22:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-kz-12",
@@ -792,15 +809,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Mateo Hernandez",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T03:53:21.131Z",
+    "publishedAt": "2026-10-06T04:18:44.418Z",
     "trendingRank": 12,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/ai_tech",
+    "originalUrl": "https://www.tiktok.com/@mateo_ritmo_latino_kaz/video/7420918274019283111",
     "durationSeconds": 27,
     "metrics": {
       "views": 8395617,
@@ -812,8 +829,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 47.7,
       "viewsGrowthLastHour": 377802
     },
-    "createdAt": "2026-10-05T20:17:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T20:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-br-13",
@@ -842,15 +859,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Polina Smirnova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T02:41:21.131Z",
+    "publishedAt": "2026-10-06T03:06:44.418Z",
     "trendingRank": 13,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/business_finance",
+    "originalUrl": "https://www.tiktok.com/@polina_vibes_bra/video/7420918274019283112",
     "durationSeconds": 34,
     "metrics": {
       "views": 7971780,
@@ -862,8 +879,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 48.4,
       "viewsGrowthLastHour": 358730
     },
-    "createdAt": "2026-10-05T18:47:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T19:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-mx-14",
@@ -892,15 +909,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Tariq Yilmaz",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T01:29:21.131Z",
+    "publishedAt": "2026-10-06T01:54:44.418Z",
     "trendingRank": 14,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fitness_sport",
+    "originalUrl": "https://www.tiktok.com/@tariq_cappadocia_mex/video/7420918274019283113",
     "durationSeconds": 41,
     "metrics": {
       "views": 7571273,
@@ -912,8 +929,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 49.1,
       "viewsGrowthLastHour": 340707
     },
-    "createdAt": "2026-10-05T17:17:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T17:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ae-15",
@@ -942,15 +959,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T00:17:21.131Z",
+    "publishedAt": "2026-10-06T00:42:44.418Z",
     "trendingRank": 15,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/travel",
+    "originalUrl": "https://www.tiktok.com/@alex_tech_creator_uae/video/7420918274019283114",
     "durationSeconds": 48,
     "metrics": {
       "views": 7192696,
@@ -962,8 +979,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 49.8,
       "viewsGrowthLastHour": 323671
     },
-    "createdAt": "2026-10-05T15:47:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T16:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-tr-16",
@@ -992,15 +1009,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T23:05:21.131Z",
+    "publishedAt": "2026-10-05T23:30:44.418Z",
     "trendingRank": 16,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/food_cooking",
+    "originalUrl": "https://www.tiktok.com/@elena_aesthetic_tur/video/7420918274019283115",
     "durationSeconds": 20,
     "metrics": {
       "views": 6834735,
@@ -1012,8 +1029,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 43,
       "viewsGrowthLastHour": 307563
     },
-    "createdAt": "2026-10-05T14:17:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T14:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-us-17",
@@ -1042,15 +1059,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T21:53:21.131Z",
+    "publishedAt": "2026-10-05T22:18:44.418Z",
     "trendingRank": 17,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fashion_beauty",
+    "originalUrl": "https://www.tiktok.com/@marcus_invest_usa/video/7420918274019283116",
     "durationSeconds": 27,
     "metrics": {
       "views": 6496150,
@@ -1062,8 +1079,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 43.7,
       "viewsGrowthLastHour": 292326
     },
-    "createdAt": "2026-10-05T12:47:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ca-18",
@@ -1092,15 +1109,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T20:41:21.131Z",
+    "publishedAt": "2026-10-05T21:06:44.418Z",
     "trendingRank": 18,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/gaming_anime",
+    "originalUrl": "https://www.tiktok.com/@chloe_paris_style_can/video/7420918274019283117",
     "durationSeconds": 34,
     "metrics": {
       "views": 6175781,
@@ -1112,8 +1129,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 44.4,
       "viewsGrowthLastHour": 277910
     },
-    "createdAt": "2026-10-05T11:17:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-gb-19",
@@ -1142,15 +1159,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T19:29:21.131Z",
+    "publishedAt": "2026-10-05T19:54:44.418Z",
     "trendingRank": 19,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/dance_music",
+    "originalUrl": "https://www.tiktok.com/@lucas_fit_power_gbr/video/7420918274019283118",
     "durationSeconds": 41,
     "metrics": {
       "views": 5872534,
@@ -1162,8 +1179,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 45.1,
       "viewsGrowthLastHour": 264264
     },
-    "createdAt": "2026-10-05T09:47:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-de-20",
@@ -1192,15 +1209,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T18:17:21.131Z",
+    "publishedAt": "2026-10-05T18:42:44.418Z",
     "trendingRank": 20,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/auto_tech",
+    "originalUrl": "https://www.tiktok.com/@kenji_tokyo_drift_deu/video/7420918274019283119",
     "durationSeconds": 48,
     "metrics": {
       "views": 5585382,
@@ -1212,8 +1229,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 45.8,
       "viewsGrowthLastHour": 251342
     },
-    "createdAt": "2026-10-05T08:17:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.131Z"
+    "createdAt": "2026-10-05T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-fr-21",
@@ -1242,15 +1259,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T17:05:21.131Z",
+    "publishedAt": "2026-10-05T17:30:44.418Z",
     "trendingRank": 21,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/humor_memes",
+    "originalUrl": "https://www.tiktok.com/@sophia_italia_food_fra/video/7420918274019283120",
     "durationSeconds": 20,
     "metrics": {
       "views": 5313359,
@@ -1262,8 +1279,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 39,
       "viewsGrowthLastHour": 239101
     },
-    "createdAt": "2026-10-05T06:47:21.131Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-05T07:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-it-22",
@@ -1292,15 +1309,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T15:53:21.132Z",
+    "publishedAt": "2026-10-05T16:18:44.418Z",
     "trendingRank": 22,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/lifestyle",
+    "originalUrl": "https://www.tiktok.com/@david_tech_kr_ita/video/7420918274019283121",
     "durationSeconds": 27,
     "metrics": {
       "views": 5055558,
@@ -1312,8 +1329,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 39.7,
       "viewsGrowthLastHour": 227500
     },
-    "createdAt": "2026-10-05T05:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-05T05:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-es-23",
@@ -1342,15 +1359,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T14:41:21.132Z",
+    "publishedAt": "2026-10-05T15:06:44.418Z",
     "trendingRank": 23,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/ai_tech",
+    "originalUrl": "https://www.tiktok.com/@amina_dubai_luxury_esp/video/7420918274019283122",
     "durationSeconds": 34,
     "metrics": {
       "views": 4811124,
@@ -1362,8 +1379,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 40.4,
       "viewsGrowthLastHour": 216500
     },
-    "createdAt": "2026-10-05T03:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-05T04:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-jp-24",
@@ -1391,15 +1408,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T13:29:21.132Z",
+    "publishedAt": "2026-10-05T13:54:44.418Z",
     "trendingRank": 24,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/business_finance",
+    "originalUrl": "https://www.tiktok.com/@max_autobahn_jpn/video/7420918274019283123",
     "durationSeconds": 41,
     "metrics": {
       "views": 4579257,
@@ -1411,8 +1428,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 41.1,
       "viewsGrowthLastHour": 206066
     },
-    "createdAt": "2026-10-05T02:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-05T02:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-kr-25",
@@ -1441,15 +1458,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Aarav Patel",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T12:17:21.132Z",
+    "publishedAt": "2026-10-05T12:42:44.418Z",
     "trendingRank": 25,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fitness_sport",
+    "originalUrl": "https://www.tiktok.com/@aarav_code_ai_kor/video/7420918274019283124",
     "durationSeconds": 48,
     "metrics": {
       "views": 4359201,
@@ -1461,8 +1478,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 41.8,
       "viewsGrowthLastHour": 196164
     },
-    "createdAt": "2026-10-05T00:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-05T01:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-in-26",
@@ -1491,15 +1508,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Mateo Hernandez",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T11:05:21.132Z",
+    "publishedAt": "2026-10-05T11:30:44.418Z",
     "trendingRank": 26,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/travel",
+    "originalUrl": "https://www.tiktok.com/@mateo_ritmo_latino_ind/video/7420918274019283125",
     "durationSeconds": 20,
     "metrics": {
       "views": 4150249,
@@ -1511,8 +1528,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 35,
       "viewsGrowthLastHour": 186761
     },
-    "createdAt": "2026-10-04T23:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T23:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ru-27",
@@ -1541,15 +1558,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Polina Smirnova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T09:53:21.132Z",
+    "publishedAt": "2026-10-05T10:18:44.418Z",
     "trendingRank": 27,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/food_cooking",
+    "originalUrl": "https://www.tiktok.com/@polina_vibes_rus/video/7420918274019283126",
     "durationSeconds": 27,
     "metrics": {
       "views": 3951734,
@@ -1561,8 +1578,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 35.7,
       "viewsGrowthLastHour": 177828
     },
-    "createdAt": "2026-10-04T21:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T22:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-kz-28",
@@ -1591,15 +1608,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Tariq Yilmaz",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T08:41:21.132Z",
+    "publishedAt": "2026-10-05T09:06:44.418Z",
     "trendingRank": 28,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fashion_beauty",
+    "originalUrl": "https://www.tiktok.com/@tariq_cappadocia_kaz/video/7420918274019283127",
     "durationSeconds": 34,
     "metrics": {
       "views": 3763030,
@@ -1611,8 +1628,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 36.4,
       "viewsGrowthLastHour": 169336
     },
-    "createdAt": "2026-10-04T20:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T20:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-br-29",
@@ -1641,15 +1658,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T07:29:21.132Z",
+    "publishedAt": "2026-10-05T07:54:44.418Z",
     "trendingRank": 29,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/gaming_anime",
+    "originalUrl": "https://www.tiktok.com/@alex_tech_creator_bra/video/7420918274019283128",
     "durationSeconds": 41,
     "metrics": {
       "views": 3583548,
@@ -1661,8 +1678,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 37.1,
       "viewsGrowthLastHour": 161259
     },
-    "createdAt": "2026-10-04T18:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T19:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-mx-30",
@@ -1691,15 +1708,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T06:17:21.132Z",
+    "publishedAt": "2026-10-05T06:42:44.418Z",
     "trendingRank": 30,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/dance_music",
+    "originalUrl": "https://www.tiktok.com/@elena_aesthetic_mex/video/7420918274019283129",
     "durationSeconds": 48,
     "metrics": {
       "views": 3412735,
@@ -1711,8 +1728,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 37.8,
       "viewsGrowthLastHour": 153573
     },
-    "createdAt": "2026-10-04T17:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T17:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ae-31",
@@ -1741,15 +1758,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T05:05:21.132Z",
+    "publishedAt": "2026-10-05T05:30:44.418Z",
     "trendingRank": 31,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/auto_tech",
+    "originalUrl": "https://www.tiktok.com/@marcus_invest_uae/video/7420918274019283130",
     "durationSeconds": 20,
     "metrics": {
       "views": 3250071,
@@ -1761,8 +1778,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 31,
       "viewsGrowthLastHour": 146253
     },
-    "createdAt": "2026-10-04T15:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T16:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-tr-32",
@@ -1791,15 +1808,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T03:53:21.132Z",
+    "publishedAt": "2026-10-05T04:18:44.418Z",
     "trendingRank": 32,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/humor_memes",
+    "originalUrl": "https://www.tiktok.com/@chloe_paris_style_tur/video/7420918274019283131",
     "durationSeconds": 27,
     "metrics": {
       "views": 3095067,
@@ -1811,8 +1828,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 31.7,
       "viewsGrowthLastHour": 139278
     },
-    "createdAt": "2026-10-04T14:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T14:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-us-33",
@@ -1841,15 +1858,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T02:41:21.132Z",
+    "publishedAt": "2026-10-05T03:06:44.418Z",
     "trendingRank": 33,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/lifestyle",
+    "originalUrl": "https://www.tiktok.com/@lucas_fit_power_usa/video/7420918274019283132",
     "durationSeconds": 34,
     "metrics": {
       "views": 2947263,
@@ -1861,8 +1878,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 32.4,
       "viewsGrowthLastHour": 132626
     },
-    "createdAt": "2026-10-04T12:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ca-34",
@@ -1891,15 +1908,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T01:29:21.132Z",
+    "publishedAt": "2026-10-05T01:54:44.418Z",
     "trendingRank": 34,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/ai_tech",
+    "originalUrl": "https://www.tiktok.com/@kenji_tokyo_drift_can/video/7420918274019283133",
     "durationSeconds": 41,
     "metrics": {
       "views": 2806227,
@@ -1911,8 +1928,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 33.1,
       "viewsGrowthLastHour": 126280
     },
-    "createdAt": "2026-10-04T11:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-gb-35",
@@ -1941,15 +1958,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T00:17:21.132Z",
+    "publishedAt": "2026-10-05T00:42:44.418Z",
     "trendingRank": 35,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/business_finance",
+    "originalUrl": "https://www.tiktok.com/@sophia_italia_food_gbr/video/7420918274019283134",
     "durationSeconds": 48,
     "metrics": {
       "views": 2671553,
@@ -1961,8 +1978,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 33.8,
       "viewsGrowthLastHour": 120219
     },
-    "createdAt": "2026-10-04T09:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-de-36",
@@ -1991,15 +2008,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T23:05:21.132Z",
+    "publishedAt": "2026-10-04T23:30:44.418Z",
     "trendingRank": 36,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fitness_sport",
+    "originalUrl": "https://www.tiktok.com/@david_tech_kr_deu/video/7420918274019283135",
     "durationSeconds": 20,
     "metrics": {
       "views": 2542860,
@@ -2011,8 +2028,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 27,
       "viewsGrowthLastHour": 114428
     },
-    "createdAt": "2026-10-04T08:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-fr-37",
@@ -2041,15 +2058,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T21:53:21.132Z",
+    "publishedAt": "2026-10-04T22:18:44.418Z",
     "trendingRank": 37,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/travel",
+    "originalUrl": "https://www.tiktok.com/@amina_dubai_luxury_fra/video/7420918274019283136",
     "durationSeconds": 27,
     "metrics": {
       "views": 2419789,
@@ -2061,8 +2078,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 27.7,
       "viewsGrowthLastHour": 108890
     },
-    "createdAt": "2026-10-04T06:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T07:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-it-38",
@@ -2091,15 +2108,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T20:41:21.132Z",
+    "publishedAt": "2026-10-04T21:06:44.418Z",
     "trendingRank": 38,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/food_cooking",
+    "originalUrl": "https://www.tiktok.com/@max_autobahn_ita/video/7420918274019283137",
     "durationSeconds": 34,
     "metrics": {
       "views": 2302001,
@@ -2111,8 +2128,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 28.4,
       "viewsGrowthLastHour": 103590
     },
-    "createdAt": "2026-10-04T05:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T05:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-es-39",
@@ -2140,15 +2157,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Aarav Patel",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T19:29:21.132Z",
+    "publishedAt": "2026-10-04T19:54:44.418Z",
     "trendingRank": 39,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fashion_beauty",
+    "originalUrl": "https://www.tiktok.com/@aarav_code_ai_esp/video/7420918274019283138",
     "durationSeconds": 41,
     "metrics": {
       "views": 2189181,
@@ -2160,8 +2177,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 29.1,
       "viewsGrowthLastHour": 98513
     },
-    "createdAt": "2026-10-04T03:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T04:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-jp-40",
@@ -2190,15 +2207,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Mateo Hernandez",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T18:17:21.132Z",
+    "publishedAt": "2026-10-04T18:42:44.418Z",
     "trendingRank": 40,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/gaming_anime",
+    "originalUrl": "https://www.tiktok.com/@mateo_ritmo_latino_jpn/video/7420918274019283139",
     "durationSeconds": 48,
     "metrics": {
       "views": 2081030,
@@ -2210,8 +2227,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 29.8,
       "viewsGrowthLastHour": 93646
     },
-    "createdAt": "2026-10-04T02:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T02:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-kr-41",
@@ -2240,15 +2257,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Polina Smirnova",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T17:05:21.132Z",
+    "publishedAt": "2026-10-04T17:30:44.418Z",
     "trendingRank": 41,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/dance_music",
+    "originalUrl": "https://www.tiktok.com/@polina_vibes_kor/video/7420918274019283140",
     "durationSeconds": 20,
     "metrics": {
       "views": 1977268,
@@ -2260,8 +2277,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 23,
       "viewsGrowthLastHour": 88977
     },
-    "createdAt": "2026-10-04T00:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-04T01:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-in-42",
@@ -2290,15 +2307,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Tariq Yilmaz",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T15:53:21.132Z",
+    "publishedAt": "2026-10-04T16:18:44.418Z",
     "trendingRank": 42,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/auto_tech",
+    "originalUrl": "https://www.tiktok.com/@tariq_cappadocia_ind/video/7420918274019283141",
     "durationSeconds": 27,
     "metrics": {
       "views": 1877632,
@@ -2310,8 +2327,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 23.7,
       "viewsGrowthLastHour": 84493
     },
-    "createdAt": "2026-10-03T23:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T23:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ru-43",
@@ -2340,15 +2357,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T14:41:21.132Z",
+    "publishedAt": "2026-10-04T15:06:44.418Z",
     "trendingRank": 43,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/humor_memes",
+    "originalUrl": "https://www.tiktok.com/@alex_tech_creator_rus/video/7420918274019283142",
     "durationSeconds": 34,
     "metrics": {
       "views": 1781874,
@@ -2360,8 +2377,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 24.4,
       "viewsGrowthLastHour": 80184
     },
-    "createdAt": "2026-10-03T21:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T22:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-kz-44",
@@ -2390,15 +2407,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T13:29:21.132Z",
+    "publishedAt": "2026-10-04T13:54:44.418Z",
     "trendingRank": 44,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/lifestyle",
+    "originalUrl": "https://www.tiktok.com/@elena_aesthetic_kaz/video/7420918274019283143",
     "durationSeconds": 41,
     "metrics": {
       "views": 1689762,
@@ -2410,8 +2427,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 25.1,
       "viewsGrowthLastHour": 76039
     },
-    "createdAt": "2026-10-03T20:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T20:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-br-45",
@@ -2439,15 +2456,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T12:17:21.132Z",
+    "publishedAt": "2026-10-04T12:42:44.418Z",
     "trendingRank": 45,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/ai_tech",
+    "originalUrl": "https://www.tiktok.com/@marcus_invest_bra/video/7420918274019283144",
     "durationSeconds": 48,
     "metrics": {
       "views": 1601076,
@@ -2459,8 +2476,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 25.8,
       "viewsGrowthLastHour": 72048
     },
-    "createdAt": "2026-10-03T18:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T19:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-mx-46",
@@ -2488,15 +2505,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T11:05:21.132Z",
+    "publishedAt": "2026-10-04T11:30:44.418Z",
     "trendingRank": 46,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/business_finance",
+    "originalUrl": "https://www.tiktok.com/@chloe_paris_style_mex/video/7420918274019283145",
     "durationSeconds": 20,
     "metrics": {
       "views": 1515611,
@@ -2508,8 +2525,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 19,
       "viewsGrowthLastHour": 68202
     },
-    "createdAt": "2026-10-03T17:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T17:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ae-47",
@@ -2538,15 +2555,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T09:53:21.132Z",
+    "publishedAt": "2026-10-04T10:18:44.418Z",
     "trendingRank": 47,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fitness_sport",
+    "originalUrl": "https://www.tiktok.com/@lucas_fit_power_uae/video/7420918274019283146",
     "durationSeconds": 27,
     "metrics": {
       "views": 1433175,
@@ -2558,8 +2575,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 19.7,
       "viewsGrowthLastHour": 64492
     },
-    "createdAt": "2026-10-03T15:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T16:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-tr-48",
@@ -2588,15 +2605,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T08:41:21.132Z",
+    "publishedAt": "2026-10-04T09:06:44.418Z",
     "trendingRank": 48,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/travel",
+    "originalUrl": "https://www.tiktok.com/@kenji_tokyo_drift_tur/video/7420918274019283147",
     "durationSeconds": 34,
     "metrics": {
       "views": 1353584,
@@ -2608,8 +2625,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 20.4,
       "viewsGrowthLastHour": 60911
     },
-    "createdAt": "2026-10-03T14:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T14:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-us-49",
@@ -2638,15 +2655,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T07:29:21.132Z",
+    "publishedAt": "2026-10-04T07:54:44.418Z",
     "trendingRank": 49,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/food_cooking",
+    "originalUrl": "https://www.tiktok.com/@sophia_italia_food_usa/video/7420918274019283148",
     "durationSeconds": 41,
     "metrics": {
       "views": 1276669,
@@ -2658,8 +2675,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 21.1,
       "viewsGrowthLastHour": 57450
     },
-    "createdAt": "2026-10-03T12:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-ca-50",
@@ -2688,15 +2705,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T06:17:21.132Z",
+    "publishedAt": "2026-10-04T06:42:44.418Z",
     "trendingRank": 50,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/fashion_beauty",
+    "originalUrl": "https://www.tiktok.com/@david_tech_kr_can/video/7420918274019283149",
     "durationSeconds": 48,
     "metrics": {
       "views": 1202269,
@@ -2708,8 +2725,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 21.8,
       "viewsGrowthLastHour": 54102
     },
-    "createdAt": "2026-10-03T11:17:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-gb-51",
@@ -2738,15 +2755,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T05:05:21.132Z",
+    "publishedAt": "2026-10-04T05:30:44.418Z",
     "trendingRank": 51,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/gaming_anime",
+    "originalUrl": "https://www.tiktok.com/@amina_dubai_luxury_gbr/video/7420918274019283150",
     "durationSeconds": 20,
     "metrics": {
       "views": 1130233,
@@ -2758,8 +2775,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 15,
       "viewsGrowthLastHour": 50860
     },
-    "createdAt": "2026-10-03T09:47:21.132Z",
-    "updatedAt": "2026-10-06T18:17:21.132Z"
+    "createdAt": "2026-10-03T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "tt-de-52",
@@ -2788,15 +2805,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T03:53:21.132Z",
+    "publishedAt": "2026-10-04T04:18:44.418Z",
     "trendingRank": 52,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.tiktok.com/tag/dance_music",
+    "originalUrl": "https://www.tiktok.com/@max_autobahn_deu/video/7420918274019283151",
     "durationSeconds": 27,
     "metrics": {
       "views": 1060419,
@@ -2808,8 +2825,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 15.7,
       "viewsGrowthLastHour": 47718
     },
-    "createdAt": "2026-10-03T08:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-03T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-us-1",
@@ -2838,15 +2855,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T17:05:21.133Z",
+    "publishedAt": "2026-10-06T17:30:44.418Z",
     "trendingRank": 1,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/ai_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CUSAAI_100xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 15100000,
@@ -2858,8 +2875,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 55,
       "viewsGrowthLastHour": 679500
     },
-    "createdAt": "2026-10-06T12:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ca-2",
@@ -2888,15 +2905,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T15:53:21.133Z",
+    "publishedAt": "2026-10-06T16:18:44.418Z",
     "trendingRank": 2,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/business_finance/",
+    "originalUrl": "https://www.instagram.com/reel/CCANBUS101xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 14297000,
@@ -2908,8 +2925,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 55.7,
       "viewsGrowthLastHour": 643365
     },
-    "createdAt": "2026-10-06T11:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-gb-3",
@@ -2938,15 +2955,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T14:41:21.133Z",
+    "publishedAt": "2026-10-06T15:06:44.418Z",
     "trendingRank": 3,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fitness_sport/",
+    "originalUrl": "https://www.instagram.com/reel/CGBRFIT102xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 13540080,
@@ -2958,8 +2975,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 56.4,
       "viewsGrowthLastHour": 609303
     },
-    "createdAt": "2026-10-06T09:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-de-4",
@@ -2988,15 +3005,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T13:29:21.133Z",
+    "publishedAt": "2026-10-06T13:54:44.418Z",
     "trendingRank": 4,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/travel/",
+    "originalUrl": "https://www.instagram.com/reel/CDEUTRA103xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 12826475,
@@ -3008,8 +3025,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 57.1,
       "viewsGrowthLastHour": 577191
     },
-    "createdAt": "2026-10-06T08:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-fr-5",
@@ -3038,15 +3055,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T12:17:21.133Z",
+    "publishedAt": "2026-10-06T12:42:44.418Z",
     "trendingRank": 5,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/food_cooking/",
+    "originalUrl": "https://www.instagram.com/reel/CFRAFOO104xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 12153586,
@@ -3058,8 +3075,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 57.8,
       "viewsGrowthLastHour": 546911
     },
-    "createdAt": "2026-10-06T06:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T07:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-it-6",
@@ -3088,15 +3105,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T11:05:21.133Z",
+    "publishedAt": "2026-10-06T11:30:44.418Z",
     "trendingRank": 6,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fashion_beauty/",
+    "originalUrl": "https://www.instagram.com/reel/CITAFAS105xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 11518971,
@@ -3108,8 +3125,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 51,
       "viewsGrowthLastHour": 518353
     },
-    "createdAt": "2026-10-06T05:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T05:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-es-7",
@@ -3138,15 +3155,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T09:53:21.133Z",
+    "publishedAt": "2026-10-06T10:18:44.418Z",
     "trendingRank": 7,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/gaming_anime/",
+    "originalUrl": "https://www.instagram.com/reel/CESPGAM106xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 10920333,
@@ -3158,8 +3175,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 51.7,
       "viewsGrowthLastHour": 491414
     },
-    "createdAt": "2026-10-06T03:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T04:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-jp-8",
@@ -3188,15 +3205,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T08:41:21.133Z",
+    "publishedAt": "2026-10-06T09:06:44.418Z",
     "trendingRank": 8,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/dance_music/",
+    "originalUrl": "https://www.instagram.com/reel/CJPNDAN107xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 10355513,
@@ -3208,8 +3225,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 52.4,
       "viewsGrowthLastHour": 465998
     },
-    "createdAt": "2026-10-06T02:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T02:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-kr-9",
@@ -3238,15 +3255,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T07:29:21.133Z",
+    "publishedAt": "2026-10-06T07:54:44.418Z",
     "trendingRank": 9,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/auto_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CKORAUT108xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 9822482,
@@ -3258,8 +3275,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 53.1,
       "viewsGrowthLastHour": 442011
     },
-    "createdAt": "2026-10-06T00:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-06T01:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-in-10",
@@ -3288,15 +3305,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T06:17:21.133Z",
+    "publishedAt": "2026-10-06T06:42:44.418Z",
     "trendingRank": 10,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/humor_memes/",
+    "originalUrl": "https://www.instagram.com/reel/CINDHUM109xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 9319333,
@@ -3308,8 +3325,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 53.8,
       "viewsGrowthLastHour": 419369
     },
-    "createdAt": "2026-10-05T23:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T23:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ru-11",
@@ -3338,15 +3355,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Aarav Patel",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T05:05:21.133Z",
+    "publishedAt": "2026-10-06T05:30:44.418Z",
     "trendingRank": 11,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/lifestyle/",
+    "originalUrl": "https://www.instagram.com/reel/CRUSLIF110xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 8844273,
@@ -3358,8 +3375,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 47,
       "viewsGrowthLastHour": 397992
     },
-    "createdAt": "2026-10-05T21:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T22:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-kz-12",
@@ -3388,15 +3405,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Mateo Hernandez",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T03:53:21.133Z",
+    "publishedAt": "2026-10-06T04:18:44.418Z",
     "trendingRank": 12,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/ai_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CKAZAI_111xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 8395617,
@@ -3408,8 +3425,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 47.7,
       "viewsGrowthLastHour": 377802
     },
-    "createdAt": "2026-10-05T20:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T20:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-br-13",
@@ -3438,15 +3455,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Polina Smirnova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T02:41:21.133Z",
+    "publishedAt": "2026-10-06T03:06:44.418Z",
     "trendingRank": 13,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/business_finance/",
+    "originalUrl": "https://www.instagram.com/reel/CBRABUS112xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 7971780,
@@ -3458,8 +3475,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 48.4,
       "viewsGrowthLastHour": 358730
     },
-    "createdAt": "2026-10-05T18:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T19:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-mx-14",
@@ -3488,15 +3505,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Tariq Yilmaz",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T01:29:21.133Z",
+    "publishedAt": "2026-10-06T01:54:44.418Z",
     "trendingRank": 14,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fitness_sport/",
+    "originalUrl": "https://www.instagram.com/reel/CMEXFIT113xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 7571273,
@@ -3508,8 +3525,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 49.1,
       "viewsGrowthLastHour": 340707
     },
-    "createdAt": "2026-10-05T17:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T17:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ae-15",
@@ -3538,15 +3555,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-06T00:17:21.133Z",
+    "publishedAt": "2026-10-06T00:42:44.418Z",
     "trendingRank": 15,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/travel/",
+    "originalUrl": "https://www.instagram.com/reel/CUAETRA114xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 7192696,
@@ -3558,8 +3575,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 49.8,
       "viewsGrowthLastHour": 323671
     },
-    "createdAt": "2026-10-05T15:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T16:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-tr-16",
@@ -3588,15 +3605,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T23:05:21.133Z",
+    "publishedAt": "2026-10-05T23:30:44.418Z",
     "trendingRank": 16,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/food_cooking/",
+    "originalUrl": "https://www.instagram.com/reel/CTURFOO115xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 6834735,
@@ -3608,8 +3625,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 43,
       "viewsGrowthLastHour": 307563
     },
-    "createdAt": "2026-10-05T14:17:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T14:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-us-17",
@@ -3638,15 +3655,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T21:53:21.133Z",
+    "publishedAt": "2026-10-05T22:18:44.418Z",
     "trendingRank": 17,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fashion_beauty/",
+    "originalUrl": "https://www.instagram.com/reel/CUSAFAS116xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 6496150,
@@ -3658,8 +3675,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 43.7,
       "viewsGrowthLastHour": 292326
     },
-    "createdAt": "2026-10-05T12:47:21.133Z",
-    "updatedAt": "2026-10-06T18:17:21.133Z"
+    "createdAt": "2026-10-05T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ca-18",
@@ -3688,15 +3705,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T20:41:21.152Z",
+    "publishedAt": "2026-10-05T21:06:44.418Z",
     "trendingRank": 18,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/gaming_anime/",
+    "originalUrl": "https://www.instagram.com/reel/CCANGAM117xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 6175781,
@@ -3708,8 +3725,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 44.4,
       "viewsGrowthLastHour": 277910
     },
-    "createdAt": "2026-10-05T11:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-gb-19",
@@ -3738,15 +3755,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T19:29:21.152Z",
+    "publishedAt": "2026-10-05T19:54:44.418Z",
     "trendingRank": 19,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/dance_music/",
+    "originalUrl": "https://www.instagram.com/reel/CGBRDAN118xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 5872534,
@@ -3758,8 +3775,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 45.1,
       "viewsGrowthLastHour": 264264
     },
-    "createdAt": "2026-10-05T09:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-de-20",
@@ -3788,15 +3805,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T18:17:21.152Z",
+    "publishedAt": "2026-10-05T18:42:44.418Z",
     "trendingRank": 20,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/auto_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CDEUAUT119xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 5585382,
@@ -3808,8 +3825,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 45.8,
       "viewsGrowthLastHour": 251342
     },
-    "createdAt": "2026-10-05T08:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-fr-21",
@@ -3838,15 +3855,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T17:05:21.152Z",
+    "publishedAt": "2026-10-05T17:30:44.418Z",
     "trendingRank": 21,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/humor_memes/",
+    "originalUrl": "https://www.instagram.com/reel/CFRAHUM120xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 5313359,
@@ -3858,8 +3875,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 39,
       "viewsGrowthLastHour": 239101
     },
-    "createdAt": "2026-10-05T06:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T07:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-it-22",
@@ -3888,15 +3905,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T15:53:21.152Z",
+    "publishedAt": "2026-10-05T16:18:44.418Z",
     "trendingRank": 22,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/lifestyle/",
+    "originalUrl": "https://www.instagram.com/reel/CITALIF121xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 5055558,
@@ -3908,8 +3925,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 39.7,
       "viewsGrowthLastHour": 227500
     },
-    "createdAt": "2026-10-05T05:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T05:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-es-23",
@@ -3938,15 +3955,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T14:41:21.152Z",
+    "publishedAt": "2026-10-05T15:06:44.418Z",
     "trendingRank": 23,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/ai_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CESPAI_122xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 4811124,
@@ -3958,8 +3975,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 40.4,
       "viewsGrowthLastHour": 216500
     },
-    "createdAt": "2026-10-05T03:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T04:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-jp-24",
@@ -3987,15 +4004,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T13:29:21.152Z",
+    "publishedAt": "2026-10-05T13:54:44.418Z",
     "trendingRank": 24,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/business_finance/",
+    "originalUrl": "https://www.instagram.com/reel/CJPNBUS123xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 4579257,
@@ -4007,8 +4024,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 41.1,
       "viewsGrowthLastHour": 206066
     },
-    "createdAt": "2026-10-05T02:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T02:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-kr-25",
@@ -4037,15 +4054,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Aarav Patel",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T12:17:21.152Z",
+    "publishedAt": "2026-10-05T12:42:44.418Z",
     "trendingRank": 25,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fitness_sport/",
+    "originalUrl": "https://www.instagram.com/reel/CKORFIT124xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 4359201,
@@ -4057,8 +4074,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 41.8,
       "viewsGrowthLastHour": 196164
     },
-    "createdAt": "2026-10-05T00:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-05T01:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-in-26",
@@ -4087,15 +4104,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Mateo Hernandez",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T11:05:21.152Z",
+    "publishedAt": "2026-10-05T11:30:44.418Z",
     "trendingRank": 26,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/travel/",
+    "originalUrl": "https://www.instagram.com/reel/CINDTRA125xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 4150249,
@@ -4107,8 +4124,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 35,
       "viewsGrowthLastHour": 186761
     },
-    "createdAt": "2026-10-04T23:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T23:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ru-27",
@@ -4137,15 +4154,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Polina Smirnova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T09:53:21.152Z",
+    "publishedAt": "2026-10-05T10:18:44.418Z",
     "trendingRank": 27,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/food_cooking/",
+    "originalUrl": "https://www.instagram.com/reel/CRUSFOO126xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 3951734,
@@ -4157,8 +4174,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 35.7,
       "viewsGrowthLastHour": 177828
     },
-    "createdAt": "2026-10-04T21:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T22:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-kz-28",
@@ -4187,15 +4204,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Tariq Yilmaz",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T08:41:21.152Z",
+    "publishedAt": "2026-10-05T09:06:44.418Z",
     "trendingRank": 28,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fashion_beauty/",
+    "originalUrl": "https://www.instagram.com/reel/CKAZFAS127xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 3763030,
@@ -4207,8 +4224,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 36.4,
       "viewsGrowthLastHour": 169336
     },
-    "createdAt": "2026-10-04T20:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T20:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-br-29",
@@ -4237,15 +4254,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T07:29:21.152Z",
+    "publishedAt": "2026-10-05T07:54:44.418Z",
     "trendingRank": 29,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/gaming_anime/",
+    "originalUrl": "https://www.instagram.com/reel/CBRAGAM128xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 3583548,
@@ -4257,8 +4274,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 37.1,
       "viewsGrowthLastHour": 161259
     },
-    "createdAt": "2026-10-04T18:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T19:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-mx-30",
@@ -4287,15 +4304,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": true,
-    "publishedAt": "2026-10-05T06:17:21.152Z",
+    "publishedAt": "2026-10-05T06:42:44.418Z",
     "trendingRank": 30,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/dance_music/",
+    "originalUrl": "https://www.instagram.com/reel/CMEXDAN129xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 3412735,
@@ -4307,8 +4324,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 37.8,
       "viewsGrowthLastHour": 153573
     },
-    "createdAt": "2026-10-04T17:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T17:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ae-31",
@@ -4337,15 +4354,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T05:05:21.152Z",
+    "publishedAt": "2026-10-05T05:30:44.418Z",
     "trendingRank": 31,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/auto_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CUAEAUT130xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 3250071,
@@ -4357,8 +4374,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 31,
       "viewsGrowthLastHour": 146253
     },
-    "createdAt": "2026-10-04T15:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T16:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-tr-32",
@@ -4387,15 +4404,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T03:53:21.152Z",
+    "publishedAt": "2026-10-05T04:18:44.418Z",
     "trendingRank": 32,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/humor_memes/",
+    "originalUrl": "https://www.instagram.com/reel/CTURHUM131xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 3095067,
@@ -4407,8 +4424,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 31.7,
       "viewsGrowthLastHour": 139278
     },
-    "createdAt": "2026-10-04T14:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T14:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-us-33",
@@ -4437,15 +4454,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T02:41:21.152Z",
+    "publishedAt": "2026-10-05T03:06:44.418Z",
     "trendingRank": 33,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/lifestyle/",
+    "originalUrl": "https://www.instagram.com/reel/CUSALIF132xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 2947263,
@@ -4457,8 +4474,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 32.4,
       "viewsGrowthLastHour": 132626
     },
-    "createdAt": "2026-10-04T12:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ca-34",
@@ -4487,15 +4504,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T01:29:21.152Z",
+    "publishedAt": "2026-10-05T01:54:44.418Z",
     "trendingRank": 34,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/ai_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CCANAI_133xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 2806227,
@@ -4507,8 +4524,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 33.1,
       "viewsGrowthLastHour": 126280
     },
-    "createdAt": "2026-10-04T11:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-gb-35",
@@ -4537,15 +4554,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-05T00:17:21.152Z",
+    "publishedAt": "2026-10-05T00:42:44.418Z",
     "trendingRank": 35,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/business_finance/",
+    "originalUrl": "https://www.instagram.com/reel/CGBRBUS134xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 2671553,
@@ -4557,8 +4574,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 33.8,
       "viewsGrowthLastHour": 120219
     },
-    "createdAt": "2026-10-04T09:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-de-36",
@@ -4587,15 +4604,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T23:05:21.152Z",
+    "publishedAt": "2026-10-04T23:30:44.418Z",
     "trendingRank": 36,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fitness_sport/",
+    "originalUrl": "https://www.instagram.com/reel/CDEUFIT135xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 2542860,
@@ -4607,8 +4624,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 27,
       "viewsGrowthLastHour": 114428
     },
-    "createdAt": "2026-10-04T08:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-fr-37",
@@ -4637,15 +4654,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T21:53:21.152Z",
+    "publishedAt": "2026-10-04T22:18:44.418Z",
     "trendingRank": 37,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/travel/",
+    "originalUrl": "https://www.instagram.com/reel/CFRATRA136xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 2419789,
@@ -4657,8 +4674,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 27.7,
       "viewsGrowthLastHour": 108890
     },
-    "createdAt": "2026-10-04T06:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T07:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-it-38",
@@ -4687,15 +4704,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T20:41:21.152Z",
+    "publishedAt": "2026-10-04T21:06:44.418Z",
     "trendingRank": 38,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/food_cooking/",
+    "originalUrl": "https://www.instagram.com/reel/CITAFOO137xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 2302001,
@@ -4707,8 +4724,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 28.4,
       "viewsGrowthLastHour": 103590
     },
-    "createdAt": "2026-10-04T05:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T05:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-es-39",
@@ -4736,15 +4753,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Aarav Patel",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T19:29:21.152Z",
+    "publishedAt": "2026-10-04T19:54:44.418Z",
     "trendingRank": 39,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fashion_beauty/",
+    "originalUrl": "https://www.instagram.com/reel/CESPFAS138xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 2189181,
@@ -4756,8 +4773,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 29.1,
       "viewsGrowthLastHour": 98513
     },
-    "createdAt": "2026-10-04T03:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T04:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-jp-40",
@@ -4786,15 +4803,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Mateo Hernandez",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T18:17:21.152Z",
+    "publishedAt": "2026-10-04T18:42:44.418Z",
     "trendingRank": 40,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/gaming_anime/",
+    "originalUrl": "https://www.instagram.com/reel/CJPNGAM139xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 2081030,
@@ -4806,8 +4823,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 29.8,
       "viewsGrowthLastHour": 93646
     },
-    "createdAt": "2026-10-04T02:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T02:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-kr-41",
@@ -4836,15 +4853,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Polina Smirnova",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T17:05:21.152Z",
+    "publishedAt": "2026-10-04T17:30:44.418Z",
     "trendingRank": 41,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/dance_music/",
+    "originalUrl": "https://www.instagram.com/reel/CKORDAN140xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 1977268,
@@ -4856,8 +4873,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 23,
       "viewsGrowthLastHour": 88977
     },
-    "createdAt": "2026-10-04T00:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-04T01:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-in-42",
@@ -4886,15 +4903,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Tariq Yilmaz",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T15:53:21.152Z",
+    "publishedAt": "2026-10-04T16:18:44.418Z",
     "trendingRank": 42,
     "rankChange": "up",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-auto_tech-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/auto_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CINDAUT141xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 1877632,
@@ -4906,8 +4923,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 23.7,
       "viewsGrowthLastHour": 84493
     },
-    "createdAt": "2026-10-03T23:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T23:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ru-43",
@@ -4936,15 +4953,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Alex Rivera",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T14:41:21.152Z",
+    "publishedAt": "2026-10-04T15:06:44.418Z",
     "trendingRank": 43,
     "rankChange": "down",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-humor_memes-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/humor_memes/",
+    "originalUrl": "https://www.instagram.com/reel/CRUSHUM142xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 1781874,
@@ -4956,8 +4973,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 24.4,
       "viewsGrowthLastHour": 80184
     },
-    "createdAt": "2026-10-03T21:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T22:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-kz-44",
@@ -4986,15 +5003,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Elena Rostova",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T13:29:21.152Z",
+    "publishedAt": "2026-10-04T13:54:44.418Z",
     "trendingRank": 44,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-lifestyle-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/lifestyle/",
+    "originalUrl": "https://www.instagram.com/reel/CKAZLIF143xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 1689762,
@@ -5006,8 +5023,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 25.1,
       "viewsGrowthLastHour": 76039
     },
-    "createdAt": "2026-10-03T20:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T20:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-br-45",
@@ -5035,15 +5052,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Marcus Chen",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T12:17:21.152Z",
+    "publishedAt": "2026-10-04T12:42:44.418Z",
     "trendingRank": 45,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-ai_tech-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/ai_tech/",
+    "originalUrl": "https://www.instagram.com/reel/CBRAAI_144xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 1601076,
@@ -5055,8 +5072,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 25.8,
       "viewsGrowthLastHour": 72048
     },
-    "createdAt": "2026-10-03T18:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T19:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-mx-46",
@@ -5084,15 +5101,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Chloe Dubois",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T11:05:21.152Z",
+    "publishedAt": "2026-10-04T11:30:44.418Z",
     "trendingRank": 46,
     "rankChange": "up",
     "rankChangeDelta": 1,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-business_finance-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/business_finance/",
+    "originalUrl": "https://www.instagram.com/reel/CMEXBUS145xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 1515611,
@@ -5104,8 +5121,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 19,
       "viewsGrowthLastHour": 68202
     },
-    "createdAt": "2026-10-03T17:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T17:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ae-47",
@@ -5134,15 +5151,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Lucas Silva",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T09:53:21.152Z",
+    "publishedAt": "2026-10-04T10:18:44.418Z",
     "trendingRank": 47,
     "rankChange": "down",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fitness_sport-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fitness_sport/",
+    "originalUrl": "https://www.instagram.com/reel/CUAEFIT146xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 1433175,
@@ -5154,8 +5171,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 19.7,
       "viewsGrowthLastHour": 64492
     },
-    "createdAt": "2026-10-03T15:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T16:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-tr-48",
@@ -5184,15 +5201,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Kenji Sato",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T08:41:21.152Z",
+    "publishedAt": "2026-10-04T09:06:44.418Z",
     "trendingRank": 48,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-travel-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/travel/",
+    "originalUrl": "https://www.instagram.com/reel/CTURTRA147xQ/",
     "durationSeconds": 34,
     "metrics": {
       "views": 1353584,
@@ -5204,8 +5221,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 20.4,
       "viewsGrowthLastHour": 60911
     },
-    "createdAt": "2026-10-03T14:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T14:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-us-49",
@@ -5234,15 +5251,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Sophia Rossi",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T07:29:21.152Z",
+    "publishedAt": "2026-10-04T07:54:44.418Z",
     "trendingRank": 49,
     "rankChange": "same",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-food_cooking-1.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/food_cooking/",
+    "originalUrl": "https://www.instagram.com/reel/CUSAFOO148xQ/",
     "durationSeconds": 41,
     "metrics": {
       "views": 1276669,
@@ -5254,8 +5271,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 21.1,
       "viewsGrowthLastHour": 57450
     },
-    "createdAt": "2026-10-03T12:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T13:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-ca-50",
@@ -5284,15 +5301,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "David Kim",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T06:17:21.152Z",
+    "publishedAt": "2026-10-04T06:42:44.418Z",
     "trendingRank": 50,
     "rankChange": "up",
     "rankChangeDelta": 2,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-fashion_beauty-2.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/fashion_beauty/",
+    "originalUrl": "https://www.instagram.com/reel/CCANFAS149xQ/",
     "durationSeconds": 48,
     "metrics": {
       "views": 1202269,
@@ -5304,8 +5321,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 21.8,
       "viewsGrowthLastHour": 54102
     },
-    "createdAt": "2026-10-03T11:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T11:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-gb-51",
@@ -5334,15 +5351,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Amina Al-Maktoum",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T05:05:21.152Z",
+    "publishedAt": "2026-10-04T05:30:44.418Z",
     "trendingRank": 51,
     "rankChange": "down",
     "rankChangeDelta": 3,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-gaming_anime-3.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/gaming_anime/",
+    "originalUrl": "https://www.instagram.com/reel/CGBRGAM150xQ/",
     "durationSeconds": 20,
     "metrics": {
       "views": 1130233,
@@ -5354,8 +5371,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 15,
       "viewsGrowthLastHour": 50860
     },
-    "createdAt": "2026-10-03T09:47:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T10:12:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   },
   {
     "id": "ig-de-52",
@@ -5384,15 +5401,15 @@ const RAW_INITIAL_REELS: Reel[] = [
     "soundTitle": "Original Viral Sound",
     "soundAuthor": "Maximilian Weber",
     "soundIsTrending": false,
-    "publishedAt": "2026-10-04T03:53:21.152Z",
+    "publishedAt": "2026-10-04T04:18:44.418Z",
     "trendingRank": 52,
     "rankChange": "new",
     "rankChangeDelta": 0,
-    "thumbnailUrl": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=600&auto=format&fit=crop&q=80",
+    "thumbnailUrl": "/sword-ai-content/thumbnails/poster-dance_music-4.jpg",
     "videoUrl": "",
     "backupVideoUrl": "https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm",
     "audioUrl": "",
-    "originalUrl": "https://www.instagram.com/explore/tags/dance_music/",
+    "originalUrl": "https://www.instagram.com/reel/CDEUDAN151xQ/",
     "durationSeconds": 27,
     "metrics": {
       "views": 1060419,
@@ -5404,8 +5421,8 @@ const RAW_INITIAL_REELS: Reel[] = [
       "velocityScore": 15.7,
       "viewsGrowthLastHour": 47718
     },
-    "createdAt": "2026-10-03T08:17:21.152Z",
-    "updatedAt": "2026-10-06T18:17:21.152Z"
+    "createdAt": "2026-10-03T08:42:44.418Z",
+    "updatedAt": "2026-10-06T18:42:44.418Z"
   }
 ];
 
@@ -5476,7 +5493,7 @@ export function getMatchedTracksForReel(reel: Reel): MatchedMusicTrack[] {
       platform: 'tiktok',
       matchScore: 100,
       previewUrl: audioSample,
-      externalUrl: `https://www.tiktok.com/tag/${encodeURIComponent(cleanTitle.replace(/\s+/g, ''))}`,
+      externalUrl: `https://www.tiktok.com/music/${encodeURIComponent(cleanTitle.replace(/\s+/g, '-').toLowerCase())}-7198234019283746192`,
     },
     {
       id: `${reel.id}-soundcloud`,
@@ -5555,13 +5572,13 @@ export function ensureRichContent(
       trendingRank: rank,
       rankChange: 'new',
       rankChangeDelta: 0,
-      thumbnailUrl: `https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&auto=format&fit=crop&q=80`,
+      thumbnailUrl: `${baseUrl}thumbnails/poster-${targetNiche}-${(rank % 4) + 1}.jpg`,
       videoUrl: media.video,
       backupVideoUrl: WIKIMEDIA_STREAM,
       audioUrl: media.audio,
       originalUrl: isTt
-        ? `https://www.tiktok.com/@mrbeast`
-        : `https://www.instagram.com/explore/tags/${targetNiche}/`,
+        ? `https://www.tiktok.com/@${targetCountry.code.toLowerCase()}_viral_${rank}/video/7420918274019288${(200 + rank).toString().padStart(3, '0')}`
+        : `https://www.instagram.com/reel/D${targetCountry.code.toUpperCase()}${targetNiche.slice(0, 3).toUpperCase()}${200 + rank}xK/`,
       durationSeconds: 25 + rank * 3,
       metrics: {
         views: 1200000 + rank * 350000,
