@@ -45,6 +45,14 @@ const videoFailed = ref(false);
 const currentVideoUrl = ref('');
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoReady = ref(false);
+const videoDuration = ref<number | null>(null);
+
+const displayDuration = computed(() => {
+  if (videoDuration.value && videoDuration.value > 0) {
+    return videoDuration.value;
+  }
+  return reel.value?.durationSeconds || 30;
+});
 
 // Reset video state when active reel changes
 watch(
@@ -52,6 +60,7 @@ watch(
   (newId) => {
     isVideoReady.value = false;
     videoFailed.value = false;
+    videoDuration.value = null;
     downloadStatus.value = '';
     isDownloading.value = false;
 
@@ -70,8 +79,15 @@ watch(
   { immediate: true }
 );
 
+function handleMetadataLoaded() {
+  if (videoRef.value && !isNaN(videoRef.value.duration) && videoRef.value.duration > 0) {
+    videoDuration.value = Math.round(videoRef.value.duration);
+  }
+}
+
 function handleVideoLoaded() {
   isVideoReady.value = true;
+  handleMetadataLoaded();
   if (videoRef.value) {
     videoRef.value.play().catch(() => {
       // Browser autoplay policy might require user click or mute
@@ -198,7 +214,9 @@ function handleOpenMusicDiscovery() {
             playsinline
             class="w-full h-full object-cover transition-opacity duration-300"
             :class="{ 'opacity-100': isVideoReady, 'opacity-0': !isVideoReady }"
+            @loadedmetadata="handleMetadataLoaded"
             @loadeddata="handleVideoLoaded"
+            @durationchange="handleMetadataLoaded"
             @canplay="handleVideoLoaded"
             @error="handleVideoError"
           ></video>
@@ -425,7 +443,7 @@ function handleOpenMusicDiscovery() {
           <Clock class="w-3.5 h-3.5" />
           <span>Опубликовано: {{ formatDate(reel.publishedAt) }}</span>
           <span>•</span>
-          <span>Длительность: {{ reel.durationSeconds }} сек</span>
+          <span>Длительность: {{ displayDuration }} сек</span>
         </div>
       </div>
     </div>
