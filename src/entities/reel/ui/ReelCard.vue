@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import type { Reel } from '../model/types';
 import { formatCompactNumber, formatPercentage } from '@/shared/lib/formatters';
+import { downloadReelVideo } from '@/shared/lib/export/videoExporter';
 import {
   Eye,
   Heart,
@@ -14,7 +15,9 @@ import {
   Sparkles,
   ArrowUpRight,
   ArrowDownRight,
-  Minus
+  Minus,
+  Download,
+  Check
 } from 'lucide-vue-next';
 
 interface Props {
@@ -43,6 +46,26 @@ const rankDeltaClass = computed(() => {
   if (props.reel.rankChange === 'new') return 'text-cyan-400 font-bold';
   return 'text-sword-muted';
 });
+
+const isDownloading = ref(false);
+const downloaded = ref(false);
+
+async function handleDownload(e: MouseEvent) {
+  e.stopPropagation();
+  if (isDownloading.value) return;
+  isDownloading.value = true;
+  try {
+    await downloadReelVideo(props.reel);
+    downloaded.value = true;
+    setTimeout(() => {
+      downloaded.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error('Ошибка скачивания видео:', err);
+  } finally {
+    isDownloading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -164,16 +187,28 @@ const rankDeltaClass = computed(() => {
           </div>
         </div>
 
-        <a
-          :href="reel.originalUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="p-1.5 text-sword-muted hover:text-sword-accent hover:bg-sword-surface rounded-lg transition-colors"
-          title="Открыть оригинал"
-          @click.stop
-        >
-          <ExternalLink class="w-4 h-4" />
-        </a>
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            class="p-1.5 text-sword-muted hover:text-sword-accent hover:bg-sword-surface rounded-lg transition-colors cursor-pointer"
+            :title="downloaded ? 'Видео скачано!' : 'Скачать видео (.mp4)'"
+            @click="handleDownload"
+          >
+            <Check v-if="downloaded" class="w-4 h-4 text-emerald-400" />
+            <Download v-else class="w-4 h-4" :class="{ 'animate-bounce text-cyan-400': isDownloading }" />
+          </button>
+
+          <a
+            :href="reel.originalUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-1.5 text-sword-muted hover:text-sword-accent hover:bg-sword-surface rounded-lg transition-colors"
+            title="Открыть оригинал"
+            @click.stop
+          >
+            <ExternalLink class="w-4 h-4" />
+          </a>
+        </div>
       </div>
 
       <!-- Title & Description -->

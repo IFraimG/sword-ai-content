@@ -70,9 +70,15 @@ async function handleExport() {
     @update:model-value="store.closeExport"
   >
     <div class="flex flex-col gap-5 py-1">
-      <p class="text-xs text-sword-muted leading-relaxed">
-        Сформируйте комплексный аналитический срез трендов с текущими показателями просмотров, вовлеченности (ER%) и темпом роста (Velocity).
-      </p>
+      <div class="flex flex-col gap-1.5">
+        <p class="text-xs text-sword-muted leading-relaxed">
+          Сформируйте комплексный аналитический срез трендов с текущими показателями просмотров, вовлеченности (ER%) и темпом роста (Velocity).
+        </p>
+        <p class="text-[11px] text-cyan-300 bg-cyan-950/40 border border-cyan-800/40 p-2 rounded-lg flex items-center gap-1.5">
+          <span>🎥</span>
+          <span><b>Экспорт видео .MP4:</b> Скачать исходный ролик можно прямо на карточке каждого рилса или в окне плеера.</span>
+        </p>
+      </div>
 
       <!-- 1. Format Selection -->
       <div class="flex flex-col gap-2">
