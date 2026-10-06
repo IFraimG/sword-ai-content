@@ -64,18 +64,30 @@ const rankDeltaClass = computed(() => {
 
       <!-- Platform & Rank Header overlay -->
       <div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-        <!-- Platform Badge -->
-        <div
-          :class="[
-            'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-md pointer-events-auto',
-            isTikTok
-              ? 'bg-black/70 text-tiktok-cyan border border-tiktok-cyan/40'
-              : 'bg-gradient-to-r from-insta-purple/80 to-insta-pink/80 text-white border border-pink-400/40'
-          ]"
-        >
-          <span v-if="isTikTok" class="w-2 h-2 rounded-full bg-tiktok-pink animate-pulse"></span>
-          <span v-else class="w-2 h-2 rounded-full bg-insta-orange animate-pulse"></span>
-          <span>{{ isTikTok ? 'TikTok' : 'Instagram' }}</span>
+        <div class="flex items-center gap-1.5 pointer-events-auto">
+          <!-- Platform Badge -->
+          <div
+            :class="[
+              'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-md',
+              isTikTok
+                ? 'bg-black/75 text-tiktok-cyan border border-tiktok-cyan/40'
+                : 'bg-gradient-to-r from-insta-purple/80 to-insta-pink/80 text-white border border-pink-400/40'
+            ]"
+          >
+            <span v-if="isTikTok" class="w-1.5 h-1.5 rounded-full bg-tiktok-pink animate-pulse"></span>
+            <span v-else class="w-1.5 h-1.5 rounded-full bg-insta-orange animate-pulse"></span>
+            <span>{{ isTikTok ? 'TikTok' : 'Reels' }}</span>
+          </div>
+
+          <!-- Country Badge -->
+          <div
+            v-if="reel.countryFlag"
+            class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-black/75 backdrop-blur-md border border-white/20 text-white shadow-md"
+            :title="`Страна: ${reel.countryName}`"
+          >
+            <span>{{ reel.countryFlag }}</span>
+            <span class="text-[10px] text-slate-300 font-mono">{{ reel.country.toUpperCase() }}</span>
+          </div>
         </div>
 
         <!-- Rank & Change Badge -->

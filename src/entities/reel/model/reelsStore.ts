@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { Reel, Niche, SortBy, Platform } from './types';
-import { INITIAL_REELS, simulateRealtimeTick } from './mockData';
+import type { Reel, Niche, SortBy, Platform, ContinentId, CountryId, NicheInfo } from './types';
+import { INITIAL_REELS, simulateRealtimeTick, CONTINENTS, COUNTRIES, ALL_NICHES, REGION_POPULAR_NICHES } from './mockData';
 
 export const useReelsStore = defineStore('reels', () => {
   // State
@@ -10,6 +10,10 @@ export const useReelsStore = defineStore('reels', () => {
   const selectedNiche = ref<Niche>('all');
   const sortBy = ref<SortBy>('rank');
   const selectedPlatform = ref<'all' | Platform>('all');
+
+  // Geographic filtering state
+  const selectedContinent = ref<ContinentId>('all');
+  const selectedCountry = ref<CountryId>('all');
 
   // Real-time synchronization state (2-minute intervals)
   const SYNC_INTERVAL_SECONDS = 120;
@@ -44,8 +48,66 @@ export const useReelsStore = defineStore('reels', () => {
   }
 
   // Getters
+
+  /** Available countries dynamically scoped to the selected continent */
+  const availableCountries = computed(() => {
+    if (selectedContinent.value === 'all') {
+      return COUNTRIES;
+    }
+    return COUNTRIES.filter((c) => c.continent === selectedContinent.value);
+  });
+
+  /**
+   * Adaptive niches based on selected continent/country:
+   * Reorganizes and highlights niche filters based on what is popular in that region.
+   */
+  const adaptiveNiches = computed<NicheInfo[]>(() => {
+    const priorityNiches = REGION_POPULAR_NICHES[selectedContinent.value] || REGION_POPULAR_NICHES.all;
+
+    // Split into priority vs others
+    const prioritized: NicheInfo[] = [];
+    const others: NicheInfo[] = [];
+
+    ALL_NICHES.forEach((niche) => {
+      if (niche.id === 'all') {
+        prioritized.unshift({ ...niche, isPopularInRegion: false });
+      } else if (priorityNiches.includes(niche.id)) {
+        prioritized.push({ ...niche, isPopularInRegion: true });
+      } else {
+        others.push({ ...niche, isPopularInRegion: false });
+      }
+    });
+
+    return [...prioritized, ...others];
+  });
+
+  /** Human-readable label of current geo location */
+  const currentGeoLabel = computed(() => {
+    const continent = CONTINENTS.find((c) => c.id === selectedContinent.value);
+    const country = COUNTRIES.find((c) => c.id === selectedCountry.value);
+
+    if (selectedCountry.value !== 'all' && country) {
+      return `${country.flag} ${country.label} (${continent?.label || ''})`;
+    }
+    if (selectedContinent.value !== 'all' && continent) {
+      return `${continent.label}`;
+    }
+    return 'Весь мир (Global)';
+  });
+
+  // Filtered Reels including Geographic filter
   const filteredReels = computed(() => {
     let result = reels.value;
+
+    // Geographic: Continent filter
+    if (selectedContinent.value !== 'all') {
+      result = result.filter((r) => r.continent === selectedContinent.value);
+    }
+
+    // Geographic: Country filter
+    if (selectedCountry.value !== 'all') {
+      result = result.filter((r) => r.country === selectedCountry.value);
+    }
 
     // Platform filter
     if (selectedPlatform.value !== 'all') {
@@ -57,7 +119,7 @@ export const useReelsStore = defineStore('reels', () => {
       result = result.filter((r) => r.niche === selectedNiche.value);
     }
 
-    // Search query filter (matches title, description, author, hashtags, audio)
+    // Search query filter (matches title, description, author, hashtags, audio, country)
     const q = searchQuery.value.trim().toLowerCase();
     if (q) {
       result = result.filter((r) => {
@@ -67,6 +129,7 @@ export const useReelsStore = defineStore('reels', () => {
           r.authorName.toLowerCase().includes(q) ||
           r.authorUsername.toLowerCase().includes(q) ||
           r.soundTitle.toLowerCase().includes(q) ||
+          r.countryName.toLowerCase().includes(q) ||
           r.hashtags.some((tag) => tag.toLowerCase().includes(q))
         );
       });
@@ -114,6 +177,32 @@ export const useReelsStore = defineStore('reels', () => {
   });
 
   // Actions
+  function setContinent(continent: ContinentId) {
+    selectedContinent.value = continent;
+    // If the currently selected country does not belong to the newly selected continent, reset country
+    if (selectedCountry.value !== 'all') {
+      const countryObj = COUNTRIES.find((c) => c.id === selectedCountry.value);
+      if (countryObj && continent !== 'all' && countryObj.continent !== continent) {
+        selectedCountry.value = 'all';
+      }
+    }
+  }
+
+  function setCountry(country: CountryId) {
+    selectedCountry.value = country;
+    if (country !== 'all') {
+      const countryObj = COUNTRIES.find((c) => c.id === country);
+      if (countryObj && countryObj.continent) {
+        selectedContinent.value = countryObj.continent;
+      }
+    }
+  }
+
+  function resetGeoFilter() {
+    selectedContinent.value = 'all';
+    selectedCountry.value = 'all';
+  }
+
   function triggerRefresh() {
     isRefreshing.value = true;
     setTimeout(() => {
@@ -178,6 +267,8 @@ export const useReelsStore = defineStore('reels', () => {
     selectedNiche,
     sortBy,
     selectedPlatform,
+    selectedContinent,
+    selectedCountry,
     countdown,
     SYNC_INTERVAL_SECONDS,
     isLiveSyncing,
@@ -187,12 +278,18 @@ export const useReelsStore = defineStore('reels', () => {
     isExportModalOpen,
 
     // Getters
+    availableCountries,
+    adaptiveNiches,
+    currentGeoLabel,
     filteredReels,
     tiktokReels,
     instagramReels,
     summaryMetrics,
 
     // Actions
+    setContinent,
+    setCountry,
+    resetGeoFilter,
     triggerRefresh,
     startAutoRefresh,
     stopAutoRefresh,

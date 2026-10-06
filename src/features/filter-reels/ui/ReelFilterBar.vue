@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
-import { NICHES } from '@/entities/reel/model/mockData';
 import type { Niche, SortBy } from '@/entities/reel/model/types';
 import BaseInput from '@/shared/ui/BaseInput.vue';
+import GeoSelector from './GeoSelector.vue';
 import {
   Search,
   SlidersHorizontal,
@@ -17,7 +17,9 @@ import {
   Plane,
   Sparkles,
   Coffee,
-  Check
+  Gamepad2,
+  Car,
+  Zap
 } from 'lucide-vue-next';
 
 const store = useReelsStore();
@@ -33,6 +35,8 @@ const nicheIcons: Record<string, any> = {
   Plane,
   Sparkles,
   Coffee,
+  Gamepad2,
+  Car,
 };
 
 const sortOptions: { id: SortBy; label: string }[] = [
@@ -53,14 +57,14 @@ function setSort(sort: SortBy) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 w-full bg-sword-surface/90 border border-sword-border/60 rounded-2xl p-4 shadow-xl backdrop-blur-md">
+  <div class="flex flex-col gap-3.5 w-full bg-sword-surface/90 border border-sword-border/60 rounded-2xl p-4 shadow-xl backdrop-blur-md">
     <!-- Top Row: Search and Sort controls -->
-    <div class="flex flex-col sm:flex-row items-center gap-3">
+    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
       <!-- Search Input -->
-      <div class="w-full sm:flex-1">
+      <div class="flex-1 min-w-0">
         <BaseInput
           v-model="store.searchQuery"
-          placeholder="Поиск по названию, автору, звуку, хештегам (#ai, #мемы)..."
+          placeholder="Поиск по названию, автору, стране, звуку, хештегам (#ai, #tokyo)..."
         >
           <template #prefix>
             <Search class="w-4 h-4 text-cyan-400" />
@@ -68,15 +72,15 @@ function setSort(sort: SortBy) {
         </BaseInput>
       </div>
 
-      <!-- Sort Dropdown / Selector -->
-      <div class="flex items-center gap-2 w-full sm:w-auto">
+      <!-- Sort Dropdown -->
+      <div class="flex items-center gap-2 flex-shrink-0">
         <div class="flex items-center gap-1.5 text-xs text-sword-muted whitespace-nowrap pl-1">
           <SlidersHorizontal class="w-3.5 h-3.5 text-sword-accent" />
           <span>Сортировка:</span>
         </div>
         <select
           :value="store.sortBy"
-          class="bg-sword-card border border-sword-border rounded-xl px-3 py-2 text-xs font-semibold text-sword-text outline-none focus:border-sword-accent cursor-pointer w-full sm:w-auto transition-colors"
+          class="bg-sword-card border border-sword-border rounded-xl px-3 py-2 text-xs font-semibold text-sword-text outline-none focus:border-sword-accent cursor-pointer transition-colors"
           @change="(e) => setSort((e.target as HTMLSelectElement).value as SortBy)"
         >
           <option
@@ -91,10 +95,25 @@ function setSort(sort: SortBy) {
       </div>
     </div>
 
-    <!-- Bottom Row: Niche Categories Chips -->
+    <!-- Middle Row: Geographic Continent & Country Filters -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1 border-t border-sword-border/40">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-sword-muted uppercase tracking-wider flex items-center gap-1">
+          <span>География:</span>
+        </span>
+        <GeoSelector />
+      </div>
+
+      <div class="text-[11px] text-sword-muted hidden lg:flex items-center gap-1">
+        <Zap class="w-3 h-3 text-sword-accent" />
+        <span>Фильтры ниш ниже автоматически адаптируются к региону</span>
+      </div>
+    </div>
+
+    <!-- Bottom Row: Dynamically Adaptive Niche Categories Chips -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none pt-1">
       <button
-        v-for="niche in NICHES"
+        v-for="niche in store.adaptiveNiches"
         :key="niche.id"
         type="button"
         :class="[
@@ -113,6 +132,16 @@ function setSort(sort: SortBy) {
           ]"
         />
         <span>{{ niche.label }}</span>
+
+        <!-- Region popularity indicator -->
+        <span
+          v-if="niche.isPopularInRegion && store.selectedNiche !== niche.id"
+          class="text-[9px] px-1 py-0.2 rounded bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30"
+          title="Популярно в выбранном регионе"
+        >
+          TOP
+        </span>
+
         <span
           v-if="store.selectedNiche === niche.id"
           class="w-1.5 h-1.5 rounded-full bg-black ml-0.5"

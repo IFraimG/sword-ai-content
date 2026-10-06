@@ -23,8 +23,14 @@ export async function exportToDocx(reels: Reel[], config: ExportConfig): Promise
 
   // Filter reels based on config scope
   let targetReels = reels;
+  if (config.continentScope && config.continentScope !== 'all') {
+    targetReels = targetReels.filter((r) => r.continent === config.continentScope);
+  }
+  if (config.countryScope && config.countryScope !== 'all') {
+    targetReels = targetReels.filter((r) => r.country === config.countryScope);
+  }
   if (config.platformScope !== 'both') {
-    targetReels = reels.filter((r) => r.platform === config.platformScope);
+    targetReels = targetReels.filter((r) => r.platform === config.platformScope);
   }
   if (config.filterNiche && config.filterNiche !== 'all') {
     targetReels = targetReels.filter((r) => r.niche === config.filterNiche);
@@ -100,7 +106,7 @@ export async function exportToDocx(reels: Reel[], config: ExportConfig): Promise
             }),
             new Paragraph({
               children: [
-                new TextRun({ text: `${reel.authorName} (${reel.authorUsername})`, italics: true, color: '64748B', size: 18 }),
+                new TextRun({ text: `${reel.authorName} (${reel.authorUsername}) • ${reel.countryFlag} ${reel.countryName}`, italics: true, color: '64748B', size: 18 }),
               ],
             }),
             new Paragraph({

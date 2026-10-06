@@ -24,6 +24,7 @@ const includeMetrics = ref({
   velocity: true,
   soundInfo: true,
   hashtags: true,
+  geoInfo: true,
 });
 
 async function handleExport() {
@@ -33,6 +34,8 @@ async function handleExport() {
   const config: ExportConfig = {
     format: selectedFormat.value,
     platformScope: platformScope.value,
+    continentScope: store.selectedContinent,
+    countryScope: store.selectedCountry,
     includeMetrics: includeMetrics.value,
     filterNiche: store.selectedNiche,
   };
@@ -125,6 +128,12 @@ async function handleExport() {
             <span class="text-[10px] text-sword-muted">Текстовый формат</span>
           </button>
         </div>
+      </div>
+
+      <!-- Current Geo Filter Info -->
+      <div class="flex items-center justify-between p-3 rounded-xl bg-sword-card/70 border border-sword-border/60 text-xs">
+        <span class="text-sword-muted">Географический охват:</span>
+        <span class="font-bold text-sword-accent">{{ store.currentGeoLabel }}</span>
       </div>
 
       <!-- 2. Platform Scope -->

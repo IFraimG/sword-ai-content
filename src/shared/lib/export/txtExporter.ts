@@ -5,14 +5,21 @@ import { formatCompactNumber, formatFullNumber, formatPercentage, formatDate } f
 export function exportToTxt(reels: Reel[], config: ExportConfig): void {
   // Filter reels based on config scope
   let targetReels = reels;
+  if (config.continentScope && config.continentScope !== 'all') {
+    targetReels = targetReels.filter((r) => r.continent === config.continentScope);
+  }
+  if (config.countryScope && config.countryScope !== 'all') {
+    targetReels = targetReels.filter((r) => r.country === config.countryScope);
+  }
   if (config.platformScope !== 'both') {
-    targetReels = reels.filter((r) => r.platform === config.platformScope);
+    targetReels = targetReels.filter((r) => r.platform === config.platformScope);
   }
   if (config.filterNiche && config.filterNiche !== 'all') {
     targetReels = targetReels.filter((r) => r.niche === config.filterNiche);
   }
 
   const dateStr = formatDate(new Date().toISOString());
+  const geoLabel = config.countryScope !== 'all' ? `Страна: ${config.countryScope.toUpperCase()}` : config.continentScope !== 'all' ? `Континент: ${config.continentScope.toUpperCase()}` : 'Весь мир (Global)';
 
   const lines: string[] = [
     '================================================================================',
@@ -20,14 +27,15 @@ export function exportToTxt(reels: Reel[], config: ExportConfig): void {
     '                 TikTok & Instagram Reels Real-Time Monitoring                  ',
     '================================================================================',
     `Дата формирования отчета: ${dateStr}`,
-    `Выборка: ${config.platformScope === 'both' ? 'TikTok + Instagram' : config.platformScope.toUpperCase()}`,
+    `Географический охват: ${geoLabel}`,
+    `Выборка платформ: ${config.platformScope === 'both' ? 'TikTok + Instagram' : config.platformScope.toUpperCase()}`,
     `Всего трендов в отчете: ${targetReels.length}`,
     '--------------------------------------------------------------------------------',
     '',
   ];
 
   targetReels.forEach((reel) => {
-    lines.push(`[#${reel.trendingRank}] [${reel.platform.toUpperCase()}] ${reel.title}`);
+    lines.push(`[#${reel.trendingRank}] [${reel.platform.toUpperCase()}] [${reel.countryFlag} ${reel.countryName}] ${reel.title}`);
     lines.push(`Автор: ${reel.authorName} (${reel.authorUsername})${reel.authorVerified ? ' [VERIFIED]' : ''}`);
     lines.push(`Тематика/Ниша: ${reel.niche}`);
     lines.push(`Просмотры: ${formatCompactNumber(reel.metrics.views)} (${formatFullNumber(reel.metrics.views)})`);

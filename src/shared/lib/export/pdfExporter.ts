@@ -12,8 +12,14 @@ export function exportToPdf(reels: Reel[], config: ExportConfig): void {
 
   // Filter reels based on config scope
   let targetReels = reels;
+  if (config.continentScope && config.continentScope !== 'all') {
+    targetReels = targetReels.filter((r) => r.continent === config.continentScope);
+  }
+  if (config.countryScope && config.countryScope !== 'all') {
+    targetReels = targetReels.filter((r) => r.country === config.countryScope);
+  }
   if (config.platformScope !== 'both') {
-    targetReels = reels.filter((r) => r.platform === config.platformScope);
+    targetReels = targetReels.filter((r) => r.platform === config.platformScope);
   }
   if (config.filterNiche && config.filterNiche !== 'all') {
     targetReels = targetReels.filter((r) => r.niche === config.filterNiche);
@@ -35,7 +41,8 @@ export function exportToPdf(reels: Reel[], config: ExportConfig): void {
   doc.setTextColor(200, 210, 230);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Viral Reels Report — TikTok & Instagram | Generated: ${dateStr}`, 14, 20);
+  const geoLabel = config.countryScope !== 'all' ? `Geo: ${config.countryScope.toUpperCase()}` : config.continentScope !== 'all' ? `Region: ${config.continentScope.toUpperCase()}` : 'Global';
+  doc.text(`Viral Reels Report — ${geoLabel} | Generated: ${dateStr}`, 14, 20);
 
   // Stats badge on header right
   doc.setTextColor(255, 255, 255);
@@ -46,7 +53,7 @@ export function exportToPdf(reels: Reel[], config: ExportConfig): void {
   const tableData = targetReels.map((reel) => [
     `#${reel.trendingRank}`,
     reel.platform.toUpperCase(),
-    `${reel.title}\n(${reel.authorName} - ${reel.authorUsername})`,
+    `${reel.title}\n(${reel.authorName} - [${reel.country.toUpperCase()}] ${reel.countryName})`,
     formatCompactNumber(reel.metrics.views),
     formatCompactNumber(reel.metrics.likes),
     formatCompactNumber(reel.metrics.shares),
