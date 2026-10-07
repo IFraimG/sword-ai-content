@@ -8,6 +8,35 @@ export interface LiveMusicSearchOptions {
   limit?: number;
 }
 
+export function getNicheSearchQuery(niche?: string): string {
+  switch (niche) {
+    case 'ai_tech':
+      return 'synthwave electro dance';
+    case 'dance_music':
+      return 'dance edm club hit';
+    case 'fitness_sport':
+      return 'workout phonk bass';
+    case 'humor_memes':
+      return 'viral comedy sound';
+    case 'business_finance':
+      return 'lofi chill ambient beats';
+    case 'auto_tech':
+      return 'phonk drift bass electronic';
+    case 'travel':
+      return 'chill summer tropical house';
+    case 'fashion_beauty':
+      return 'lounge deep house chill';
+    case 'food_cooking':
+      return 'acoustic cafe jazz chill';
+    case 'lifestyle':
+      return 'acoustic indie chill pop';
+    case 'gaming_anime':
+      return 'hyperpop gaming electronic';
+    default:
+      return 'top viral hits dance';
+  }
+}
+
 /**
  * Searches platform tracks with authentic 30s audio previews
  * via Fastify backend or direct public API.
@@ -17,7 +46,17 @@ export async function searchLiveMusicTracks(
   reel: Reel,
   options: LiveMusicSearchOptions = {}
 ): Promise<MatchedMusicTrack[]> {
-  const cleanQuery = query.trim() || `${reel.soundTitle} ${reel.soundAuthor}`;
+  const isGenericSound =
+    !reel.soundTitle ||
+    /original\s*(viral\s*)?sound/i.test(reel.soundTitle) ||
+    /оригинальный/i.test(reel.soundTitle);
+
+  const cleanQuery = query.trim()
+    ? query.trim()
+    : isGenericSound
+    ? getNicheSearchQuery(reel.niche)
+    : `${reel.soundTitle} ${reel.soundAuthor}`;
+
   const cacheKey = cleanQuery.toLowerCase();
 
   if (trackCache.has(cacheKey)) {
@@ -34,22 +73,39 @@ export async function searchLiveMusicTracks(
       return serverResult.items;
     }
   } catch (err) {
-    console.warn('Fastify music API unreachable, trying direct lookup:', err);
+    // Fastify server optional, continue to direct lookup
   }
 
   // 2. Direct browser lookup to iTunes public catalog
   try {
-    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&entity=song&limit=${limit}`;
-    const response = await fetch(itunesUrl, {
+    let itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(cleanQuery)}&entity=song&limit=${limit}`;
+    let response = await fetch(itunesUrl, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
       },
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(6000),
     });
 
     if (response.ok) {
-      const data = await response.json();
+      let data = await response.json();
+
+      // If specific search had 0 results, fallback to niche genre query
+      if ((!data.results || data.results.length === 0) && !query.trim()) {
+        const fallbackTerm = getNicheSearchQuery(reel.niche);
+        itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(fallbackTerm)}&entity=song&limit=${limit}`;
+        response = await fetch(itunesUrl, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+          },
+          signal: AbortSignal.timeout(6000),
+        });
+        if (response.ok) {
+          data = await response.json();
+        }
+      }
+
       if (data.results && data.results.length > 0) {
         const tracks: MatchedMusicTrack[] = data.results.map((item: any, idx: number) => {
           const highResCover = item.artworkUrl100
@@ -82,7 +138,7 @@ export async function searchLiveMusicTracks(
           }
 
           return {
-            id: `itunes-${item.trackId || idx}-${Date.now()}`,
+            id: `itunes-${item.trackId || idx}-${idx}`,
             title: item.trackName || reel.soundTitle,
             artist: item.artistName || reel.soundAuthor,
             album: item.collectionName || `${item.trackName} - Single`,
@@ -90,7 +146,7 @@ export async function searchLiveMusicTracks(
             duration: durationStr,
             platform,
             matchScore: Math.max(90, 99 - idx * 2),
-            previewUrl: item.previewUrl || reel.audioUrl || '',
+            previewUrl: item.previewUrl || '',
             externalUrl,
           };
         });
@@ -100,7 +156,7 @@ export async function searchLiveMusicTracks(
       }
     }
   } catch (err) {
-    console.warn('Сетевой запрос к iTunes Search API ограничен:', err);
+    // Network or timeout handled cleanly
   }
 
   // 3. Fallback without local media files

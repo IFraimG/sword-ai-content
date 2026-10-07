@@ -12,14 +12,9 @@ export function getApiBaseUrl(): string {
     return userConfigured.trim().replace(/\/$/, '');
   }
 
-  // 2. Vite environment variable (ignored if it's the uncreated placeholder domain)
+  // 2. Vite environment variable (configured Render domain or custom API)
   const envUrl = import.meta.env.VITE_API_URL;
-  if (
-    envUrl &&
-    typeof envUrl === 'string' &&
-    envUrl.trim() &&
-    !envUrl.includes('sword-ai-content-api.onrender.com')
-  ) {
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
     return envUrl.trim().replace(/\/$/, '');
   }
 
@@ -28,8 +23,8 @@ export function getApiBaseUrl(): string {
     return 'http://localhost:3001';
   }
 
-  // 4. In production (GitHub Pages) with no server configured yet, return empty
-  return '';
+  // 4. Default production Fastify service deployed on Render
+  return 'https://sword-ai-content-api.onrender.com';
 }
 
 export function setCustomApiUrl(url: string): void {
@@ -72,6 +67,7 @@ export interface ResolvedStream {
   directVideoUrl?: string | null;
   audioUrl?: string | null;
   directAudioUrl?: string | null;
+  embedUrl?: string | null;
   duration?: number | null;
   reason?: string;
   author?: any;
@@ -88,7 +84,7 @@ export async function checkServerHealth(targetUrl?: string): Promise<boolean> {
   try {
     const res = await fetch(`${base}/api/health`, {
       method: 'GET',
-      signal: AbortSignal.timeout(3000),
+      signal: AbortSignal.timeout(6000),
     });
     return res.ok;
   } catch {

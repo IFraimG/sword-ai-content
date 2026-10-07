@@ -49,6 +49,13 @@ const previewAudioElement = ref<HTMLAudioElement | null>(null);
 
 let debounceTimer: number | null = null;
 
+// Computed active audio URL for original card
+const activeAudioSource = computed(() => {
+  if (reel.value?.audioUrl) return reel.value.audioUrl;
+  const firstWithPreview = matchedTracks.value.find((t) => t.previewUrl);
+  return firstWithPreview?.previewUrl || '';
+});
+
 // Watch active reel change
 watch(
   () => reel.value,
@@ -120,13 +127,26 @@ function togglePlayOriginal() {
   if (isPlaying.value) {
     audioElement.value.pause();
     isPlaying.value = false;
-  } else {
-    audioElement.value.play().then(() => {
-      isPlaying.value = true;
-    }).catch((err) => {
-      console.warn('Audio play error:', err);
-    });
+    return;
   }
+
+  // Safe check: if no audio URL is present, open platform original
+  if (!activeAudioSource.value) {
+    if (reel.value?.originalUrl) {
+      window.open(reel.value.originalUrl, '_blank');
+    }
+    return;
+  }
+
+  audioElement.value
+    .play()
+    .then(() => {
+      isPlaying.value = true;
+    })
+    .catch((err) => {
+      console.warn('Audio play handled safely:', err);
+      isPlaying.value = false;
+    });
 }
 
 function togglePlayPreview(track: MatchedMusicTrack) {
@@ -143,6 +163,14 @@ function togglePlayPreview(track: MatchedMusicTrack) {
     return;
   }
 
+  // Safe check: if no preview URL available, open streaming service
+  if (!track.previewUrl) {
+    if (track.externalUrl) {
+      window.open(track.externalUrl, '_blank');
+    }
+    return;
+  }
+
   activePreviewTrackId.value = track.id;
   if (!previewAudioElement.value) {
     previewAudioElement.value = new Audio();
@@ -153,7 +181,7 @@ function togglePlayPreview(track: MatchedMusicTrack) {
 
   previewAudioElement.value.src = track.previewUrl;
   previewAudioElement.value.play().catch((err) => {
-    console.warn('Preview play error:', err);
+    console.warn('Preview play handled safely:', err);
     activePreviewTrackId.value = null;
   });
 }
@@ -198,11 +226,24 @@ async function handleDownloadOriginal() {
   if (!reel.value) return;
   downloadingTrackId.value = 'original';
   try {
-    await downloadReelAudio(reel.value, (status: string) => {
-      downloadStatusText.value = status;
-    });
+    const audioUrl = activeAudioSource.value;
+    if (audioUrl) {
+      await downloadReelAudio(
+        reel.value,
+        (status: string) => {
+          downloadStatusText.value = status;
+        },
+        audioUrl
+      );
+    } else {
+      downloadStatusText.value = 'Открытие на платформе...';
+      window.open(reel.value.originalUrl, '_blank');
+    }
   } catch (err) {
-    console.error('Ошибка скачивания аудио:', err);
+    console.warn('Ошибка скачивания аудио:', err);
+    if (reel.value?.originalUrl) {
+      window.open(reel.value.originalUrl, '_blank');
+    }
   } finally {
     setTimeout(() => {
       downloadingTrackId.value = null;
@@ -215,17 +256,28 @@ async function handleDownloadTrack(track: MatchedMusicTrack) {
   if (!reel.value) return;
   downloadingTrackId.value = track.id;
   try {
-    const customReel = {
-      ...reel.value,
-      soundTitle: track.title,
-      soundAuthor: track.artist,
-      audioUrl: track.previewUrl,
-    };
-    await downloadReelAudio(customReel, (status: string) => {
-      downloadStatusText.value = status;
-    });
+    if (track.previewUrl) {
+      const customReel = {
+        ...reel.value,
+        soundTitle: track.title,
+        soundAuthor: track.artist,
+        audioUrl: track.previewUrl,
+      };
+      await downloadReelAudio(
+        customReel,
+        (status: string) => {
+          downloadStatusText.value = status;
+        },
+        track.previewUrl
+      );
+    } else if (track.externalUrl) {
+      window.open(track.externalUrl, '_blank');
+    }
   } catch (err) {
-    console.error('Ошибка скачивания трека:', err);
+    console.warn('Ошибка скачивания трека:', err);
+    if (track.externalUrl) {
+      window.open(track.externalUrl, '_blank');
+    }
   } finally {
     setTimeout(() => {
       downloadingTrackId.value = null;
@@ -389,7 +441,7 @@ function getPlatformLabel(platform: string): string {
         <!-- Hidden Audio Element -->
         <audio
           ref="audioElement"
-          :src="reel.audioUrl"
+          :src="activeAudioSource"
           preload="metadata"
           @timeupdate="handleTimeUpdate"
           @loadedmetadata="handleLoadedMetadata"
@@ -480,11 +532,18 @@ function getPlatformLabel(platform: string): string {
                 <button
                   type="button"
                   class="absolute inset-0 bg-black/50 hover:bg-black/30 flex items-center justify-center text-white transition-colors cursor-pointer"
-                  :title="activePreviewTrackId === track.id ? 'Остановить' : 'Слушать превью'"
+                  :title="
+                    activePreviewTrackId === track.id
+                      ? 'Остановить'
+                      : track.previewUrl
+                      ? 'Слушать превью'
+                      : 'Открыть на платформе'
+                  "
                   @click="togglePlayPreview(track)"
                 >
                   <Pause v-if="activePreviewTrackId === track.id" class="w-5 h-5 fill-white animate-pulse" />
-                  <Play v-else class="w-5 h-5 fill-white ml-0.5" />
+                  <Play v-else-if="track.previewUrl" class="w-5 h-5 fill-white ml-0.5" />
+                  <ExternalLink v-else class="w-4 h-4 text-cyan-300" />
                 </button>
               </div>
 

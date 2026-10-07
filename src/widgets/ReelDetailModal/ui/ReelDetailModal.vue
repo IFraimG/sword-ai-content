@@ -232,7 +232,7 @@ function handleOpenMusicDiscovery() {
         <div class="relative w-full aspect-[9/16] max-h-[480px] rounded-2xl overflow-hidden bg-black border border-sword-border/80 shadow-2xl flex items-center justify-center group">
           <!-- Loading placeholder while platform stream resolves -->
           <div
-            v-if="(isResolvingStream || (!isVideoReady && !videoFailed)) && currentVideoUrl"
+            v-if="isResolvingStream || (currentVideoUrl && !isVideoReady && !videoFailed)"
             class="absolute inset-0 z-10 flex items-center justify-center bg-black transition-opacity duration-200"
           >
             <img
@@ -241,10 +241,10 @@ function handleOpenMusicDiscovery() {
               class="w-full h-full object-cover filter brightness-[0.6]"
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
               <div class="w-10 h-10 rounded-full border-2 border-sword-accent border-t-transparent animate-spin"></div>
               <span class="text-[11px] font-semibold text-cyan-300 drop-shadow">
-                {{ isResolvingStream ? 'Разрешение потока с платформы...' : 'Буферизация видео...' }}
+                {{ isResolvingStream ? 'Разрешение видеопотока с платформы...' : 'Буферизация видео...' }}
               </span>
             </div>
           </div>
@@ -274,7 +274,7 @@ function handleOpenMusicDiscovery() {
 
           <!-- Platform Restricted / Stream Unavailable State -->
           <div
-            v-else
+            v-else-if="!isResolvingStream"
             class="relative w-full h-full flex flex-col justify-between overflow-hidden p-4"
           >
             <!-- Background Image with Soft Blur -->
