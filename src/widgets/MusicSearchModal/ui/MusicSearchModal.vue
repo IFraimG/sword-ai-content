@@ -56,6 +56,20 @@ const activeAudioSource = computed(() => {
   return firstWithPreview?.previewUrl || '';
 });
 
+const hasRealThumbnail = computed(() => {
+  const url = reel.value?.thumbnailUrl;
+  if (!url || !url.trim()) return false;
+  if (url.includes('images.unsplash.com')) return false;
+  if (url.includes('placeholder')) return false;
+  return true;
+});
+
+const originalCover = computed(() => {
+  if (hasRealThumbnail.value) return reel.value?.thumbnailUrl || '';
+  const firstWithCover = matchedTracks.value.find((t) => t.coverUrl && !t.coverUrl.includes('images.unsplash.com'));
+  return firstWithCover?.coverUrl || '';
+});
+
 // Watch active reel change
 watch(
   () => reel.value,
@@ -355,10 +369,17 @@ function getPlatformLabel(platform: string): string {
           <!-- Thumbnail / Sound Wave Icon -->
           <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 border border-sword-border/80 shadow-md">
             <img
-              :src="reel.thumbnailUrl"
+              v-if="originalCover"
+              :src="originalCover"
               :alt="reel.soundTitle"
               class="w-full h-full object-cover"
             />
+            <div
+              v-else
+              class="w-full h-full bg-gradient-to-tr from-cyan-950 via-slate-900 to-pink-950 flex items-center justify-center"
+            >
+              <Disc3 class="w-10 h-10 text-cyan-400/60 animate-spin" style="animation-duration: 8s" />
+            </div>
             <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
               <button
                 type="button"

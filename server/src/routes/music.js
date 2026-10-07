@@ -60,7 +60,7 @@ export async function musicRoutes(fastify, options) {
           album: track.collectionName || track.trackName || 'Single',
           coverUrl: track.artworkUrl100
             ? track.artworkUrl100.replace('100x100bb', '600x600bb')
-            : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80',
+            : '',
           duration: track.trackTimeMillis
             ? `${Math.floor(track.trackTimeMillis / 60000)}:${String(
                 Math.floor((track.trackTimeMillis % 60000) / 1000)
