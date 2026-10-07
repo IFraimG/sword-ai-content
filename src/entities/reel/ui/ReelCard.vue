@@ -53,6 +53,21 @@ const rankDeltaClass = computed(() => {
 const isDownloading = ref(false);
 const downloaded = ref(false);
 
+const hasRealThumbnail = computed(() => {
+  const url = props.reel.thumbnailUrl;
+  if (!url || !url.trim()) return false;
+  if (url.includes('images.unsplash.com')) return false;
+  if (url.includes('placeholder')) return false;
+  return true;
+});
+
+const nicheGradient = computed(() => {
+  if (isTikTok.value) {
+    return 'bg-gradient-to-br from-[#060e1a] via-[#091527] to-[#02050a] border-b border-cyan-500/20';
+  }
+  return 'bg-gradient-to-br from-[#170824] via-[#210c33] to-[#0d0314] border-b border-pink-500/20';
+});
+
 async function handleDownload(e: MouseEvent) {
   e.stopPropagation();
   if (isDownloading.value) return;
@@ -78,12 +93,54 @@ async function handleDownload(e: MouseEvent) {
   >
     <!-- Top Media / Thumbnail Container -->
     <div class="relative w-full aspect-[16/10] overflow-hidden bg-slate-900">
+      <!-- Real Platform Thumbnail (only if authentic) -->
       <img
+        v-if="hasRealThumbnail"
         :src="reel.thumbnailUrl"
         :alt="reel.title"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
       />
+
+      <!-- Clean Dynamic Video Player Card (no unrelated mock photos) -->
+      <div
+        v-else
+        class="w-full h-full relative flex items-center justify-center overflow-hidden transition-all duration-500"
+        :class="nicheGradient"
+      >
+        <!-- Subtle geometric tech grid -->
+        <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#00f0ff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+        <!-- Ambient Neon Glow -->
+        <div
+          class="absolute w-36 h-36 rounded-full blur-2xl opacity-35 transition-all duration-500 group-hover:scale-125"
+          :class="isTikTok ? 'bg-cyan-500/30' : 'bg-pink-500/30'"
+        ></div>
+
+        <!-- Center Interactive Video Play Indicator -->
+        <div class="relative z-10 flex flex-col items-center justify-center gap-2 text-center p-3">
+          <div
+            class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110"
+            :class="[
+              isTikTok
+                ? 'bg-gradient-to-tr from-cyan-400 to-emerald-300 text-black shadow-[0_0_20px_rgba(0,240,255,0.4)]'
+                : 'bg-gradient-to-tr from-purple-500 to-pink-400 text-white shadow-[0_0_20px_rgba(236,72,153,0.4)]'
+            ]"
+          >
+            <Play class="w-6 h-6 fill-current ml-0.5" />
+          </div>
+          <span class="text-[11px] font-bold text-white tracking-wide drop-shadow">
+            Смотреть видео
+          </span>
+        </div>
+
+        <!-- Ambient Audio Equalizer Bars -->
+        <div class="absolute bottom-3 right-3 flex items-end gap-1 h-3.5 z-10 pointer-events-none opacity-70 group-hover:opacity-100">
+          <span class="w-1 bg-cyan-400 rounded-full animate-bounce h-2"></span>
+          <span class="w-1 bg-pink-400 rounded-full animate-bounce h-3.5 delay-75"></span>
+          <span class="w-1 bg-emerald-400 rounded-full animate-bounce h-2.5 delay-150"></span>
+        </div>
+      </div>
 
       <!-- Gradient Overlay -->
       <div class="absolute inset-0 bg-gradient-to-t from-sword-surface via-transparent to-black/60 pointer-events-none"></div>

@@ -50,6 +50,22 @@ const currentVideoUrl = ref('');
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoReady = ref(false);
 const videoDuration = ref<number | null>(null);
+const currentCoverUrl = ref('');
+
+const hasRealCover = computed(() => {
+  const url = currentCoverUrl.value || reel.value?.thumbnailUrl;
+  if (!url || !url.trim()) return false;
+  if (url.includes('images.unsplash.com')) return false;
+  if (url.includes('placeholder')) return false;
+  return true;
+});
+
+const resolvedCover = computed(() => {
+  if (hasRealCover.value) {
+    return currentCoverUrl.value || reel.value?.thumbnailUrl || '';
+  }
+  return '';
+});
 
 const displayDuration = computed(() => {
   if (videoDuration.value && videoDuration.value > 0) {
@@ -67,6 +83,7 @@ watch(
     isResolvingStream.value = false;
     streamUnavailableReason.value = '';
     videoDuration.value = null;
+    currentCoverUrl.value = '';
     downloadStatus.value = '';
     isDownloading.value = false;
 
@@ -96,6 +113,9 @@ watch(
           currentVideoUrl.value = resolved.videoUrl;
           if (resolved.duration) {
             videoDuration.value = resolved.duration;
+          }
+          if (resolved.cover) {
+            currentCoverUrl.value = resolved.cover;
           }
         } else {
           videoFailed.value = true;
@@ -235,12 +255,14 @@ function handleOpenMusicDiscovery() {
             v-if="isResolvingStream || (currentVideoUrl && !isVideoReady && !videoFailed)"
             class="absolute inset-0 z-10 flex items-center justify-center bg-black transition-opacity duration-200"
           >
+            <!-- Real platform cover if available -->
             <img
-              :src="reel.thumbnailUrl"
+              v-if="hasRealCover"
+              :src="resolvedCover"
               :alt="reel.title"
               class="w-full h-full object-cover filter brightness-[0.6]"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-slate-950"></div>
             <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center">
               <div class="w-10 h-10 rounded-full border-2 border-sword-accent border-t-transparent animate-spin"></div>
               <span class="text-[11px] font-semibold text-cyan-300 drop-shadow">
@@ -255,7 +277,7 @@ function handleOpenMusicDiscovery() {
             ref="videoRef"
             :key="reel.id"
             :src="currentVideoUrl"
-            :poster="reel.thumbnailUrl"
+            :poster="hasRealCover ? resolvedCover : undefined"
             referrerpolicy="no-referrer"
             crossorigin="anonymous"
             controls
@@ -277,13 +299,14 @@ function handleOpenMusicDiscovery() {
             v-else-if="!isResolvingStream"
             class="relative w-full h-full flex flex-col justify-between overflow-hidden p-4"
           >
-            <!-- Background Image with Soft Blur -->
+            <!-- Background Image with Soft Blur (only if authentic) -->
             <img
-              :src="reel.thumbnailUrl"
+              v-if="hasRealCover"
+              :src="resolvedCover"
               :alt="reel.title"
               class="absolute inset-0 w-full h-full object-cover filter brightness-[0.25] blur-sm scale-105"
             />
-            <div class="absolute inset-0 bg-black/70"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-slate-950 via-black to-slate-950"></div>
 
             <!-- Top Indicator -->
             <div class="relative z-10 flex items-center justify-between">

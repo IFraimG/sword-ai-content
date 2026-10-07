@@ -110,7 +110,7 @@ export async function searchLiveMusicTracks(
         const tracks: MatchedMusicTrack[] = data.results.map((item: any, idx: number) => {
           const highResCover = item.artworkUrl100
             ? item.artworkUrl100.replace('100x100bb.jpg', '600x600bb.jpg')
-            : reel.thumbnailUrl;
+            : '';
 
           const durationSeconds = Math.round((item.trackTimeMillis || 180000) / 1000);
           const mins = Math.floor(durationSeconds / 60);
@@ -176,7 +176,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       title: cleanTitle,
       artist: cleanArtist,
       album: `${cleanTitle} (Apple Music Master)`,
-      coverUrl: reel.thumbnailUrl,
+      coverUrl: '',
       duration: '03:15',
       platform: 'apple',
       matchScore: 99,
@@ -188,7 +188,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       title: `${cleanTitle} (Extended Mix)`,
       artist: cleanArtist,
       album: 'Global Hits Top 50',
-      coverUrl: reel.thumbnailUrl,
+      coverUrl: '',
       duration: '02:50',
       platform: 'spotify',
       matchScore: 97,
@@ -200,7 +200,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       title: `${cleanTitle} (Official Audio / Video)`,
       artist: cleanArtist,
       album: 'YouTube Music Viral',
-      coverUrl: reel.thumbnailUrl,
+      coverUrl: '',
       duration: '03:30',
       platform: 'youtube',
       matchScore: 95,
@@ -212,7 +212,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       title: `${cleanTitle} (TikTok Viral Sound)`,
       artist: cleanArtist,
       album: 'TikTok Sounds Trending',
-      coverUrl: reel.thumbnailUrl,
+      coverUrl: '',
       duration: '00:30',
       platform: 'tiktok',
       matchScore: 100,
@@ -224,7 +224,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       title: `${cleanTitle} (Club Remix)`,
       artist: cleanArtist,
       album: 'SoundCloud Pulse',
-      coverUrl: reel.thumbnailUrl,
+      coverUrl: '',
       duration: '02:45',
       platform: 'soundcloud',
       matchScore: 92,
