@@ -2,7 +2,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import BaseModal from '@/shared/ui/BaseModal.vue';
-import { searchLiveMusicTracks } from '@/shared/api/musicService';
+import { searchLiveMusicTracks, parseDurationToSeconds } from '@/shared/api/musicService';
 import type { MatchedMusicTrack } from '@/entities/reel/model/types';
 import { downloadReelAudio } from '@/shared/lib/export/audioExporter';
 import {
@@ -52,6 +52,26 @@ const previewDuration = ref(30);
 const isPreviewMuted = ref(false);
 
 let debounceTimer: number | null = null;
+let lastOriginalAudioTime = 0;
+let lastPreviewAudioTime = 0;
+
+function getTrackDuration(track: MatchedMusicTrack): number {
+  if (track.durationSeconds && track.durationSeconds > 0) {
+    return track.durationSeconds;
+  }
+  return parseDurationToSeconds(track.duration);
+}
+
+const originalTrackDuration = computed(() => {
+  if (matchedTracks.value.length > 0) {
+    const first = matchedTracks.value[0];
+    return getTrackDuration(first);
+  }
+  if (reel.value?.durationSeconds && reel.value.durationSeconds > 30) {
+    return reel.value.durationSeconds;
+  }
+  return 195;
+});
 
 // Computed active audio URL for original card
 const activeAudioSource = computed(() => {
@@ -126,6 +146,8 @@ function stopAllAudio() {
   activePreviewTrackId.value = null;
   currentTime.value = 0;
   previewCurrentTime.value = 0;
+  lastOriginalAudioTime = 0;
+  lastPreviewAudioTime = 0;
 }
 
 onUnmounted(() => {
@@ -158,6 +180,8 @@ function togglePlayOriginal() {
     return;
   }
 
+  audioElement.value.loop = true;
+  lastOriginalAudioTime = audioElement.value.currentTime;
   audioElement.value
     .play()
     .then(() => {
@@ -192,6 +216,8 @@ function togglePlayPreview(track: MatchedMusicTrack) {
       isPreviewPlaying.value = false;
     } else {
       if (previewAudioRef.value) {
+        previewAudioRef.value.loop = true;
+        lastPreviewAudioTime = previewAudioRef.value.currentTime;
         previewAudioRef.value
           .play()
           .then(() => {
@@ -208,10 +234,12 @@ function togglePlayPreview(track: MatchedMusicTrack) {
 
   activePreviewTrackId.value = track.id;
   previewCurrentTime.value = 0;
-  previewDuration.value = 30;
+  previewDuration.value = getTrackDuration(track);
+  lastPreviewAudioTime = 0;
 
   if (previewAudioRef.value) {
     previewAudioRef.value.src = track.previewUrl;
+    previewAudioRef.value.loop = true;
     previewAudioRef.value.currentTime = 0;
     previewAudioRef.value
       .play()
@@ -227,27 +255,64 @@ function togglePlayPreview(track: MatchedMusicTrack) {
 
 function handlePreviewTimeUpdate() {
   if (previewAudioRef.value) {
-    previewCurrentTime.value = previewAudioRef.value.currentTime;
+    const cur = previewAudioRef.value.currentTime;
+    const activeTrack = matchedTracks.value.find((t) => t.id === activePreviewTrackId.value);
+    const maxDur = activeTrack ? getTrackDuration(activeTrack) : 180;
+    const streamDur =
+      previewAudioRef.value.duration && !isNaN(previewAudioRef.value.duration) && previewAudioRef.value.duration > 0
+        ? previewAudioRef.value.duration
+        : 30;
+
+    let delta = cur - lastPreviewAudioTime;
+    if (delta < 0) {
+      delta = cur + (streamDur - lastPreviewAudioTime);
+    }
+    if (delta > 0 && delta < 5) {
+      previewCurrentTime.value = Math.min(maxDur, previewCurrentTime.value + delta);
+    }
+    lastPreviewAudioTime = cur;
+
+    if (previewCurrentTime.value >= maxDur) {
+      previewAudioRef.value.pause();
+      isPreviewPlaying.value = false;
+      previewCurrentTime.value = 0;
+      previewAudioRef.value.currentTime = 0;
+      lastPreviewAudioTime = 0;
+    }
   }
 }
 
 function handlePreviewLoadedMetadata() {
-  if (previewAudioRef.value) {
-    previewDuration.value = previewAudioRef.value.duration || 30;
+  const activeTrack = matchedTracks.value.find((t) => t.id === activePreviewTrackId.value);
+  if (activeTrack) {
+    previewDuration.value = getTrackDuration(activeTrack);
   }
 }
 
 function handlePreviewEnded() {
-  isPreviewPlaying.value = false;
-  previewCurrentTime.value = 0;
-  if (previewAudioRef.value) {
-    previewAudioRef.value.currentTime = 0;
+  const activeTrack = matchedTracks.value.find((t) => t.id === activePreviewTrackId.value);
+  const maxDur = activeTrack ? getTrackDuration(activeTrack) : 180;
+  if (previewCurrentTime.value >= maxDur) {
+    isPreviewPlaying.value = false;
+    previewCurrentTime.value = 0;
+    lastPreviewAudioTime = 0;
   }
 }
 
 function handlePreviewSeek(track: MatchedMusicTrack, e: Event) {
   const target = e.target as HTMLInputElement;
-  const time = parseFloat(target.value);
+  const seekTime = parseFloat(target.value);
+  const trackDur = getTrackDuration(track);
+  const clampedTime = Math.min(trackDur, Math.max(0, seekTime));
+
+  previewCurrentTime.value = clampedTime;
+
+  const streamDur =
+    previewAudioRef.value?.duration && !isNaN(previewAudioRef.value.duration) && previewAudioRef.value.duration > 0
+      ? previewAudioRef.value.duration
+      : 30;
+
+  const targetStreamTime = clampedTime % streamDur;
 
   // If this track is not yet the active track, activate and start playing from this time
   if (activePreviewTrackId.value !== track.id) {
@@ -257,14 +322,15 @@ function handlePreviewSeek(track: MatchedMusicTrack, e: Event) {
     }
 
     activePreviewTrackId.value = track.id;
-    previewCurrentTime.value = time;
 
     if (previewAudioRef.value) {
       previewAudioRef.value.src = track.previewUrl;
+      previewAudioRef.value.loop = true;
 
       const setTimeAndPlay = () => {
         if (previewAudioRef.value) {
-          previewAudioRef.value.currentTime = time;
+          previewAudioRef.value.currentTime = targetStreamTime;
+          lastPreviewAudioTime = targetStreamTime;
           previewAudioRef.value
             .play()
             .then(() => {
@@ -287,10 +353,11 @@ function handlePreviewSeek(track: MatchedMusicTrack, e: Event) {
   }
 
   // Already active track: seek directly
-  previewCurrentTime.value = time;
   if (previewAudioRef.value) {
+    previewAudioRef.value.loop = true;
     try {
-      previewAudioRef.value.currentTime = time;
+      previewAudioRef.value.currentTime = targetStreamTime;
+      lastPreviewAudioTime = targetStreamTime;
     } catch (err) {
       console.warn('Preview seek error:', err);
     }
@@ -306,22 +373,52 @@ function togglePreviewMute() {
 
 function handleTimeUpdate() {
   if (audioElement.value) {
-    currentTime.value = audioElement.value.currentTime;
+    const cur = audioElement.value.currentTime;
+    const streamDur =
+      audioElement.value.duration && !isNaN(audioElement.value.duration) && audioElement.value.duration > 0
+        ? audioElement.value.duration
+        : 30;
+
+    let delta = cur - lastOriginalAudioTime;
+    if (delta < 0) {
+      delta = cur + (streamDur - lastOriginalAudioTime);
+    }
+    if (delta > 0 && delta < 5) {
+      currentTime.value = Math.min(originalTrackDuration.value, currentTime.value + delta);
+    }
+    lastOriginalAudioTime = cur;
+
+    if (currentTime.value >= originalTrackDuration.value) {
+      audioElement.value.pause();
+      isPlaying.value = false;
+      currentTime.value = 0;
+      audioElement.value.currentTime = 0;
+      lastOriginalAudioTime = 0;
+    }
   }
 }
 
 function handleLoadedMetadata() {
-  if (audioElement.value) {
-    duration.value = audioElement.value.duration || reel.value?.durationSeconds || 30;
-  }
+  duration.value = originalTrackDuration.value;
 }
 
 function handleSeek(e: Event) {
   const target = e.target as HTMLInputElement;
-  const time = parseFloat(target.value);
+  const seekTime = parseFloat(target.value);
+  const maxDur = originalTrackDuration.value;
+  const clampedTime = Math.min(maxDur, Math.max(0, seekTime));
+
+  currentTime.value = clampedTime;
+
   if (audioElement.value) {
-    audioElement.value.currentTime = time;
-    currentTime.value = time;
+    audioElement.value.loop = true;
+    const streamDur =
+      audioElement.value.duration && !isNaN(audioElement.value.duration) && audioElement.value.duration > 0
+        ? audioElement.value.duration
+        : 30;
+    const targetStreamTime = clampedTime % streamDur;
+    audioElement.value.currentTime = targetStreamTime;
+    lastOriginalAudioTime = targetStreamTime;
   }
 }
 
@@ -525,14 +622,14 @@ function getPlatformLabel(platform: string): string {
               <input
                 type="range"
                 min="0"
-                :max="duration || 30"
+                :max="originalTrackDuration"
                 step="0.1"
                 :value="currentTime"
                 class="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sword-accent"
                 @input="handleSeek"
               />
               <span class="text-[11px] font-mono text-sword-muted w-10">
-                {{ formatDuration(duration || reel.durationSeconds) }}
+                {{ formatDuration(originalTrackDuration) }}
               </span>
 
               <button
@@ -774,7 +871,7 @@ function getPlatformLabel(platform: string): string {
               <input
                 type="range"
                 min="0"
-                :max="activePreviewTrackId === track.id ? (previewDuration || 30) : 30"
+                :max="getTrackDuration(track)"
                 step="0.1"
                 :value="activePreviewTrackId === track.id ? previewCurrentTime : 0"
                 class="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 hover:accent-cyan-300 transition-colors"
@@ -783,7 +880,7 @@ function getPlatformLabel(platform: string): string {
               />
 
               <span class="text-[11px] font-mono text-sword-muted w-10">
-                {{ formatDuration(activePreviewTrackId === track.id ? (previewDuration || 30) : 30) }}
+                {{ formatDuration(getTrackDuration(track)) }}
               </span>
 
               <button

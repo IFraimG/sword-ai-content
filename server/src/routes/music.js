@@ -65,7 +65,10 @@ export async function musicRoutes(fastify, options) {
             ? `${Math.floor(track.trackTimeMillis / 60000)}:${String(
                 Math.floor((track.trackTimeMillis % 60000) / 1000)
               ).padStart(2, '0')}`
-            : '00:30',
+            : '03:15',
+          durationSeconds: track.trackTimeMillis
+            ? Math.round(track.trackTimeMillis / 1000)
+            : 195,
           platform: 'apple',
           matchScore: 95 - idx * 2,
           previewUrl,
