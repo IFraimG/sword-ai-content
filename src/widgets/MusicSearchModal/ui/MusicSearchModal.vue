@@ -45,7 +45,11 @@ const showApiHelp = ref(false);
 
 // Currently playing preview track (if any)
 const activePreviewTrackId = ref<string | null>(null);
-const previewAudioElement = ref<HTMLAudioElement | null>(null);
+const previewAudioRef = ref<HTMLAudioElement | null>(null);
+const isPreviewPlaying = ref(false);
+const previewCurrentTime = ref(0);
+const previewDuration = ref(30);
+const isPreviewMuted = ref(false);
 
 let debounceTimer: number | null = null;
 
@@ -113,13 +117,15 @@ function stopAllAudio() {
     audioElement.value.pause();
     audioElement.value.currentTime = 0;
   }
-  if (previewAudioElement.value) {
-    previewAudioElement.value.pause();
-    previewAudioElement.value.currentTime = 0;
+  if (previewAudioRef.value) {
+    previewAudioRef.value.pause();
+    previewAudioRef.value.currentTime = 0;
   }
   isPlaying.value = false;
+  isPreviewPlaying.value = false;
   activePreviewTrackId.value = null;
   currentTime.value = 0;
+  previewCurrentTime.value = 0;
 }
 
 onUnmounted(() => {
@@ -129,13 +135,13 @@ onUnmounted(() => {
   }
 });
 
-// Audio events
+// Original Audio events
 function togglePlayOriginal() {
   if (!audioElement.value) return;
 
-  if (activePreviewTrackId.value && previewAudioElement.value) {
-    previewAudioElement.value.pause();
-    activePreviewTrackId.value = null;
+  if (activePreviewTrackId.value && previewAudioRef.value) {
+    previewAudioRef.value.pause();
+    isPreviewPlaying.value = false;
   }
 
   if (isPlaying.value) {
@@ -163,18 +169,11 @@ function togglePlayOriginal() {
     });
 }
 
+// Platform Previews Audio events
 function togglePlayPreview(track: MatchedMusicTrack) {
   if (isPlaying.value && audioElement.value) {
     audioElement.value.pause();
     isPlaying.value = false;
-  }
-
-  if (activePreviewTrackId.value === track.id) {
-    if (previewAudioElement.value) {
-      previewAudioElement.value.pause();
-    }
-    activePreviewTrackId.value = null;
-    return;
   }
 
   // Safe check: if no preview URL available, open streaming service
@@ -185,19 +184,124 @@ function togglePlayPreview(track: MatchedMusicTrack) {
     return;
   }
 
-  activePreviewTrackId.value = track.id;
-  if (!previewAudioElement.value) {
-    previewAudioElement.value = new Audio();
-    previewAudioElement.value.onended = () => {
-      activePreviewTrackId.value = null;
-    };
+  if (activePreviewTrackId.value === track.id) {
+    if (isPreviewPlaying.value) {
+      if (previewAudioRef.value) {
+        previewAudioRef.value.pause();
+      }
+      isPreviewPlaying.value = false;
+    } else {
+      if (previewAudioRef.value) {
+        previewAudioRef.value
+          .play()
+          .then(() => {
+            isPreviewPlaying.value = true;
+          })
+          .catch((err) => {
+            console.warn('Preview resume handled safely:', err);
+            isPreviewPlaying.value = false;
+          });
+      }
+    }
+    return;
   }
 
-  previewAudioElement.value.src = track.previewUrl;
-  previewAudioElement.value.play().catch((err) => {
-    console.warn('Preview play handled safely:', err);
-    activePreviewTrackId.value = null;
-  });
+  activePreviewTrackId.value = track.id;
+  previewCurrentTime.value = 0;
+  previewDuration.value = 30;
+
+  if (previewAudioRef.value) {
+    previewAudioRef.value.src = track.previewUrl;
+    previewAudioRef.value.currentTime = 0;
+    previewAudioRef.value
+      .play()
+      .then(() => {
+        isPreviewPlaying.value = true;
+      })
+      .catch((err) => {
+        console.warn('Preview play handled safely:', err);
+        isPreviewPlaying.value = false;
+      });
+  }
+}
+
+function handlePreviewTimeUpdate() {
+  if (previewAudioRef.value) {
+    previewCurrentTime.value = previewAudioRef.value.currentTime;
+  }
+}
+
+function handlePreviewLoadedMetadata() {
+  if (previewAudioRef.value) {
+    previewDuration.value = previewAudioRef.value.duration || 30;
+  }
+}
+
+function handlePreviewEnded() {
+  isPreviewPlaying.value = false;
+  previewCurrentTime.value = 0;
+  if (previewAudioRef.value) {
+    previewAudioRef.value.currentTime = 0;
+  }
+}
+
+function handlePreviewSeek(track: MatchedMusicTrack, e: Event) {
+  const target = e.target as HTMLInputElement;
+  const time = parseFloat(target.value);
+
+  // If this track is not yet the active track, activate and start playing from this time
+  if (activePreviewTrackId.value !== track.id) {
+    if (isPlaying.value && audioElement.value) {
+      audioElement.value.pause();
+      isPlaying.value = false;
+    }
+
+    activePreviewTrackId.value = track.id;
+    previewCurrentTime.value = time;
+
+    if (previewAudioRef.value) {
+      previewAudioRef.value.src = track.previewUrl;
+
+      const setTimeAndPlay = () => {
+        if (previewAudioRef.value) {
+          previewAudioRef.value.currentTime = time;
+          previewAudioRef.value
+            .play()
+            .then(() => {
+              isPreviewPlaying.value = true;
+            })
+            .catch((err) => {
+              console.warn('Preview seek play error:', err);
+              isPreviewPlaying.value = false;
+            });
+        }
+      };
+
+      if (previewAudioRef.value.readyState >= 1) {
+        setTimeAndPlay();
+      } else {
+        previewAudioRef.value.addEventListener('loadedmetadata', setTimeAndPlay, { once: true });
+      }
+    }
+    return;
+  }
+
+  // Already active track: seek directly
+  previewCurrentTime.value = time;
+  if (previewAudioRef.value) {
+    try {
+      previewAudioRef.value.currentTime = time;
+    } catch (err) {
+      console.warn('Preview seek error:', err);
+    }
+  }
+}
+
+function togglePreviewMute() {
+  if (previewAudioRef.value) {
+    previewAudioRef.value.muted = !previewAudioRef.value.muted;
+    isPreviewMuted.value = previewAudioRef.value.muted;
+  }
 }
 
 function handleTimeUpdate() {
@@ -459,7 +563,7 @@ function getPlatformLabel(platform: string): string {
           </div>
         </div>
 
-        <!-- Hidden Audio Element -->
+        <!-- Hidden Audio Elements -->
         <audio
           ref="audioElement"
           :src="activeAudioSource"
@@ -467,6 +571,16 @@ function getPlatformLabel(platform: string): string {
           @timeupdate="handleTimeUpdate"
           @loadedmetadata="handleLoadedMetadata"
           @ended="isPlaying = false"
+        ></audio>
+
+        <audio
+          ref="previewAudioRef"
+          preload="metadata"
+          @timeupdate="handlePreviewTimeUpdate"
+          @loadedmetadata="handlePreviewLoadedMetadata"
+          @ended="handlePreviewEnded"
+          @play="isPreviewPlaying = true"
+          @pause="isPreviewPlaying = false"
         ></audio>
       </div>
 
@@ -535,97 +649,152 @@ function getPlatformLabel(platform: string): string {
             v-for="track in matchedTracks"
             :key="track.id"
             :class="[
-              'flex items-center justify-between gap-3 p-3 rounded-xl border transition-all shadow-sm',
+              'flex flex-col justify-between p-3 rounded-xl border transition-all duration-200 shadow-sm',
               activePreviewTrackId === track.id
-                ? 'bg-cyan-950/40 border-cyan-500/70 shadow-[0_0_15px_rgba(0,240,255,0.15)]'
+                ? 'bg-gradient-to-b from-cyan-950/40 to-slate-900 border-cyan-500/70 shadow-[0_0_15px_rgba(0,240,255,0.15)] ring-1 ring-cyan-400/30'
                 : 'bg-sword-card/80 hover:bg-sword-card border-sword-border/60 hover:border-sword-accent/40'
             ]"
           >
-            <!-- Platform Info & Thumbnail -->
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <div class="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-sword-border/60">
-                <img
-                  :src="track.coverUrl"
-                  :alt="track.title"
-                  class="w-full h-full object-cover"
-                />
-                <!-- Mini Preview Play Overlay -->
-                <button
-                  type="button"
-                  class="absolute inset-0 bg-black/50 hover:bg-black/30 flex items-center justify-center text-white transition-colors cursor-pointer"
-                  :title="
-                    activePreviewTrackId === track.id
-                      ? 'Остановить'
-                      : track.previewUrl
-                      ? 'Слушать превью'
-                      : 'Открыть на платформе'
-                  "
-                  @click="togglePlayPreview(track)"
-                >
-                  <Pause v-if="activePreviewTrackId === track.id" class="w-5 h-5 fill-white animate-pulse" />
-                  <Play v-else-if="track.previewUrl" class="w-5 h-5 fill-white ml-0.5" />
-                  <ExternalLink v-else class="w-4 h-4 text-cyan-300" />
-                </button>
+            <!-- Top Row: Thumbnail + Info + Actions -->
+            <div class="flex items-center justify-between gap-3 w-full">
+              <!-- Platform Info & Thumbnail -->
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-sword-border/60 shadow-inner">
+                  <img
+                    v-if="track.coverUrl"
+                    :src="track.coverUrl"
+                    :alt="track.title"
+                    class="w-full h-full object-cover"
+                  />
+                  <div
+                    v-else
+                    class="w-full h-full bg-slate-800 flex items-center justify-center"
+                  >
+                    <Disc3 class="w-6 h-6 text-slate-500" />
+                  </div>
+                  <!-- Mini Preview Play Overlay -->
+                  <button
+                    type="button"
+                    class="absolute inset-0 bg-black/50 hover:bg-black/30 flex items-center justify-center text-white transition-colors cursor-pointer"
+                    :title="
+                      activePreviewTrackId === track.id && isPreviewPlaying
+                        ? 'Пауза'
+                        : track.previewUrl
+                        ? 'Слушать превью'
+                        : 'Открыть на платформе'
+                    "
+                    @click="togglePlayPreview(track)"
+                  >
+                    <Pause
+                      v-if="activePreviewTrackId === track.id && isPreviewPlaying"
+                      class="w-5 h-5 fill-white animate-pulse"
+                    />
+                    <Play
+                      v-else-if="track.previewUrl"
+                      class="w-5 h-5 fill-white ml-0.5"
+                    />
+                    <ExternalLink v-else class="w-4 h-4 text-cyan-300" />
+                  </button>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <span
+                      :class="[
+                        'text-[10px] font-bold px-2 py-0.5 rounded-full border',
+                        getPlatformColor(track.platform)
+                      ]"
+                    >
+                      {{ getPlatformLabel(track.platform) }}
+                    </span>
+                    <span class="text-[10px] text-emerald-400 font-medium">
+                      {{ track.matchScore }}% совпадение
+                    </span>
+                  </div>
+                  <div class="font-bold text-xs text-white truncate">
+                    {{ track.title }}
+                  </div>
+                  <div class="text-[11px] text-sword-muted truncate flex items-center gap-1.5">
+                    <span>{{ track.artist }}</span>
+                    <span>•</span>
+                    <span>{{ track.duration }}</span>
+                  </div>
+                </div>
               </div>
 
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 mb-0.5">
-                  <span
-                    :class="[
-                      'text-[10px] font-bold px-2 py-0.5 rounded-full border',
-                      getPlatformColor(track.platform)
-                    ]"
-                  >
-                    {{ getPlatformLabel(track.platform) }}
-                  </span>
-                  <span class="text-[10px] text-emerald-400 font-medium">
-                    {{ track.matchScore }}% совпадение
-                  </span>
+              <!-- Action Buttons: Equalizer, Download MP3, External Link -->
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <!-- Equalizer Indicator when Playing -->
+                <div
+                  v-if="activePreviewTrackId === track.id && isPreviewPlaying"
+                  class="flex items-end gap-0.5 h-4 px-1"
+                >
+                  <span class="w-1 bg-cyan-400 rounded-full animate-bounce h-2"></span>
+                  <span class="w-1 bg-emerald-400 rounded-full animate-bounce h-4 delay-75"></span>
+                  <span class="w-1 bg-pink-400 rounded-full animate-bounce h-3 delay-150"></span>
                 </div>
-                <div class="font-bold text-xs text-white truncate">
-                  {{ track.title }}
-                </div>
-                <div class="text-[11px] text-sword-muted truncate flex items-center gap-1.5">
-                  <span>{{ track.artist }}</span>
-                  <span>•</span>
-                  <span>{{ track.duration }}</span>
-                </div>
+
+                <!-- Download Track MP3 -->
+                <button
+                  type="button"
+                  :disabled="downloadingTrackId === track.id"
+                  class="p-2 text-sword-muted hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg border border-transparent hover:border-emerald-500/30 transition-all cursor-pointer"
+                  :title="`Скачать MP3 трек (${track.title})`"
+                  @click="handleDownloadTrack(track)"
+                >
+                  <Download
+                    class="w-4 h-4"
+                    :class="{ 'animate-bounce text-emerald-400': downloadingTrackId === track.id }"
+                  />
+                </button>
+
+                <!-- External Service Link -->
+                <a
+                  :href="track.externalUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="p-2 text-sword-muted hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg border border-transparent hover:border-cyan-500/30 transition-all"
+                  :title="`Открыть на ${getPlatformLabel(track.platform)}`"
+                >
+                  <ExternalLink class="w-4 h-4" />
+                </a>
               </div>
             </div>
 
-            <!-- Action Buttons: Open Link & Download MP3 -->
-            <div class="flex items-center gap-1.5 flex-shrink-0">
-              <!-- Equalizer Indicator when Playing -->
-              <div v-if="activePreviewTrackId === track.id" class="flex items-end gap-0.5 h-4 px-1">
-                <span class="w-1 bg-cyan-400 rounded-full animate-bounce h-2"></span>
-                <span class="w-1 bg-emerald-400 rounded-full animate-bounce h-4 delay-75"></span>
-                <span class="w-1 bg-pink-400 rounded-full animate-bounce h-3 delay-150"></span>
-              </div>
+            <!-- Platform Track Interactive Duration Scrubber Bar -->
+            <div
+              v-if="track.previewUrl"
+              class="mt-2.5 pt-2 border-t flex items-center gap-2.5 w-full transition-colors"
+              :class="activePreviewTrackId === track.id ? 'border-cyan-500/30' : 'border-slate-800/80'"
+            >
+              <span class="text-[11px] font-mono text-sword-muted w-10 text-right">
+                {{ formatDuration(activePreviewTrackId === track.id ? previewCurrentTime : 0) }}
+              </span>
 
-              <!-- Download Track MP3 -->
+              <input
+                type="range"
+                min="0"
+                :max="activePreviewTrackId === track.id ? (previewDuration || 30) : 30"
+                step="0.1"
+                :value="activePreviewTrackId === track.id ? previewCurrentTime : 0"
+                class="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 hover:accent-cyan-300 transition-colors"
+                :title="`Промотать трек: ${track.title}`"
+                @input="(e) => handlePreviewSeek(track, e)"
+              />
+
+              <span class="text-[11px] font-mono text-sword-muted w-10">
+                {{ formatDuration(activePreviewTrackId === track.id ? (previewDuration || 30) : 30) }}
+              </span>
+
               <button
                 type="button"
-                :disabled="downloadingTrackId === track.id"
-                class="p-2 text-sword-muted hover:text-emerald-400 hover:bg-emerald-500/10 rounded-lg border border-transparent hover:border-emerald-500/30 transition-all cursor-pointer"
-                :title="`Скачать MP3 трек (${track.title})`"
-                @click="handleDownloadTrack(track)"
+                class="p-1 text-sword-muted hover:text-white rounded transition-colors cursor-pointer"
+                :title="isPreviewMuted ? 'Включить звук' : 'Без звука'"
+                @click="togglePreviewMute"
               >
-                <Download
-                  class="w-4 h-4"
-                  :class="{ 'animate-bounce text-emerald-400': downloadingTrackId === track.id }"
-                />
+                <VolumeX v-if="isPreviewMuted" class="w-3.5 h-3.5 text-rose-400" />
+                <Volume2 v-else class="w-3.5 h-3.5" />
               </button>
-
-              <!-- External Service Link -->
-              <a
-                :href="track.externalUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="p-2 text-sword-muted hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg border border-transparent hover:border-cyan-500/30 transition-all"
-                :title="`Открыть на ${getPlatformLabel(track.platform)}`"
-              >
-                <ExternalLink class="w-4 h-4" />
-              </a>
             </div>
           </div>
         </div>
