@@ -110,6 +110,7 @@ export interface MatchedMusicTrack {
   album: string;
   coverUrl: string;
   duration: string;
+  durationSeconds?: number;
   platform: MusicPlatform;
   matchScore: number; // e.g. 98
   previewUrl: string; // playable audio stream

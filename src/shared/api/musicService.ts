@@ -144,6 +144,7 @@ export async function searchLiveMusicTracks(
             album: item.collectionName || `${item.trackName} - Single`,
             coverUrl: highResCover,
             duration: durationStr,
+            durationSeconds,
             platform,
             matchScore: Math.max(90, 99 - idx * 2),
             previewUrl: item.previewUrl || '',
@@ -165,6 +166,23 @@ export async function searchLiveMusicTracks(
   return fallback;
 }
 
+export function parseDurationToSeconds(duration: string | number | undefined): number {
+  if (typeof duration === 'number' && !isNaN(duration) && duration > 0) {
+    return duration;
+  }
+  if (!duration || typeof duration !== 'string') {
+    return 180;
+  }
+  const parts = duration.split(':').map((p) => parseInt(p, 10));
+  if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+    return parts[0] * 60 + parts[1];
+  }
+  if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  }
+  return 180;
+}
+
 function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
   const cleanTitle = reel.soundTitle || 'Viral Track';
   const cleanArtist = reel.soundAuthor || 'Sound Studio';
@@ -178,6 +196,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       album: `${cleanTitle} (Apple Music Master)`,
       coverUrl: '',
       duration: '03:15',
+      durationSeconds: 195,
       platform: 'apple',
       matchScore: 99,
       previewUrl: audioSample,
@@ -190,6 +209,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       album: 'Global Hits Top 50',
       coverUrl: '',
       duration: '02:50',
+      durationSeconds: 170,
       platform: 'spotify',
       matchScore: 97,
       previewUrl: audioSample,
@@ -202,6 +222,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       album: 'YouTube Music Viral',
       coverUrl: '',
       duration: '03:30',
+      durationSeconds: 210,
       platform: 'youtube',
       matchScore: 95,
       previewUrl: audioSample,
@@ -214,6 +235,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       album: 'TikTok Sounds Trending',
       coverUrl: '',
       duration: '00:30',
+      durationSeconds: 30,
       platform: 'tiktok',
       matchScore: 100,
       previewUrl: audioSample,
@@ -226,6 +248,7 @@ function generateFallbackTracks(reel: Reel): MatchedMusicTrack[] {
       album: 'SoundCloud Pulse',
       coverUrl: '',
       duration: '02:45',
+      durationSeconds: 165,
       platform: 'soundcloud',
       matchScore: 92,
       previewUrl: audioSample,
