@@ -28,7 +28,26 @@ export async function musicRoutes(fastify, options) {
         return { items: [] };
       }
 
-      const data = await res.json();
+      let data = await res.json();
+
+      // If initial search yields 0 results (e.g. generic "Original Sound"), fallback to trending dance/pop
+      if (!data.results || data.results.length === 0) {
+        const fallbackQuery = 'viral trending hits';
+        const fallbackUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(
+          fallbackQuery
+        )}&media=music&limit=${Math.min(25, parseInt(limit, 10) || 10)}`;
+        const fallbackRes = await fetch(fallbackUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Sword-AI-Music-Discovery/3.0)',
+            'Accept': 'application/json',
+          },
+          signal: AbortSignal.timeout(10000),
+        });
+        if (fallbackRes.ok) {
+          data = await fallbackRes.json();
+        }
+      }
+
       const tracks = (data.results || []).map((track, idx) => {
         const previewUrl = track.previewUrl
           ? `${serverOrigin}/api/proxy/audio?url=${encodeURIComponent(track.previewUrl)}`
