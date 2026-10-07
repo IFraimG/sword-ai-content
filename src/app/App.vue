@@ -5,6 +5,7 @@ import AppHeader from '@/widgets/Header/ui/AppHeader.vue';
 import ReelDetailModal from '@/widgets/ReelDetailModal/ui/ReelDetailModal.vue';
 import ExportModal from '@/features/export-report/ui/ExportModal.vue';
 import MusicSearchModal from '@/widgets/MusicSearchModal/ui/MusicSearchModal.vue';
+import ToastContainer from '@/shared/ui/ToastContainer.vue';
 import { formatDate } from '@/shared/lib/formatters';
 
 const store = useReelsStore();
@@ -32,10 +33,11 @@ onUnmounted(() => {
       </router-view>
     </main>
 
-    <!-- Global Modals -->
+    <!-- Global Modals & Toast Alerts -->
     <ReelDetailModal />
     <ExportModal />
     <MusicSearchModal />
+    <ToastContainer />
 
     <!-- Footer -->
     <footer class="border-t border-sword-border/60 bg-sword-surface/40 py-6 px-4">

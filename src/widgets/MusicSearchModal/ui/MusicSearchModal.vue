@@ -448,7 +448,12 @@ async function handleDownloadOriginal() {
         (status: string) => {
           downloadStatusText.value = status;
         },
-        audioUrl
+        {
+          customAudioUrl: audioUrl,
+          expectedDurationSeconds: originalTrackDuration.value,
+          trackTitle: reel.value.soundTitle,
+          trackArtist: reel.value.soundAuthor,
+        }
       );
     } else {
       downloadStatusText.value = 'Открытие на платформе...';
@@ -456,9 +461,6 @@ async function handleDownloadOriginal() {
     }
   } catch (err) {
     console.warn('Ошибка скачивания аудио:', err);
-    if (reel.value?.originalUrl) {
-      window.open(reel.value.originalUrl, '_blank');
-    }
   } finally {
     setTimeout(() => {
       downloadingTrackId.value = null;
@@ -483,16 +485,18 @@ async function handleDownloadTrack(track: MatchedMusicTrack) {
         (status: string) => {
           downloadStatusText.value = status;
         },
-        track.previewUrl
+        {
+          customAudioUrl: track.previewUrl,
+          expectedDurationSeconds: getTrackDuration(track),
+          trackTitle: track.title,
+          trackArtist: track.artist,
+        }
       );
     } else if (track.externalUrl) {
       window.open(track.externalUrl, '_blank');
     }
   } catch (err) {
     console.warn('Ошибка скачивания трека:', err);
-    if (track.externalUrl) {
-      window.open(track.externalUrl, '_blank');
-    }
   } finally {
     setTimeout(() => {
       downloadingTrackId.value = null;
