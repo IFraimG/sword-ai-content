@@ -650,6 +650,51 @@ export async function youtubeRoutes(fastify, options) {
     return report;
   });
 
+  // Download YouTube video preview thumbnail (proxied for reliability and CORS attachment)
+  fastify.get('/api/youtube/thumbnail', async (request, reply) => {
+    const { id, quality = 'maxres' } = request.query;
+
+    if (!id || typeof id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(id.trim())) {
+      return reply.code(400).send({ error: 'Некорректный ID видео YouTube' });
+    }
+
+    const videoId = id.trim();
+    const candidateUrls =
+      quality === 'maxres'
+        ? [
+            `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+            `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`,
+            `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          ]
+        : [
+            `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+            `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+          ];
+
+    for (const url of candidateUrls) {
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        if (res.ok) {
+          const buffer = Buffer.from(await res.arrayBuffer());
+          // If maxresdefault returns a small blank placeholder (< 1500 bytes), try next
+          if (buffer.length < 1500 && candidateUrls.indexOf(url) < candidateUrls.length - 1) {
+            continue;
+          }
+
+          reply.header('Content-Type', 'image/jpeg');
+          reply.header('Content-Disposition', `attachment; filename="youtube-preview-${videoId}.jpg"`);
+          reply.header('Access-Control-Allow-Origin', '*');
+          reply.header('Cache-Control', 'public, max-age=86400');
+          return reply.send(buffer);
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return reply.code(404).send({ error: 'Превью для данного видео не найдено' });
+  });
+
   // Main YouTube search & live stream route
   fastify.get('/api/youtube/search', async (request, reply) => {
     const { q, niche = 'all', limit = 24, page = 1, refresh = 'false' } = request.query;

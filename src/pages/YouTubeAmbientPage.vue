@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { fetchYouTubeVideos } from '@/shared/api/youtubeService';
+import { getApiBaseUrl } from '@/shared/api/reelsApi';
+import { saveAs } from 'file-saver';
 import type {
   YouTubeVideo,
   YouTubeNiche,
@@ -30,6 +32,7 @@ import {
   AlertCircle,
   ToggleLeft,
   ToggleRight,
+  Download,
 } from 'lucide-vue-next';
 
 // Search & filter state
@@ -60,6 +63,7 @@ let autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
 // Active playing video modal
 const activeVideo = ref<YouTubeVideo | null>(null);
 const copiedId = ref<string | null>(null);
+const isDownloadingPreview = ref(false);
 
 // Niche definition tabs
 const nicheTabs: { id: YouTubeNiche; label: string; icon: any; color: string }[] = [
@@ -337,6 +341,96 @@ async function copyEmbedUrl(video: YouTubeVideo) {
       message: 'Не удалось скопировать ссылку в буфер обмена',
       type: 'error',
     });
+  }
+}
+
+/**
+ * Downloads the video preview thumbnail image (HD maxresdefault with hqdefault fallback)
+ */
+async function downloadPreview(video: YouTubeVideo | null) {
+  if (!video || !video.id || isDownloadingPreview.value) return;
+
+  isDownloadingPreview.value = true;
+  const fileName = `youtube-preview-${video.id}.jpg`;
+  const base = getApiBaseUrl();
+
+  showToast({
+    message: 'Скачивание превью видео...',
+    type: 'info',
+    duration: 2500,
+  });
+
+  try {
+    let blob: Blob | null = null;
+
+    // 1. Try server proxy endpoint (bypasses any ISP blocks or CORS issues)
+    if (base) {
+      try {
+        const res = await fetch(`${base}/api/youtube/thumbnail?id=${video.id}&quality=maxres`, {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (res.ok) {
+          blob = await res.blob();
+        }
+      } catch {
+        // Fallback to client fetch
+      }
+    }
+
+    // 2. Direct client fetch fallback
+    if (!blob) {
+      const directCandidates = [
+        `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
+        video.thumbnailUrl,
+        `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`,
+      ];
+
+      for (const url of directCandidates) {
+        if (!url) continue;
+        try {
+          const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+          if (res.ok) {
+            const tempBlob = await res.blob();
+            if (tempBlob.size > 1500 || directCandidates.indexOf(url) === directCandidates.length - 1) {
+              blob = tempBlob;
+              break;
+            }
+          }
+        } catch {
+          continue;
+        }
+      }
+    }
+
+    if (blob && blob.size > 500) {
+      saveAs(blob, fileName);
+      showToast({
+        message: 'Превью успешно скачано!',
+        type: 'success',
+      });
+      return;
+    }
+
+    // 3. Fallback direct anchor download
+    const anchor = document.createElement('a');
+    anchor.href = video.thumbnailUrl;
+    anchor.download = fileName;
+    anchor.target = '_blank';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+
+    showToast({
+      message: 'Превью открыто для сохранения',
+      type: 'success',
+    });
+  } catch (err: any) {
+    showToast({
+      message: `Ошибка скачивания превью: ${err?.message || 'Попробуйте позже'}`,
+      type: 'error',
+    });
+  } finally {
+    isDownloadingPreview.value = false;
   }
 }
 
@@ -917,6 +1011,19 @@ onUnmounted(() => {
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
+            <!-- Download Preview -->
+            <button
+              type="button"
+              :disabled="isDownloadingPreview"
+              class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-sword-surface border border-sword-border hover:border-sword-accent/50 text-sword-muted hover:text-sword-accent transition-all cursor-pointer disabled:opacity-50"
+              title="Скачать обложку / превью видео"
+              @click="downloadPreview(activeVideo)"
+            >
+              <RefreshCw v-if="isDownloadingPreview" class="w-3.5 h-3.5 animate-spin text-sword-accent" />
+              <Download v-else class="w-3.5 h-3.5 text-sword-accent" />
+              <span class="hidden sm:inline">Скачать превью</span>
+            </button>
+
             <!-- Copy Embed -->
             <button
               type="button"
@@ -967,6 +1074,19 @@ onUnmounted(() => {
           </div>
 
           <div class="flex items-center gap-2 w-full sm:w-auto">
+            <!-- Download Preview HD Button -->
+            <button
+              type="button"
+              :disabled="isDownloadingPreview"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card hover:bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-sword-muted hover:text-white transition-all cursor-pointer disabled:opacity-50"
+              title="Скачать превью видео в максимальном разрешении"
+              @click="downloadPreview(activeVideo)"
+            >
+              <RefreshCw v-if="isDownloadingPreview" class="w-3.5 h-3.5 animate-spin text-sword-accent" />
+              <Download v-else class="w-3.5 h-3.5 text-sword-accent" />
+              <span>Скачать превью</span>
+            </button>
+
             <a
               :href="activeVideo.youtubeUrl"
               target="_blank"
