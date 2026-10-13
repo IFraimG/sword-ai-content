@@ -13,6 +13,6 @@ export const config = {
   host: process.env.HOST || '0.0.0.0',
   corsOrigin: process.env.CORS_ORIGIN || '*',
   environment: process.env.NODE_ENV || 'development',
-  version: '3.0.0',
+  version: '3.1.0',
   appName: 'Sword AI Content Engine'
 };

@@ -11,7 +11,8 @@ import {
   Layers,
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  Radio,
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -25,6 +26,7 @@ const navItems = [
   { path: '/tiktok', label: 'TikTok', icon: Layers, platform: 'tiktok' },
   { path: '/instagram', label: 'Instagram', icon: Layers, platform: 'instagram' },
   { path: '/analytics', label: 'Аналитика', icon: BarChart3 },
+  { path: '/youtube', label: 'YouTube Ambient (>1ч)', icon: Radio, platform: 'youtube' },
 ];
 
 function navigate(path: string) {
@@ -88,6 +90,10 @@ function navigate(path: string) {
             <span
               v-if="item.platform === 'instagram'"
               class="w-1.5 h-1.5 rounded-full bg-insta-pink"
+            ></span>
+            <span
+              v-if="item.platform === 'youtube'"
+              class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"
             ></span>
           </button>
         </nav>
