@@ -12,28 +12,50 @@ const dynamicMemoryCache = new Map();
 const CACHE_TTL_MS = 15 * 60 * 1000;
 
 /**
- * Helper to parse duration string (e.g. "1:15:42", "2:30:00", "1:00:05") into seconds
+ * Format duration in seconds to "H:MM:SS"
+ */
+export function formatSecondsToHms(seconds) {
+  if (!seconds || isNaN(seconds)) return '1:00:00';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Helper to parse duration string (e.g. "1:15:42", "2:30:00", "1 hour, 15 minutes") into seconds
  */
 export function parseDurationToSeconds(durationText) {
   if (!durationText || typeof durationText !== 'string') return 0;
 
-  const clean = durationText.trim();
-  const parts = clean.split(':').map((p) => parseInt(p, 10));
+  const clean = durationText.trim().replace(/\u00a0/g, ' ');
 
-  if (parts.some(isNaN)) return 0;
-
-  if (parts.length === 3) {
-    // HH:MM:SS
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  } else if (parts.length === 4) {
-    // DD:HH:MM:SS
-    return parts[0] * 86400 + parts[1] * 3600 + parts[2] * 60 + parts[3];
-  } else if (parts.length === 2) {
-    // MM:SS (< 1 hour)
-    return parts[0] * 60 + parts[1];
+  // Format 1: HH:MM:SS or MM:SS (e.g. "1:15:30", "01:05:20", "2:00:00")
+  if (clean.includes(':')) {
+    const parts = clean.split(':').map((p) => parseInt(p.trim(), 10));
+    if (!parts.some(isNaN)) {
+      if (parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      } else if (parts.length === 4) {
+        return parts[0] * 86400 + parts[1] * 3600 + parts[2] * 60 + parts[3];
+      } else if (parts.length === 2) {
+        return parts[0] * 60 + parts[1];
+      }
+    }
   }
 
-  return 0;
+  // Format 2: Natural language / accessibility label
+  // (e.g. "1 hour, 23 minutes, 45 seconds", "2 hours 10 mins", "1 час 15 минут")
+  let seconds = 0;
+  const hoursMatch = clean.match(/(\d+)\s*(?:hours?|hrs?|hour|ч|час|часа|часов)/i);
+  const minutesMatch = clean.match(/(\d+)\s*(?:minutes?|mins?|min|м|мин|минута|минуты|минут)/i);
+  const secondsMatch = clean.match(/(\d+)\s*(?:seconds?|secs?|sec|с|сек|секунда|секунды|секунд)/i);
+
+  if (hoursMatch) seconds += parseInt(hoursMatch[1], 10) * 3600;
+  if (minutesMatch) seconds += parseInt(minutesMatch[1], 10) * 60;
+  if (secondsMatch) seconds += parseInt(secondsMatch[1], 10);
+
+  return seconds;
 }
 
 /**
@@ -78,19 +100,23 @@ export function detectNiche(text, fallback = 'ambient') {
 
 /**
  * Extracts duration text from diverse YouTube videoRenderer formats
- * (handles lengthText, thumbnailOverlays, accessibility labels)
+ * (handles lengthText, thumbnailOverlays, accessibility labels, badges, and title estimates)
  */
 function extractDurationText(v) {
   if (!v) return '';
 
+  // 1. Direct lengthText simpleText or runs
   if (v.lengthText?.simpleText) {
     return v.lengthText.simpleText;
   }
   if (Array.isArray(v.lengthText?.runs) && v.lengthText.runs.length > 0) {
     return v.lengthText.runs.map((r) => r.text).join('');
   }
+  if (v.lengthText?.accessibility?.accessibilityData?.label) {
+    return v.lengthText.accessibility.accessibilityData.label;
+  }
 
-  // Modern YouTube web stores duration inside thumbnailOverlays
+  // 2. Modern YouTube web and mobile store duration inside thumbnailOverlays
   if (Array.isArray(v.thumbnailOverlays)) {
     for (const overlay of v.thumbnailOverlays) {
       const timeRenderer = overlay?.thumbnailOverlayTimeStatusRenderer;
@@ -100,25 +126,105 @@ function extractDurationText(v) {
       if (Array.isArray(timeRenderer?.text?.runs)) {
         return timeRenderer.text.runs.map((r) => r.text).join('');
       }
+      if (timeRenderer?.text?.accessibility?.accessibilityData?.label) {
+        return timeRenderer.text.accessibility.accessibilityData.label;
+      }
     }
+  }
+
+  // 3. Badges or overlay labels
+  if (Array.isArray(v.badges)) {
+    for (const b of v.badges) {
+      const text = b?.metadataBadgeRenderer?.label;
+      if (text && (text.includes(':') || /hour|час/i.test(text))) {
+        return text;
+      }
+    }
+  }
+
+  // 4. Accessibility label inside title
+  const titleA11y = v.title?.accessibility?.accessibilityData?.label;
+  if (titleA11y) {
+    const durMatch = titleA11y.match(/(\d+\s*(?:hours?|hrs?|ч|час|часа|часов)[^,.]*(?:,\s*\d+\s*(?:minutes?|mins?|мин))?)/i);
+    if (durMatch) {
+      return durMatch[1];
+    }
+  }
+
+  // 5. Title text itself if hours are explicitly declared (e.g. "3 hours", "1 hour mix", "2 Hours of Space Ambient")
+  const titleText =
+    v.title?.runs?.map((r) => r.text).join('') ||
+    v.title?.simpleText ||
+    '';
+  const titleMatch = titleText.match(/(\b[1-9]\d*)\s*(?:hours?|hrs?|часов|часа|час)\b/i);
+  if (titleMatch) {
+    const h = parseInt(titleMatch[1], 10);
+    return `${h}:00:00`;
   }
 
   return '';
 }
 
 /**
- * Parses search contents JSON from YouTube (works for both Innertube JSON & ytInitialData)
+ * Recursively extracts all videoRenderer and compactVideoRenderer objects from any YouTube JSON structure
  */
-function parseSearchResults(contents, query, niche = 'all', limit = 24) {
-  const scrapedVideos = [];
+function extractAllVideoRenderers(data) {
+  const found = [];
+  const seen = new Set();
+
+  function recurse(node, depth = 0) {
+    if (!node || depth > 25) return;
+
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        recurse(item, depth + 1);
+      }
+      return;
+    }
+
+    if (typeof node === 'object') {
+      if (node.videoRenderer && node.videoRenderer.videoId) {
+        const vid = node.videoRenderer.videoId;
+        if (!seen.has(vid)) {
+          seen.add(vid);
+          found.push(node.videoRenderer);
+        }
+        return;
+      }
+      if (node.compactVideoRenderer && node.compactVideoRenderer.videoId) {
+        const vid = node.compactVideoRenderer.videoId;
+        if (!seen.has(vid)) {
+          seen.add(vid);
+          found.push(node.compactVideoRenderer);
+        }
+        return;
+      }
+
+      for (const key of Object.keys(node)) {
+        if (key !== 'videoRenderer' && key !== 'compactVideoRenderer') {
+          recurse(node[key], depth + 1);
+        }
+      }
+    }
+  }
+
+  recurse(data);
+  return found;
+}
+
+/**
+ * Process a list of videoRenderers into structured items with strict duration constraint
+ */
+function processRenderers(renderers, query, niche = 'all', limit = 24) {
+  const videos = [];
   const seenIds = new Set();
 
-  function processVideoRenderer(v) {
-    if (!v || !v.videoId || seenIds.has(v.videoId)) return;
+  for (const v of renderers) {
+    if (!v || !v.videoId || seenIds.has(v.videoId)) continue;
 
-    // Reject live streams or badges
+    // Reject live streams
     if (v.badges?.some((b) => b?.metadataBadgeRenderer?.style === 'BADGE_STYLE_TYPE_LIVE_NOW')) {
-      return;
+      continue;
     }
 
     const durationText = extractDurationText(v);
@@ -126,7 +232,7 @@ function parseSearchResults(contents, query, niche = 'all', limit = 24) {
 
     // STRICT CONSTRAINT: Duration must be strictly greater than 1 hour (> 3600 seconds)
     if (durationSeconds <= 3600) {
-      return;
+      continue;
     }
 
     const videoId = v.videoId;
@@ -162,11 +268,11 @@ function parseSearchResults(contents, query, niche = 'all', limit = 24) {
 
     const videoNiche = detectNiche(`${title} ${query}`, niche !== 'all' ? niche : 'ambient');
 
-    scrapedVideos.push({
+    videos.push({
       id: videoId,
       title,
       channelTitle,
-      duration: durationText,
+      duration: durationText.includes(':') ? durationText : formatSecondsToHms(durationSeconds),
       durationSeconds,
       thumbnailUrl: bestThumb,
       embedUrl: `https://www.youtube.com/embed/${videoId}`,
@@ -184,39 +290,55 @@ function parseSearchResults(contents, query, niche = 'all', limit = 24) {
         ...(title.toLowerCase().includes('winter') ? ['#winterwave'] : []),
       ],
     });
+
+    if (videos.length >= limit) break;
   }
 
-  // Traverse through section lists, item sections, and contents
-  if (Array.isArray(contents)) {
-    for (const section of contents) {
-      const items = section?.itemSectionRenderer?.contents || section?.shelfRenderer?.content?.verticalListRenderer?.items || [];
-      for (const item of items) {
-        if (item?.videoRenderer) {
-          processVideoRenderer(item.videoRenderer);
-        }
-        if (scrapedVideos.length >= limit) break;
-      }
-      if (scrapedVideos.length >= limit) break;
-    }
-  }
-
-  return scrapedVideos;
+  return videos;
 }
 
 /**
- * Strategy 1: YouTube Innertube API request (fast, structured JSON, cloud IP friendly)
+ * Strategy 1: YouTube Innertube ANDROID client (bypasses Google consent & datacenter IP blocks)
  */
-async function searchViaInnertube(query, niche = 'all', limit = 24) {
+async function searchViaInnertubeAndroid(query, niche = 'all', limit = 24) {
   const response = await fetch('https://www.youtube.com/youtubei/v1/search', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-      'X-YouTube-Client-Name': '1',
-      'X-YouTube-Client-Version': '2.20240210.01.00',
+      'User-Agent': 'com.google.android.youtube/19.09.37 (Linux; U; Android 14; en_US) gzip',
+      'X-YouTube-Client-Name': '3',
+      'X-YouTube-Client-Version': '19.09.37',
     },
     body: JSON.stringify({
+      context: {
+        client: {
+          clientName: 'ANDROID',
+          clientVersion: '19.09.37',
+          androidSdkVersion: 34,
+          hl: 'en',
+          gl: 'US',
+        },
+      },
+      query,
+    }),
+    signal: AbortSignal.timeout(9000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Innertube Android HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const renderers = extractAllVideoRenderers(data);
+  return processRenderers(renderers, query, niche, limit);
+}
+
+/**
+ * Strategy 2: YouTube Innertube WEB client (with valid base64 filter EgIYAw== for > 20m)
+ */
+async function searchViaInnertubeWeb(query, niche = 'all', limit = 24) {
+  const tryFetch = async (params) => {
+    const body = {
       context: {
         client: {
           clientName: 'WEB',
@@ -226,29 +348,43 @@ async function searchViaInnertube(query, niche = 'all', limit = 24) {
         },
       },
       query,
-      params: 'EgIYAw%3D%3D', // sp=EgIYAw%3D%3D filter for > 20 min videos on YouTube
-    }),
-    signal: AbortSignal.timeout(9000),
-  });
+    };
+    if (params) body.params = params;
 
-  if (!response.ok) {
-    throw new Error(`Innertube responded with HTTP ${response.status}`);
+    const response = await fetch('https://www.youtube.com/youtubei/v1/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'X-YouTube-Client-Name': '1',
+        'X-YouTube-Client-Version': '2.20240210.01.00',
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(9000),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Innertube Web HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const renderers = extractAllVideoRenderers(data);
+    return processRenderers(renderers, query, niche, limit);
+  };
+
+  try {
+    return await tryFetch('EgIYAw==');
+  } catch {
+    return await tryFetch(null);
   }
-
-  const data = await response.json();
-  const contents =
-    data?.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
-
-  return parseSearchResults(contents, query, niche, limit);
 }
 
 /**
- * Strategy 2: YouTube Web HTML Scraper with consent bypass cookies
+ * Strategy 3: YouTube Web HTML Scraper (fixed URL encoding and consent headers)
  */
 async function searchViaHtml(query, niche = 'all', limit = 24) {
-  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
-    query
-  )}&sp=EgIYAw%253D%253D`;
+  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=EgIYAw%3D%3D`;
 
   const response = await fetch(searchUrl, {
     headers: {
@@ -265,27 +401,85 @@ async function searchViaHtml(query, niche = 'all', limit = 24) {
   });
 
   if (!response.ok) {
-    throw new Error(`YouTube HTML responded with HTTP ${response.status}`);
+    throw new Error(`YouTube HTML HTTP ${response.status}`);
   }
 
   const html = await response.text();
-
-  // Find ytInitialData JSON in HTML
   const match = html.match(/(?:var\s+ytInitialData|window\["ytInitialData"\]|ytInitialData)\s*=\s*({.+?});<\/script>/s);
   if (!match || !match[1]) {
     throw new Error('ytInitialData not found in HTML response');
   }
 
   const data = JSON.parse(match[1]);
-  const contents =
-    data?.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents || [];
+  const renderers = extractAllVideoRenderers(data);
+  return processRenderers(renderers, query, niche, limit);
+}
 
-  return parseSearchResults(contents, query, niche, limit);
+/**
+ * Strategy 4: Public Invidious API instances (specialized in long duration videos without blocking)
+ */
+async function searchViaInvidious(query, niche = 'all', limit = 24) {
+  const instances = [
+    'https://invidious.nerdvpn.de',
+    'https://inv.nadeko.net',
+    'https://invidious.f5.si',
+    'https://invidious.drgns.space',
+  ];
+
+  for (const instance of instances) {
+    try {
+      const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&duration=long`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) continue;
+
+      const list = await res.json();
+      if (!Array.isArray(list)) continue;
+
+      const videos = [];
+      const seenIds = new Set();
+
+      for (const item of list) {
+        if (!item.videoId || seenIds.has(item.videoId)) continue;
+        const durSec = item.lengthSeconds || 0;
+
+        // STRICT CONSTRAINT: Duration must be strictly > 3600 seconds
+        if (durSec <= 3600) continue;
+
+        seenIds.add(item.videoId);
+        const title = item.title || 'Ambient 1 Hour Mix';
+        const videoNiche = detectNiche(`${title} ${query}`, niche !== 'all' ? niche : 'ambient');
+
+        videos.push({
+          id: item.videoId,
+          title,
+          channelTitle: item.author || 'YouTube Creator',
+          duration: formatSecondsToHms(durSec),
+          durationSeconds: durSec,
+          thumbnailUrl: `https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`,
+          embedUrl: `https://www.youtube.com/embed/${item.videoId}`,
+          youtubeUrl: `https://www.youtube.com/watch?v=${item.videoId}`,
+          views: item.viewCount ? `${item.viewCount.toLocaleString()} views` : 'Popular',
+          publishedAt: item.publishedText || '',
+          niche: videoNiche,
+          tags: [`#${videoNiche}`, '#1hourplus'],
+        });
+
+        if (videos.length >= limit) break;
+      }
+
+      if (videos.length > 0) {
+        return videos;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return [];
 }
 
 /**
  * Generates progressive search query variations for pagination & lazy-loading
- * Each page triggers unique long-mix queries to return continuous fresh streams of > 1h videos.
  */
 function getProgressiveSearchQuery(userQuery, niche, page = 1) {
   if (userQuery && userQuery.trim()) {
@@ -356,31 +550,56 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
 }
 
 /**
- * Unified scraper with multiple strategies (Innertube first, HTML fallback)
+ * Unified live scraper cascading across 4 robust strategies
  */
 export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24) {
   let results = [];
+  const existingIds = new Set();
 
-  // Try Strategy 1: Innertube JSON API
+  const addItems = (items) => {
+    for (const item of items) {
+      if (item && item.id && !existingIds.has(item.id)) {
+        existingIds.add(item.id);
+        results.push(item);
+      }
+    }
+  };
+
+  // Strategy 1: YouTube Innertube Android Client (primary cloud-friendly)
   try {
-    results = await searchViaInnertube(query, niche, limit);
+    const androidItems = await searchViaInnertubeAndroid(query, niche, limit);
+    addItems(androidItems);
   } catch (err) {
-    // If Innertube failed, proceed to HTML scraper
+    // Continue to next strategy
   }
 
-  // Try Strategy 2: HTML scraper if Innertube yielded few results
+  // Strategy 2: YouTube Innertube Web Client (with valid base64 filter)
   if (results.length < limit) {
     try {
-      const htmlResults = await searchViaHtml(query, niche, limit);
-      const existingIds = new Set(results.map((v) => v.id));
-      for (const item of htmlResults) {
-        if (!existingIds.has(item.id)) {
-          results.push(item);
-          existingIds.add(item.id);
-        }
-      }
+      const webItems = await searchViaInnertubeWeb(query, niche, limit);
+      addItems(webItems);
     } catch (err) {
-      // Ignore fallback error if we already have some results
+      // Continue to next strategy
+    }
+  }
+
+  // Strategy 3: YouTube HTML Web Scraper (direct page parse)
+  if (results.length < limit) {
+    try {
+      const htmlItems = await searchViaHtml(query, niche, limit);
+      addItems(htmlItems);
+    } catch (err) {
+      // Continue to next strategy
+    }
+  }
+
+  // Strategy 4: Invidious Public Gateways (reliable datacenter fallback)
+  if (results.length < limit) {
+    try {
+      const invidiousItems = await searchViaInvidious(query, niche, limit);
+      addItems(invidiousItems);
+    } catch (err) {
+      // Ignore
     }
   }
 
@@ -391,6 +610,47 @@ export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24) {
  * Fastify route registration
  */
 export async function youtubeRoutes(fastify, options) {
+  // Live scraper diagnostic route
+  fastify.get('/api/youtube/diag', async (request, reply) => {
+    const diagQuery = 'ambient 1 hour deep space';
+    const report = {
+      timestamp: new Date().toISOString(),
+      testQuery: diagQuery,
+      strategies: {},
+    };
+
+    try {
+      const androidItems = await searchViaInnertubeAndroid(diagQuery, 'ambient', 5);
+      report.strategies.innertubeAndroid = { status: 'OK', count: androidItems.length };
+    } catch (e) {
+      report.strategies.innertubeAndroid = { status: 'ERROR', error: e.message };
+    }
+
+    try {
+      const webItems = await searchViaInnertubeWeb(diagQuery, 'ambient', 5);
+      report.strategies.innertubeWeb = { status: 'OK', count: webItems.length };
+    } catch (e) {
+      report.strategies.innertubeWeb = { status: 'ERROR', error: e.message };
+    }
+
+    try {
+      const htmlItems = await searchViaHtml(diagQuery, 'ambient', 5);
+      report.strategies.html = { status: 'OK', count: htmlItems.length };
+    } catch (e) {
+      report.strategies.html = { status: 'ERROR', error: e.message };
+    }
+
+    try {
+      const invidiousItems = await searchViaInvidious(diagQuery, 'ambient', 5);
+      report.strategies.invidious = { status: 'OK', count: invidiousItems.length };
+    } catch (e) {
+      report.strategies.invidious = { status: 'ERROR', error: e.message };
+    }
+
+    return report;
+  });
+
+  // Main YouTube search & live stream route
   fastify.get('/api/youtube/search', async (request, reply) => {
     const { q, niche = 'all', limit = 24, page = 1, refresh = 'false' } = request.query;
 
@@ -449,7 +709,7 @@ export async function youtubeRoutes(fastify, options) {
       query: searchQuery,
       niche,
       page: parsedPage,
-      hasMore: true, // Allows lazy loading for endless scroll
+      hasMore: strictResults.length > 0, // Allows lazy loading for endless scroll
       count: strictResults.length,
       analytics,
       items: strictResults,
