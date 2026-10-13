@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import {
-  fetchYouTubeVideos,
-} from '@/shared/api/youtubeService';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { fetchYouTubeVideos } from '@/shared/api/youtubeService';
 import type {
   YouTubeVideo,
   YouTubeNiche,
@@ -21,7 +19,6 @@ import {
   Check,
   Play,
   X,
-  Volume2,
   RefreshCw,
   Layers,
   Radio,
@@ -29,15 +26,35 @@ import {
   Eye,
   Activity,
   Disc,
+  ArrowDown,
+  AlertCircle,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-vue-next';
 
-// State
+// Search & filter state
 const searchQuery = ref('');
 const selectedNiche = ref<YouTubeNiche>('all');
 const activeHashtag = ref<string>('');
-const isLoading = ref(false);
+
+// Data state (strictly from server, no static/local video lists)
 const videos = ref<YouTubeVideo[]>([]);
 const analytics = ref<YouTubeAnalyticsSummary | null>(null);
+const isLoading = ref(false);
+const isLoadingMore = ref(false);
+const serverError = ref<string | null>(null);
+
+// Pagination & lazy loading (пролистывание)
+const currentPage = ref(1);
+const hasMore = ref(true);
+const bottomSentinelRef = ref<HTMLElement | null>(null);
+let scrollObserver: IntersectionObserver | null = null;
+
+// Auto-refresh state (автообновление)
+const isAutoRefreshEnabled = ref(true);
+const AUTO_REFRESH_INTERVAL_SEC = 45;
+const secondsLeft = ref(AUTO_REFRESH_INTERVAL_SEC);
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
 // Active playing video modal
 const activeVideo = ref<YouTubeVideo | null>(null);
@@ -63,25 +80,185 @@ const quickTags = [
   '#winterwave',
 ];
 
-// Load videos
-async function loadVideos(niche = selectedNiche.value, query = searchQuery.value) {
+// Recompute analytics from loaded videos
+function updateLocalAnalytics() {
+  const strictList = videos.value.filter((v) => v.durationSeconds > 3600);
+  const totalSeconds = strictList.reduce((acc, v) => acc + (v.durationSeconds || 0), 0);
+  const avgSeconds = strictList.length > 0 ? Math.round(totalSeconds / strictList.length) : 0;
+
+  const formatSec = (sec: number) => {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    return `${h}h ${m}m`;
+  };
+
+  analytics.value = {
+    totalVideos: strictList.length,
+    strictConstraint: 'duration > 1 hour (3600s)',
+    totalDurationFormatted: formatSec(totalSeconds),
+    avgDurationFormatted: formatSec(avgSeconds),
+    nichesCount: {
+      ambient: strictList.filter((v) => v.niche === 'ambient').length,
+      dreamcore: strictList.filter((v) => v.niche === 'dreamcore').length,
+      coldcore: strictList.filter((v) => v.niche === 'coldcore').length,
+    },
+    source: 'live-server-api',
+  };
+}
+
+/**
+ * Loads the initial batch of videos from the server
+ */
+async function loadVideos(niche = selectedNiche.value, query = searchQuery.value, isRefresh = false) {
   isLoading.value = true;
+  serverError.value = null;
+  currentPage.value = 1;
+  hasMore.value = true;
+
   try {
     const res = await fetchYouTubeVideos({
       query: query.trim(),
       niche,
-      limit: 28,
+      limit: 20,
+      page: 1,
+      refresh: isRefresh,
     });
-    // Strict enforcement on client
-    videos.value = (res.items || []).filter((v) => v.durationSeconds > 3600);
-    analytics.value = res.analytics;
-  } catch (err) {
+
+    // Ensure all items strictly satisfy durationSeconds > 3600
+    const filtered = (res.items || []).filter((v) => v.durationSeconds > 3600);
+    videos.value = filtered;
+
+    if (res.analytics) {
+      analytics.value = res.analytics;
+    } else {
+      updateLocalAnalytics();
+    }
+
+    if (filtered.length === 0) {
+      hasMore.value = false;
+    }
+
+    // Reset countdown timer on successful refresh
+    secondsLeft.value = AUTO_REFRESH_INTERVAL_SEC;
+  } catch (err: any) {
+    const msg = err?.message || 'Не удалось связаться с сервером YouTube API';
+    serverError.value = msg;
     showToast({
-      message: 'Не удалось получить свежие данные с YouTube. Используется проверенная база миксов.',
-      type: 'warning',
+      message: `Ошибка получения данных с сервера: ${msg}`,
+      type: 'error',
     });
   } finally {
     isLoading.value = false;
+  }
+}
+
+/**
+ * Lazy loading (пролистывание): fetches the next page/batch from the server and appends to feed
+ */
+async function loadMoreVideos() {
+  if (isLoading.value || isLoadingMore.value || !hasMore.value) return;
+
+  isLoadingMore.value = true;
+  const nextPage = currentPage.value + 1;
+
+  try {
+    const res = await fetchYouTubeVideos({
+      query: searchQuery.value.trim(),
+      niche: selectedNiche.value,
+      limit: 16,
+      page: nextPage,
+    });
+
+    const newItems = (res.items || []).filter((v) => v.durationSeconds > 3600);
+
+    if (newItems.length === 0) {
+      hasMore.value = false;
+    } else {
+      currentPage.value = nextPage;
+      // Deduplicate by ID before appending
+      const existingIds = new Set(videos.value.map((v) => v.id));
+      const uniqueNewItems = newItems.filter((v) => !existingIds.has(v.id));
+
+      if (uniqueNewItems.length > 0) {
+        videos.value.push(...uniqueNewItems);
+        updateLocalAnalytics();
+      } else if (newItems.length < 4) {
+        hasMore.value = false;
+      }
+    }
+  } catch {
+    // If a pagination request fails, stop further auto-triggers
+    hasMore.value = false;
+  } finally {
+    isLoadingMore.value = false;
+  }
+}
+
+// Setup IntersectionObserver for bottom-of-page sentinel
+function setupScrollObserver() {
+  if (scrollObserver) {
+    scrollObserver.disconnect();
+    scrollObserver = null;
+  }
+
+  if (typeof window === 'undefined') return;
+
+  scrollObserver = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      if (entry && entry.isIntersecting) {
+        loadMoreVideos();
+      }
+    },
+    {
+      root: null,
+      rootMargin: '350px',
+      threshold: 0.1,
+    }
+  );
+
+  if (bottomSentinelRef.value) {
+    scrollObserver.observe(bottomSentinelRef.value);
+  }
+}
+
+// Auto-refresh interval management
+function startAutoRefreshTimer() {
+  stopAutoRefreshTimer();
+  secondsLeft.value = AUTO_REFRESH_INTERVAL_SEC;
+
+  autoRefreshTimer = setInterval(() => {
+    if (!isAutoRefreshEnabled.value || isLoading.value) return;
+
+    secondsLeft.value -= 1;
+    if (secondsLeft.value <= 0) {
+      secondsLeft.value = AUTO_REFRESH_INTERVAL_SEC;
+      // Trigger live refresh from server
+      loadVideos(selectedNiche.value, searchQuery.value, true);
+    }
+  }, 1000);
+}
+
+function stopAutoRefreshTimer() {
+  if (autoRefreshTimer) {
+    clearInterval(autoRefreshTimer);
+    autoRefreshTimer = null;
+  }
+}
+
+function toggleAutoRefresh() {
+  isAutoRefreshEnabled.value = !isAutoRefreshEnabled.value;
+  if (isAutoRefreshEnabled.value) {
+    secondsLeft.value = AUTO_REFRESH_INTERVAL_SEC;
+    showToast({
+      message: `Автообновление включено (${AUTO_REFRESH_INTERVAL_SEC}с)`,
+      type: 'info',
+    });
+  } else {
+    showToast({
+      message: 'Автообновление приостановлено',
+      type: 'info',
+    });
   }
 }
 
@@ -106,6 +283,10 @@ function onSelectTag(tag: string) {
 function handleSearchSubmit() {
   activeHashtag.value = '';
   loadVideos(selectedNiche.value, searchQuery.value);
+}
+
+function triggerManualRefresh() {
+  loadVideos(selectedNiche.value, searchQuery.value, true);
 }
 
 function playVideo(video: YouTubeVideo) {
@@ -136,14 +317,6 @@ async function copyEmbedUrl(video: YouTubeVideo) {
   }
 }
 
-// Format duration seconds to human hours/minutes
-function formatDurationBadge(sec: number): string {
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
-  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
 // Play next mix
 function playNextMix() {
   if (!activeVideo.value || videos.value.length <= 1) return;
@@ -152,8 +325,22 @@ function playNextMix() {
   activeVideo.value = videos.value[nextIndex];
 }
 
+watch(bottomSentinelRef, () => {
+  setupScrollObserver();
+});
+
 onMounted(() => {
   loadVideos();
+  startAutoRefreshTimer();
+  setupScrollObserver();
+});
+
+onUnmounted(() => {
+  stopAutoRefreshTimer();
+  if (scrollObserver) {
+    scrollObserver.disconnect();
+    scrollObserver = null;
+  }
 });
 </script>
 
@@ -168,11 +355,13 @@ onMounted(() => {
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div class="space-y-3">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sword-card/90 border border-sword-border text-xs text-sword-muted">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sword-card/90 border border-sword-border text-xs text-sword-muted flex-wrap">
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span class="font-semibold text-sword-text">YouTube Deep Intelligence</span>
+              <span class="font-semibold text-sword-text">Live YouTube Stream</span>
               <span class="text-sword-border">•</span>
-              <span class="text-cyan-400 font-mono font-medium">Только миксы > 1:00:00</span>
+              <span class="text-cyan-400 font-mono font-medium">Только видео &gt; 1:00:00</span>
+              <span class="text-sword-border">•</span>
+              <span class="text-purple-400 font-mono text-[11px]">Lazy-Loading включен</span>
             </div>
 
             <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white flex flex-wrap items-center gap-3">
@@ -184,23 +373,65 @@ onMounted(() => {
             </h1>
 
             <p class="text-sm sm:text-base text-sword-muted max-w-2xl leading-relaxed">
-              Анализ и подборка полноформатных видео с YouTube по ключевым эстетическим направлениям.
-              Система автоматически отсеивает короткие ролики и отображает <strong class="text-sword-text">только сеты длительностью более одного часа</strong> со встроенными Embed-плеерами.
+              Динамический поиск и аналитика полноформатных сетов с серверов YouTube в реальном времени.
+              При пролистывании автоматически подгружаются новые ссылки и превью, все миксы <strong class="text-sword-text">строго более 1 часа</strong>.
             </p>
           </div>
 
-          <!-- Strict Duration Badge Indicator -->
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-sword-card/80 border border-sword-border/90 p-3.5 rounded-2xl shadow-xl backdrop-blur-sm">
-            <div class="w-10 h-10 rounded-xl bg-sword-accent/10 border border-sword-accent/30 flex items-center justify-center text-sword-accent shrink-0">
-              <Clock class="w-5 h-5" />
+          <!-- Controls: Auto-refresh & Strict Filter Badge -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- Auto-refresh Controller Panel -->
+            <div class="bg-sword-card/90 border border-sword-border/90 p-3 rounded-2xl flex items-center justify-between sm:justify-start gap-3 shadow-xl backdrop-blur-sm">
+              <button
+                type="button"
+                class="flex items-center gap-2 cursor-pointer text-left"
+                title="Переключить автообновление ленты"
+                @click="toggleAutoRefresh"
+              >
+                <component
+                  :is="isAutoRefreshEnabled ? ToggleRight : ToggleLeft"
+                  :class="['w-7 h-7 transition-colors', isAutoRefreshEnabled ? 'text-emerald-400' : 'text-sword-muted']"
+                />
+                <div>
+                  <div class="text-xs font-bold text-sword-text flex items-center gap-1.5">
+                    <span>Автообновление</span>
+                    <span
+                      v-if="isAutoRefreshEnabled"
+                      class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300 font-semibold"
+                    >
+                      {{ secondsLeft }}с
+                    </span>
+                  </div>
+                  <div class="text-[11px] text-sword-muted">
+                    {{ isAutoRefreshEnabled ? 'Свежие ссылки каждые 45с' : 'Приостановлено' }}
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                :disabled="isLoading"
+                title="Обновить сейчас с сервера"
+                class="p-2 rounded-xl bg-sword-surface border border-sword-border hover:border-sword-accent/60 text-sword-muted hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+                @click="triggerManualRefresh"
+              >
+                <RefreshCw :class="['w-4 h-4', isLoading ? 'animate-spin text-sword-accent' : '']" />
+              </button>
             </div>
-            <div>
-              <div class="text-xs font-bold text-sword-text flex items-center gap-1.5">
-                <span>Строгий фильтр хронометража</span>
-                <span class="px-1.5 py-0.2 rounded bg-sword-accent/20 text-sword-accent text-[10px] font-mono">1h+ PASS</span>
+
+            <!-- Strict Duration Badge Indicator -->
+            <div class="flex items-center gap-3 bg-sword-card/80 border border-sword-border/90 p-3 rounded-2xl shadow-xl backdrop-blur-sm">
+              <div class="w-9 h-9 rounded-xl bg-sword-accent/10 border border-sword-accent/30 flex items-center justify-center text-sword-accent shrink-0">
+                <Clock class="w-4 h-4" />
               </div>
-              <div class="text-[11px] text-sword-muted mt-0.5">
-                Видео &le; 60 минут исключены из подборки
+              <div>
+                <div class="text-xs font-bold text-sword-text flex items-center gap-1.5">
+                  <span>Фильтр длительности</span>
+                  <span class="px-1.5 py-0.2 rounded bg-sword-accent/20 text-sword-accent text-[10px] font-mono">1h+</span>
+                </div>
+                <div class="text-[11px] text-sword-muted">
+                  &le; 60 мин отсеиваются
+                </div>
               </div>
             </div>
           </div>
@@ -259,7 +490,7 @@ onMounted(() => {
             >
               <RefreshCw v-if="isLoading" class="w-3.5 h-3.5 animate-spin mr-1 text-black" />
               <Sparkles v-else class="w-3.5 h-3.5 mr-1 text-black" />
-              <span>Скрапить</span>
+              <span>Найти</span>
             </BaseButton>
           </form>
         </div>
@@ -292,7 +523,7 @@ onMounted(() => {
         <!-- Total 1h+ Mixes -->
         <div class="bg-sword-card/70 border border-sword-border rounded-2xl p-4 flex flex-col justify-between">
           <div class="flex items-center justify-between text-sword-muted mb-2">
-            <span class="text-xs font-semibold">Собрано миксов (> 1ч)</span>
+            <span class="text-xs font-semibold">Собрано сетов (&gt; 1ч)</span>
             <Tv class="w-4 h-4 text-sword-accent" />
           </div>
           <div class="text-2xl sm:text-3xl font-black text-white">
@@ -350,6 +581,28 @@ onMounted(() => {
         </div>
       </section>
 
+      <!-- Server Error Alert Banner -->
+      <div
+        v-if="serverError"
+        class="bg-amber-950/40 border border-amber-600/40 rounded-2xl p-4 flex items-start justify-between gap-3 text-amber-200 text-xs"
+      >
+        <div class="flex items-start gap-2.5">
+          <AlertCircle class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <div class="font-bold text-amber-300">Сервер временно недоступен или перезагружается</div>
+            <div class="text-[11px] text-amber-200/80 mt-0.5">{{ serverError }}</div>
+          </div>
+        </div>
+        <BaseButton
+          variant="outline"
+          size="sm"
+          class="shrink-0 text-xs"
+          @click="loadVideos(selectedNiche, searchQuery, true)"
+        >
+          Повторить попытку
+        </BaseButton>
+      </div>
+
       <!-- Video Feed Grid Section -->
       <section>
         <div class="flex items-center justify-between mb-4">
@@ -364,29 +617,59 @@ onMounted(() => {
 
           <div v-if="isLoading" class="flex items-center gap-2 text-xs text-sword-muted">
             <RefreshCw class="w-3.5 h-3.5 animate-spin text-sword-accent" />
-            <span>Анализ поисковой выдачи...</span>
+            <span>Запрос к серверу YouTube...</span>
+          </div>
+        </div>
+
+        <!-- Initial Loading Skeleton -->
+        <div
+          v-if="isLoading && videos.length === 0"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+        >
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="bg-sword-card/50 border border-sword-border/60 rounded-2xl overflow-hidden animate-pulse flex flex-col h-72"
+          >
+            <div class="aspect-video w-full bg-sword-surface/80"></div>
+            <div class="p-4 space-y-3 flex-1 flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="h-4 bg-sword-surface/90 rounded w-3/4"></div>
+                <div class="h-3 bg-sword-surface/60 rounded w-1/2"></div>
+              </div>
+              <div class="h-8 bg-sword-surface/80 rounded-xl"></div>
+            </div>
           </div>
         </div>
 
         <!-- Empty State -->
         <div
-          v-if="!isLoading && videos.length === 0"
+          v-else-if="!isLoading && videos.length === 0"
           class="bg-sword-card/40 border border-dashed border-sword-border rounded-2xl p-12 text-center"
         >
           <Tv class="w-12 h-12 text-sword-muted mx-auto mb-3" />
           <h3 class="text-base font-bold text-white mb-1">
-            Видео длительностью > 1 часа не найдены
+            Видео длительностью &gt; 1 часа не найдены
           </h3>
           <p class="text-xs text-sword-muted max-w-md mx-auto mb-4">
-            Попробуйте изменить поисковый запрос или переключиться на хэштег #dreamcore, #coldcore или #ambient.
+            Попробуйте изменить поисковый запрос, переключиться на другое направление или запустить автообновление.
           </p>
-          <BaseButton
-            variant="outline"
-            size="sm"
-            @click="searchQuery = ''; selectedNiche = 'all'; loadVideos('all', '')"
-          >
-            Сбросить фильтры
-          </BaseButton>
+          <div class="flex items-center justify-center gap-2">
+            <BaseButton
+              variant="outline"
+              size="sm"
+              @click="searchQuery = ''; selectedNiche = 'all'; loadVideos('all', '', true)"
+            >
+              Сбросить фильтры
+            </BaseButton>
+            <BaseButton
+              variant="primary"
+              size="sm"
+              @click="loadVideos(selectedNiche, searchQuery, true)"
+            >
+              Обновить с сервера
+            </BaseButton>
+          </div>
         </div>
 
         <!-- Video Cards Grid -->
@@ -524,6 +807,41 @@ onMounted(() => {
             </div>
           </article>
         </div>
+
+        <!-- Lazy Loading Sentinel & Indicator (Пролистывание) -->
+        <div
+          ref="bottomSentinelRef"
+          class="mt-10 py-6 flex flex-col items-center justify-center gap-2"
+        >
+          <div
+            v-if="isLoadingMore"
+            class="flex items-center gap-3 px-4 py-2 rounded-full bg-sword-card border border-sword-border text-xs text-sword-text shadow-lg animate-pulse"
+          >
+            <RefreshCw class="w-4 h-4 animate-spin text-sword-accent" />
+            <span>Загрузка новых ссылок с YouTube...</span>
+          </div>
+
+          <div
+            v-else-if="videos.length > 0 && hasMore"
+            class="flex flex-col items-center gap-2"
+          >
+            <button
+              type="button"
+              class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-xs font-semibold text-sword-muted hover:text-white transition-all cursor-pointer shadow-md"
+              @click="loadMoreVideos"
+            >
+              <ArrowDown class="w-4 h-4 text-sword-accent" />
+              <span>Пролистайте вниз или нажмите для загрузки ещё</span>
+            </button>
+          </div>
+
+          <div
+            v-else-if="videos.length > 0 && !hasMore"
+            class="text-xs text-sword-muted/70 font-mono py-2"
+          >
+            ✓ Все доступные миксы по запросу загружены
+          </div>
+        </div>
       </section>
     </main>
 
@@ -587,7 +905,7 @@ onMounted(() => {
             <span>•</span>
             <div class="flex items-center gap-1 font-mono text-cyan-400">
               <Clock class="w-3.5 h-3.5" />
-              <span>{{ activeVideo.duration }} (> 1ч)</span>
+              <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
             </div>
             <span>•</span>
             <span>{{ activeVideo.views }}</span>

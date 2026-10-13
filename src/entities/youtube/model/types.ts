@@ -35,6 +35,8 @@ export interface YouTubeAnalyticsSummary {
 export interface YouTubeSearchResponse {
   query: string;
   niche: YouTubeNiche;
+  page?: number;
+  hasMore?: boolean;
   count: number;
   analytics: YouTubeAnalyticsSummary;
   items: YouTubeVideo[];
