@@ -20,7 +20,10 @@ import {
   ExternalLink,
   MessageSquare,
   Wand2,
+  Copy,
+  Check,
 } from 'lucide-vue-next';
+import { toast } from '@/shared/lib/toast/toastService';
 
 const props = defineProps<{
   video: YouTubeVideo;
@@ -176,6 +179,41 @@ function handleInputSubmit() {
     sendMessage(inputPrompt.value);
   }
 }
+
+// Clipboard copying state & handler for assistant messages
+const copiedMessageId = ref<string | null>(null);
+
+async function copyMessageContent(msg: AtmosphereChatMessage) {
+  if (!msg.content) return;
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(msg.content);
+    } else {
+      // Fallback for non-secure / restricted environments
+      const textArea = document.createElement('textarea');
+      textArea.value = msg.content;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+
+    copiedMessageId.value = msg.id;
+    toast.success('Ответ ИИ скопирован в буфер обмена');
+
+    setTimeout(() => {
+      if (copiedMessageId.value === msg.id) {
+        copiedMessageId.value = null;
+      }
+    }, 2000);
+  } catch {
+    toast.error('Не удалось скопировать текст в буфер обмена');
+  }
+}
 </script>
 
 <template>
@@ -287,6 +325,28 @@ function handleInputSubmit() {
               <span>Coldcore: {{ msg.atmosphere.scores.coldcore }}%</span>
             </div>
           </div>
+        </div>
+
+        <!-- Action button under Assistant Message (Копирование в буфер обмена) -->
+        <div
+          v-if="msg.role === 'assistant' && msg.content"
+          class="flex items-center gap-1.5 pt-0.5 px-1 animate-fade-in"
+        >
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-medium transition-all cursor-pointer border shadow-sm"
+            :class="
+              copiedMessageId === msg.id
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                : 'bg-sword-card/70 hover:bg-sword-card text-sword-muted hover:text-white border-sword-border/70 hover:border-sword-accent/50'
+            "
+            title="Скопировать ответ ИИ в буфер обмена"
+            @click="copyMessageContent(msg)"
+          >
+            <Check v-if="copiedMessageId === msg.id" class="w-3 h-3 text-emerald-400" />
+            <Copy v-else class="w-3 h-3 text-sword-muted hover:text-white" />
+            <span>{{ copiedMessageId === msg.id ? 'Скопировано!' : 'Копировать ответ' }}</span>
+          </button>
         </div>
       </div>
 
