@@ -3,6 +3,7 @@ import SplitViewPage from '@/pages/SplitViewPage.vue';
 import TikTokPage from '@/pages/TikTokPage.vue';
 import InstagramPage from '@/pages/InstagramPage.vue';
 import AnalyticsPage from '@/pages/AnalyticsPage.vue';
+import YouTubeAmbientPage from '@/pages/YouTubeAmbientPage.vue';
 
 const routes = [
   {
@@ -28,6 +29,12 @@ const routes = [
     name: 'analytics',
     component: AnalyticsPage,
     meta: { title: 'Sword — Analytics & Comparison' },
+  },
+  {
+    path: '/youtube',
+    name: 'youtube-ambient',
+    component: YouTubeAmbientPage,
+    meta: { title: 'Sword — YouTube Ambient, Dreamcore & Coldcore (>1h)' },
   },
   {
     path: '/:pathMatch(.*)*',

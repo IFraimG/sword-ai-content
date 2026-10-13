@@ -68,6 +68,13 @@ export function useToast() {
   };
 }
 
+export function showToast(
+  optionsOrMessage: string | (Omit<ToastItem, 'id'> & { id?: string }),
+  fallbackType: ToastType = 'info'
+): string {
+  return useToast().showToast(optionsOrMessage, fallbackType);
+}
+
 // Global convenience helper
 export const toast = {
   error(message: string, options?: Partial<ToastItem>) {

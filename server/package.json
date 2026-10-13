@@ -1,6 +1,6 @@
 {
   "name": "sword-ai-content-server",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Fastify backend API and platform streaming proxy for Sword AI Content",
   "main": "index.js",
   "type": "module",

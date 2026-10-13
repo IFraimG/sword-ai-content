@@ -5,6 +5,7 @@ import { config } from './src/config.js';
 import { proxyRoutes } from './src/routes/proxy.js';
 import { reelsRoutes } from './src/routes/reels.js';
 import { musicRoutes } from './src/routes/music.js';
+import { youtubeRoutes } from './src/routes/youtube.js';
 
 const fastify = Fastify({
   logger: {
@@ -37,6 +38,7 @@ fastify.get('/', async () => {
       videoProxy: '/api/proxy/video?url=...',
       audioProxy: '/api/proxy/audio?url=...',
       musicSearch: '/api/music/search?q=...',
+      youtubeSearch: '/api/youtube/search?q=...&niche=ambient|dreamcore|coldcore',
     },
   };
 });
@@ -55,6 +57,7 @@ fastify.get('/api/health', async () => {
 await fastify.register(proxyRoutes);
 await fastify.register(reelsRoutes);
 await fastify.register(musicRoutes);
+await fastify.register(youtubeRoutes);
 
 // Graceful shutdown handlers
 const signals = ['SIGINT', 'SIGTERM'];
