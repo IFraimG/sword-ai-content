@@ -418,7 +418,7 @@ async function searchViaHtml(query, niche = 'all', limit = 24) {
 /**
  * Strategy 4: Public Invidious API instances (specialized in long duration videos without blocking)
  */
-async function searchViaInvidious(query, niche = 'all', limit = 24) {
+async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
   const instances = [
     'https://invidious.nerdvpn.de',
     'https://inv.nadeko.net',
@@ -428,7 +428,7 @@ async function searchViaInvidious(query, niche = 'all', limit = 24) {
 
   for (const instance of instances) {
     try {
-      const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&duration=long`;
+      const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&duration=long&page=${page}`;
       const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
       if (!res.ok) continue;
 
@@ -552,7 +552,7 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
 /**
  * Unified live scraper cascading across 4 robust strategies
  */
-export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24) {
+export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24, page = 1) {
   let results = [];
   const existingIds = new Set();
 
@@ -593,10 +593,10 @@ export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24) {
     }
   }
 
-  // Strategy 4: Invidious Public Gateways (reliable datacenter fallback)
+  // Strategy 4: Invidious Public Gateways (reliable datacenter fallback with pagination)
   if (results.length < limit) {
     try {
-      const invidiousItems = await searchViaInvidious(query, niche, limit);
+      const invidiousItems = await searchViaInvidious(query, niche, limit, page);
       addItems(invidiousItems);
     } catch (err) {
       // Ignore
@@ -673,7 +673,7 @@ export async function youtubeRoutes(fastify, options) {
     let source = 'live-scraper';
 
     try {
-      results = await scrapeYouTubeLongMixes(searchQuery, niche, parsedLimit);
+      results = await scrapeYouTubeLongMixes(searchQuery, niche, parsedLimit, parsedPage);
     } catch (err) {
       request.log.error({ err: err.message, query: searchQuery }, 'YouTube live scraping failed');
     }
@@ -709,7 +709,7 @@ export async function youtubeRoutes(fastify, options) {
       query: searchQuery,
       niche,
       page: parsedPage,
-      hasMore: strictResults.length > 0, // Allows lazy loading for endless scroll
+      hasMore: strictResults.length > 0 && parsedPage < 30, // Allows lazy loading for continuous infinite scroll
       count: strictResults.length,
       analytics,
       items: strictResults,

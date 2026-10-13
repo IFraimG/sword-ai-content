@@ -47,6 +47,7 @@ const serverError = ref<string | null>(null);
 // Pagination & lazy loading (пролистывание)
 const currentPage = ref(1);
 const hasMore = ref(true);
+const loadMoreError = ref<string | null>(null);
 const bottomSentinelRef = ref<HTMLElement | null>(null);
 let scrollObserver: IntersectionObserver | null = null;
 
@@ -159,6 +160,7 @@ async function loadMoreVideos() {
   if (isLoading.value || isLoadingMore.value || !hasMore.value) return;
 
   isLoadingMore.value = true;
+  loadMoreError.value = null;
   const nextPage = currentPage.value + 1;
 
   try {
@@ -172,7 +174,12 @@ async function loadMoreVideos() {
     const newItems = (res.items || []).filter((v) => v.durationSeconds > 3600);
 
     if (newItems.length === 0) {
-      hasMore.value = false;
+      if (nextPage < 10) {
+        // Try skipping forward to next variation if current page returned 0
+        currentPage.value = nextPage;
+      } else {
+        hasMore.value = false;
+      }
     } else {
       currentPage.value = nextPage;
       // Deduplicate by ID before appending
@@ -182,13 +189,17 @@ async function loadMoreVideos() {
       if (uniqueNewItems.length > 0) {
         videos.value.push(...uniqueNewItems);
         updateLocalAnalytics();
-      } else if (newItems.length < 4) {
-        hasMore.value = false;
+      }
+
+      // Check server hasMore or allow up to 25 pages
+      if (res.hasMore !== undefined) {
+        hasMore.value = res.hasMore;
+      } else {
+        hasMore.value = nextPage < 25;
       }
     }
-  } catch {
-    // If a pagination request fails, stop further auto-triggers
-    hasMore.value = false;
+  } catch (err: any) {
+    loadMoreError.value = err?.message || 'Не удалось подгрузить следующие видео';
   } finally {
     isLoadingMore.value = false;
   }
@@ -212,13 +223,25 @@ function setupScrollObserver() {
     },
     {
       root: null,
-      rootMargin: '350px',
-      threshold: 0.1,
+      rootMargin: '600px', // start loading 600px before reaching the bottom
+      threshold: 0,
     }
   );
 
   if (bottomSentinelRef.value) {
     scrollObserver.observe(bottomSentinelRef.value);
+  }
+}
+
+// Window scroll fallback listener to guarantee infinite scroll triggers smoothly on all screens
+function onWindowScroll() {
+  if (isLoading.value || isLoadingMore.value || !hasMore.value) return;
+  const scrollHeight = document.documentElement.scrollHeight;
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const clientHeight = window.innerHeight || document.documentElement.clientHeight;
+
+  if (scrollTop + clientHeight >= scrollHeight - 700) {
+    loadMoreVideos();
   }
 }
 
@@ -333,6 +356,9 @@ onMounted(() => {
   loadVideos();
   startAutoRefreshTimer();
   setupScrollObserver();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', onWindowScroll, { passive: true });
+  }
 });
 
 onUnmounted(() => {
@@ -340,6 +366,9 @@ onUnmounted(() => {
   if (scrollObserver) {
     scrollObserver.disconnect();
     scrollObserver = null;
+  }
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', onWindowScroll);
   }
 });
 </script>
@@ -811,35 +840,61 @@ onUnmounted(() => {
         <!-- Lazy Loading Sentinel & Indicator (Пролистывание) -->
         <div
           ref="bottomSentinelRef"
-          class="mt-10 py-6 flex flex-col items-center justify-center gap-2"
+          class="mt-10 py-8 flex flex-col items-center justify-center gap-3"
         >
+          <!-- Loading More Indicator -->
           <div
             v-if="isLoadingMore"
-            class="flex items-center gap-3 px-4 py-2 rounded-full bg-sword-card border border-sword-border text-xs text-sword-text shadow-lg animate-pulse"
+            class="flex items-center gap-3 px-5 py-2.5 rounded-full bg-sword-card/90 border border-sword-accent/40 text-xs text-white shadow-xl animate-pulse backdrop-blur-sm"
           >
             <RefreshCw class="w-4 h-4 animate-spin text-sword-accent" />
-            <span>Загрузка новых ссылок с YouTube...</span>
+            <span>Подгрузка новых видео с YouTube (> 1 часа)...</span>
           </div>
 
+          <!-- Error with Retry button -->
+          <div
+            v-else-if="loadMoreError"
+            class="flex items-center gap-3 px-5 py-2.5 rounded-xl bg-amber-950/60 border border-amber-600/40 text-xs text-amber-200 shadow-md"
+          >
+            <AlertCircle class="w-4 h-4 text-amber-400 shrink-0" />
+            <span>{{ loadMoreError }}</span>
+            <button
+              type="button"
+              class="px-3 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold transition-colors cursor-pointer"
+              @click="loadMoreVideos"
+            >
+              Повторить
+            </button>
+          </div>
+
+          <!-- Has More Button / Indicator -->
           <div
             v-else-if="videos.length > 0 && hasMore"
             class="flex flex-col items-center gap-2"
           >
             <button
               type="button"
-              class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-xs font-semibold text-sword-muted hover:text-white transition-all cursor-pointer shadow-md"
+              class="group flex items-center gap-2 px-6 py-3 rounded-2xl bg-sword-card/90 border border-sword-border hover:border-sword-accent text-xs font-semibold text-sword-muted hover:text-white transition-all cursor-pointer shadow-lg hover:shadow-sword-accent/10"
               @click="loadMoreVideos"
             >
-              <ArrowDown class="w-4 h-4 text-sword-accent" />
+              <ArrowDown class="w-4 h-4 text-sword-accent group-hover:translate-y-0.5 transition-transform" />
               <span>Пролистайте вниз или нажмите для загрузки ещё</span>
+              <span class="px-2 py-0.5 rounded-full bg-sword-surface text-[10px] text-sword-muted">
+                Стр. {{ currentPage }}
+              </span>
             </button>
+            <span class="text-[11px] text-sword-muted/60">
+              Показано {{ videos.length }} миксов (> 1ч)
+            </span>
           </div>
 
+          <!-- All Loaded -->
           <div
             v-else-if="videos.length > 0 && !hasMore"
-            class="text-xs text-sword-muted/70 font-mono py-2"
+            class="text-xs text-sword-muted/70 font-mono py-3 flex items-center gap-2"
           >
-            ✓ Все доступные миксы по запросу загружены
+            <span class="text-emerald-400">✓</span>
+            <span>Все доступные сеты (> 1ч) по текущему запросу загружены (всего {{ videos.length }})</span>
           </div>
         </div>
       </section>
