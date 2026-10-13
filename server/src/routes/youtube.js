@@ -7,6 +7,8 @@
  * NO local mock/stored video or audio files.
  */
 
+import { analyzeVideoAtmosphere } from '../services/llavaService.js';
+
 // In-memory RAM cache with 15-minute TTL (cleared on auto-refresh or expiry)
 const dynamicMemoryCache = new Map();
 const CACHE_TTL_MS = 15 * 60 * 1000;
@@ -268,9 +270,16 @@ function processRenderers(renderers, query, niche = 'all', limit = 24) {
 
     const videoNiche = detectNiche(`${title} ${query}`, niche !== 'all' ? niche : 'ambient');
 
+    const description =
+      v.detailedMetadataSnippets?.[0]?.snippetText?.runs?.map((r) => r.text).join('') ||
+      v.descriptionSnippet?.runs?.map((r) => r.text).join('') ||
+      v.description?.simpleText ||
+      '';
+
     videos.push({
       id: videoId,
       title,
+      description,
       channelTitle,
       duration: durationText.includes(':') ? durationText : formatSecondsToHms(durationSeconds),
       durationSeconds,
@@ -452,6 +461,7 @@ async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
         videos.push({
           id: item.videoId,
           title,
+          description: item.description || '',
           channelTitle: item.author || 'YouTube Creator',
           duration: formatSecondsToHms(durSec),
           durationSeconds: durSec,
@@ -693,6 +703,66 @@ export async function youtubeRoutes(fastify, options) {
     }
 
     return reply.code(404).send({ error: 'Превью для данного видео не найдено' });
+  });
+
+  // LLaVA 1.5 7B Multi-modal Video Atmosphere Analysis Route
+  fastify.post('/api/youtube/analyze-atmosphere', async (request, reply) => {
+    const { videoId, title, description, thumbnailUrl, prompt, history } = request.body || {};
+
+    try {
+      const result = await analyzeVideoAtmosphere({
+        videoId,
+        title: title || 'Ambient Video',
+        description: description || '',
+        thumbnailUrl: thumbnailUrl || '',
+        prompt: prompt || 'Какую атмосферу передает это видео судя по превью?',
+        conversationHistory: history || [],
+      });
+
+      return result;
+    } catch (err) {
+      request.log.error({ err: err.message }, 'Atmosphere analysis failed');
+      return reply.code(500).send({
+        error: 'Не удалось завершить анализ атмосферы через LLaVA 1.5 7B',
+        message: err.message,
+      });
+    }
+  });
+
+  // YouTube video details and metadata route
+  fastify.get('/api/youtube/details', async (request, reply) => {
+    const { id } = request.query;
+
+    if (!id || typeof id !== 'string') {
+      return reply.code(400).send({ error: 'Параметр id обязателен' });
+    }
+
+    const videoId = id.trim();
+    try {
+      const oembedRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`, {
+        signal: AbortSignal.timeout(6000),
+      });
+
+      if (oembedRes.ok) {
+        const data = await oembedRes.json();
+        return {
+          id: videoId,
+          title: data.title || '',
+          author: data.author_name || '',
+          thumbnailUrl: data.thumbnail_url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          description: `Официальное видео на YouTube канале ${data.author_name || ''}`,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    return {
+      id: videoId,
+      title: 'YouTube Video',
+      thumbnailUrl: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+      description: '',
+    };
   });
 
   // Main YouTube search & live stream route

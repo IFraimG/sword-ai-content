@@ -10,6 +10,7 @@ import type {
 } from '@/entities/youtube/model/types';
 import { showToast } from '@/shared/lib/toast/toastService';
 import BaseButton from '@/shared/ui/BaseButton.vue';
+import AtmosphereChatDrawer from '@/features/atmosphere-chat/ui/AtmosphereChatDrawer.vue';
 import {
   Search,
   Sparkles,
@@ -33,6 +34,8 @@ import {
   ToggleLeft,
   ToggleRight,
   Download,
+  Bot,
+  MessageSquare,
 } from 'lucide-vue-next';
 
 // Search & filter state
@@ -64,6 +67,7 @@ let autoRefreshTimer: ReturnType<typeof setInterval> | null = null;
 const activeVideo = ref<YouTubeVideo | null>(null);
 const copiedId = ref<string | null>(null);
 const isDownloadingPreview = ref(false);
+const isChatOpen = ref(false);
 
 // Niche definition tabs
 const nicheTabs: { id: YouTubeNiche; label: string; icon: any; color: string }[] = [
@@ -322,6 +326,7 @@ function playVideo(video: YouTubeVideo) {
 
 function closePlayer() {
   activeVideo.value = null;
+  isChatOpen.value = false;
 }
 
 async function copyEmbedUrl(video: YouTubeVideo) {
@@ -1000,7 +1005,10 @@ onUnmounted(() => {
       class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in"
       @click.self="closePlayer"
     >
-      <div class="relative w-full max-w-4xl bg-sword-surface border border-sword-border/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div
+        class="relative w-full bg-sword-surface border border-sword-border/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] transition-all duration-300"
+        :class="isChatOpen ? 'max-w-6xl' : 'max-w-4xl'"
+      >
         <!-- Modal Top Bar -->
         <div class="p-4 bg-sword-card/90 border-b border-sword-border flex items-center justify-between gap-3">
           <div class="flex items-center gap-2.5 truncate">
@@ -1011,6 +1019,23 @@ onUnmounted(() => {
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
+            <!-- Toggle LLaVA Atmosphere Vision Chat -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer"
+              :class="
+                isChatOpen
+                  ? 'bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-500/30'
+                  : 'bg-sword-surface hover:bg-purple-500/10 border-sword-border hover:border-purple-500/50 text-sword-muted hover:text-purple-300'
+              "
+              title="Анализ атмосферы превью через LLaVA 1.5 7B"
+              @click="isChatOpen = !isChatOpen"
+            >
+              <Sparkles class="w-3.5 h-3.5" :class="isChatOpen ? 'text-white' : 'text-purple-400'" />
+              <span class="hidden sm:inline">Атмосфера AI</span>
+              <span class="px-1 py-0.2 rounded bg-purple-500/20 text-[9px] font-mono border border-purple-500/30">LLaVA</span>
+            </button>
+
             <!-- Download Preview -->
             <button
               type="button"
@@ -1045,66 +1070,124 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- YouTube Embed Iframe Container -->
-        <div class="relative aspect-video w-full bg-black">
-          <iframe
-            :src="`${activeVideo.embedUrl}?autoplay=1&enablejsapi=1&rel=0`"
-            :title="activeVideo.title"
-            class="w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          ></iframe>
-        </div>
+        <!-- Modal Content (Player + Optional Side Chat) -->
+        <div class="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
+          <!-- Left Column (Video Player + Controls) -->
+          <div class="flex-1 flex flex-col overflow-y-auto">
+            <!-- YouTube Embed Iframe Container -->
+            <div class="relative aspect-video w-full bg-black shrink-0">
+              <iframe
+                :src="`${activeVideo.embedUrl}?autoplay=1&enablejsapi=1&rel=0`"
+                :title="activeVideo.title"
+                class="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+              ></iframe>
+            </div>
 
-        <!-- Modal Bottom Details & Controls -->
-        <div class="p-4 bg-sword-surface border-t border-sword-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-3 text-xs text-sword-muted">
-            <div class="flex items-center gap-1 font-bold text-sword-text">
-              <Headphones class="w-4 h-4 text-sword-accent" />
-              <span>{{ activeVideo.channelTitle }}</span>
+            <!-- Invitation Callout Banner to Analyze Atmosphere (if chat is closed) -->
+            <div
+              v-if="!isChatOpen"
+              class="mx-4 mt-3 p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-sword-card to-sword-card border border-purple-500/30 flex items-center justify-between gap-3 text-xs animate-fade-in"
+            >
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
+                  <Bot class="w-4 h-4 text-purple-400" />
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-white flex items-center gap-1.5">
+                    <span>ИИ-анализ атмосферы видео</span>
+                    <span class="px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 text-[9px] font-mono">llava-1.5-7b</span>
+                  </div>
+                  <div class="text-sword-muted text-[11px] truncate">
+                    Узнайте, какое настроение, свет, эстетику и звуковой резонанс передает превью сета
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-all shrink-0 cursor-pointer shadow-md hover:shadow-purple-500/25"
+                @click="isChatOpen = true"
+              >
+                <Sparkles class="w-3.5 h-3.5" />
+                <span>Открыть чат</span>
+              </button>
             </div>
-            <span>•</span>
-            <div class="flex items-center gap-1 font-mono text-cyan-400">
-              <Clock class="w-3.5 h-3.5" />
-              <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
+
+            <!-- Modal Bottom Details & Controls -->
+            <div class="p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-3 text-xs text-sword-muted">
+                <div class="flex items-center gap-1 font-bold text-sword-text">
+                  <Headphones class="w-4 h-4 text-sword-accent" />
+                  <span>{{ activeVideo.channelTitle }}</span>
+                </div>
+                <span>•</span>
+                <div class="flex items-center gap-1 font-mono text-cyan-400">
+                  <Clock class="w-3.5 h-3.5" />
+                  <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
+                </div>
+                <span>•</span>
+                <span>{{ activeVideo.views }}</span>
+              </div>
+
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <!-- Open Chat Button in controls -->
+                <button
+                  type="button"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer"
+                  :class="isChatOpen ? 'bg-purple-600 text-white border-purple-400' : 'bg-sword-card hover:bg-purple-500/10 border-sword-border text-sword-muted hover:text-purple-300'"
+                  @click="isChatOpen = !isChatOpen"
+                >
+                  <MessageSquare class="w-3.5 h-3.5" />
+                  <span>Чат LLaVA</span>
+                </button>
+
+                <!-- Download Preview HD Button -->
+                <button
+                  type="button"
+                  :disabled="isDownloadingPreview"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card hover:bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-sword-muted hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                  title="Скачать превью видео в максимальном разрешении"
+                  @click="downloadPreview(activeVideo)"
+                >
+                  <RefreshCw v-if="isDownloadingPreview" class="w-3.5 h-3.5 animate-spin text-sword-accent" />
+                  <Download v-else class="w-3.5 h-3.5 text-sword-accent" />
+                  <span>Скачать превью</span>
+                </button>
+
+                <a
+                  :href="activeVideo.youtubeUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card border border-sword-border text-sword-muted hover:text-white transition-colors"
+                >
+                  <span>Смотреть на YouTube</span>
+                  <ExternalLink class="w-3.5 h-3.5" />
+                </a>
+
+                <BaseButton
+                  variant="outline"
+                  size="sm"
+                  class="text-xs"
+                  @click="playNextMix"
+                >
+                  <span>Следующий микс</span>
+                </BaseButton>
+              </div>
             </div>
-            <span>•</span>
-            <span>{{ activeVideo.views }}</span>
           </div>
 
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <!-- Download Preview HD Button -->
-            <button
-              type="button"
-              :disabled="isDownloadingPreview"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card hover:bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-sword-muted hover:text-white transition-all cursor-pointer disabled:opacity-50"
-              title="Скачать превью видео в максимальном разрешении"
-              @click="downloadPreview(activeVideo)"
-            >
-              <RefreshCw v-if="isDownloadingPreview" class="w-3.5 h-3.5 animate-spin text-sword-accent" />
-              <Download v-else class="w-3.5 h-3.5 text-sword-accent" />
-              <span>Скачать превью</span>
-            </button>
-
-            <a
-              :href="activeVideo.youtubeUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card border border-sword-border text-sword-muted hover:text-white transition-colors"
-            >
-              <span>Смотреть на YouTube</span>
-              <ExternalLink class="w-3.5 h-3.5" />
-            </a>
-
-            <BaseButton
-              variant="outline"
-              size="sm"
-              class="text-xs"
-              @click="playNextMix"
-            >
-              <span>Следующий микс</span>
-            </BaseButton>
+          <!-- Right Side Chat Column (LLaVA 1.5 7B Vision) -->
+          <div
+            v-if="isChatOpen"
+            class="w-full lg:w-[420px] shrink-0 border-t lg:border-t-0 lg:border-l border-sword-border h-[460px] lg:h-auto flex flex-col"
+          >
+            <AtmosphereChatDrawer
+              :video="activeVideo"
+              :is-open="isChatOpen"
+              @close="isChatOpen = false"
+            />
           </div>
         </div>
       </div>

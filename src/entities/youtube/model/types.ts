@@ -7,6 +7,7 @@ export type YouTubeNiche = 'all' | 'ambient' | 'dreamcore' | 'coldcore';
 export interface YouTubeVideo {
   id: string;
   title: string;
+  description?: string;
   channelTitle: string;
   duration: string; // e.g. "1:24:18"
   durationSeconds: number; // MUST BE > 3600
