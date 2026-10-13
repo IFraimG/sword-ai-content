@@ -1,0 +1,75 @@
+name: Publish GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for release (e.g. v3.2.0)'
+        required: true
+        default: 'v3.2.0'
+      title:
+        description: 'Release Title'
+        required: false
+        default: 'v3.2.0: LLaVA 1.5 7B Vision atmosphere analysis, interactive modal chat, HD thumbnail download, dynamic live scraping & expanded infinite scroll'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: ${{ github.event.inputs.title || github.ref_name }}
+          body: |
+            ## 🚀 Release v3.2.0
+
+            ### 🔮 1. Мультимодальный анализ атмосферы с нейросетью LLaVA 1.5 7B (`llava-hf/llava-1.5-7b-hf`)
+            - **Серверная архитектура**: бэкенд-сервис `server/src/services/llavaService.js` и API-маршрут `POST /api/youtube/analyze-atmosphere`.
+            - **3-уровневый каскад исполнения (Zero-Downtime Architecture)**:
+              1. **Local Runner (`server/llava_runner.py`)**: автономный Flask-микросервис на порту 8008 с поддержкой 4-битного квантования (`bitsandbytes`), PyTorch и GPU/CUDA.
+              2. **Hugging Face Inference Router**: прямое обращение к официальному роутеру `llava-hf/llava-1.5-7b-hf`.
+              3. **Calibrated Vision Engine**: встроенный калиброванный анализатор эстетики (цветовая палитра, светотень, глубина, саундскейп), обеспечивающий отклик < 1 сек без риска OOM.
+            - **Эстетический скоринг**: автоматический расчет совпадения по шкалам `Ambient`, `Dreamcore` и `Coldcore`.
+
+            ### 💬 2. Интерактивный боковой диалоговый чат в модальном окне (`AtmosphereChatDrawer`)
+            - **Адаптивный 2-колоночный лейаут**: модальное окно плеера автоматически масштабируется (`max-w-6xl`), размещая видеоплеер слева и чат LLaVA справа.
+            - **Интерактивные кнопки быстрых промптов**:
+              - 🌌 *«Какую атмосферу передает превью?»*
+              - 🚪 *«Есть ли здесь эстетика Dreamcore?»*
+              - ❄️ *«Оцени уровень Coldcore и меланхолии»*
+              - 🎨 *«Разбери цветовую гамму и свет»*
+              - 🎧 *«Для чего лучше всего подойдет этот сет?»*
+              - ✍️ *«Поэтическое описание атмосферы»*
+              - При нажатии на любую кнопку текст автоматически отправляется как сообщение в чат.
+            - **Контекстные подсказки (Follow-ups)**: динамические кнопки с вариантами развития диалога под каждым ответом нейросети.
+            - **Свободный ввод**: текстовое поле для произвольных вопросов с анимированным индикатором набора.
+
+            ### 🖼️ 3. Скачивание превью видео в максимальном разрешении (HD)
+            - Кнопка **«Скачать превью»** в модальном окне плеера с анимированным спиннером и всплывающими toast-уведомлениями.
+            - Серверный прокси-эндпоинт `GET /api/youtube/thumbnail?id={videoId}&quality=maxres`:
+              - Фильтрация пустых 1097-байтовых заглушек YouTube и выбор наилучшего разрешения (`maxresdefault.jpg`, `sddefault.jpg`, `hqdefault.jpg`).
+            - Трёхуровневый клиентский каскад сохранения (серверный шлюз → Blob fetch → браузерный download).
+
+            ### ⚡ 4. 100% Live-скрейпинг с сервера без статически сохранённых ссылок
+            - Полное удаление локальных массивов ссылок и мок-видео из репозитория.
+            - 4-уровневый отказоустойчивый скрейпер (Innertube Android API, Innertube Web Desktop API, HTML Initial Data парсинг, Invidious fallback).
+            - Универсальный парсер хронометража: ISO 8601 (`PT1H30M`), `H:MM:SS`, текстовые метки («1 час 20 минут»).
+            - Строгая фильтрация: гарантированное исключение роликов длительностью ≤ 1 часа (3600 с).
+
+            ### 📜 5. Расширенная бесконечная подгрузка (Infinite Scroll Lazy Loading)
+            - Автоматическая подгрузка при приближении к концу страницы (`IntersectionObserver` с `rootMargin: 600px`).
+            - Резервный слушатель прокрутки окна (`window.addEventListener('scroll')`).
+            - Сквозная серверная пагинация страниц и кнопка повтора при сетевых задержках.
+          draft: false
+          prerelease: false
+          make_latest: true
