@@ -69,6 +69,10 @@ function saveFallbackChats() {
   }
 }
 
+let lastConnectionError = null;
+let databaseUrlPresent = false;
+let databaseUrlPreview = '';
+
 /**
  * Export current database status for diagnostics
  */
@@ -76,6 +80,9 @@ export function getDbStatus() {
   return {
     type: isPostgresConnected ? 'postgres' : 'fallback',
     isPostgresConnected,
+    databaseUrlPresent,
+    databaseUrlPreview,
+    lastConnectionError,
     fallbackUsersCount: fallbackUsers.length,
   };
 }
@@ -130,6 +137,11 @@ export async function initDb() {
   loadFallbackData();
 
   const databaseUrl = process.env.DATABASE_URL;
+  databaseUrlPresent = !!(databaseUrl && databaseUrl.trim());
+  if (databaseUrlPresent) {
+    const raw = databaseUrl.trim();
+    databaseUrlPreview = raw.replace(/:([^:@]+)@/, ':***@');
+  }
 
   if (databaseUrl && databaseUrl.trim()) {
     try {
@@ -225,10 +237,12 @@ export async function initDb() {
       }
       return;
     } catch (err) {
+      lastConnectionError = err.message;
       console.warn('⚠️ [DB] Failed to connect to PostgreSQL (' + err.message + '). Switching to local fallback store.');
       isPostgresConnected = false;
     }
   } else {
+    lastConnectionError = 'DATABASE_URL environment variable is not defined or empty';
     console.log('ℹ️ [DB] DATABASE_URL not configured. Operating in local resilient fallback store.');
   }
 }
