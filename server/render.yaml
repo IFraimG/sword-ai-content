@@ -1,3 +1,10 @@
+databases:
+  - name: sword-postgres
+    databaseName: sword_db
+    user: sword_user
+    plan: free
+    region: frankfurt
+
 services:
   - type: web
     name: sword-ai-content-api
@@ -7,6 +14,7 @@ services:
     rootDir: server
     buildCommand: npm install
     startCommand: node index.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
@@ -14,3 +22,9 @@ services:
         value: 10000
       - key: CORS_ORIGIN
         value: "*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sword-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        value: sword_jwt_production_master_secret_key_2026_render_permanent

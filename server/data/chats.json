@@ -1,0 +1,156 @@
+{
+  "chats": [
+    {
+      "id": "c5fac1c7-a710-4b00-b0ba-475acd8bb5e1",
+      "type": "direct",
+      "title": "@coldcore_fan_1791973608129",
+      "created_by": "d37f27a2-2fc8-4367-8790-c84cb55dcee0",
+      "created_at": "2026-10-14T10:26:48.161Z",
+      "updated_at": "2026-10-14T10:26:48.161Z"
+    },
+    {
+      "id": "e4d6f5fd-a93f-4340-b338-fd3ada55bcd0",
+      "type": "ai",
+      "title": "Ambient Music AI",
+      "created_by": "d37f27a2-2fc8-4367-8790-c84cb55dcee0",
+      "created_at": "2026-10-14T10:26:48.162Z",
+      "updated_at": "2026-10-14T10:26:48.162Z"
+    },
+    {
+      "id": "b62b4c04-040c-408c-b8b0-f76f5e1c8aed",
+      "type": "direct",
+      "title": "@coldcore_fan_1791974713916",
+      "created_by": "4769da07-ea03-4d29-8cdf-1c70d287f05a",
+      "created_at": "2026-10-14T10:45:13.948Z",
+      "updated_at": "2026-10-14T10:45:13.948Z"
+    },
+    {
+      "id": "0f4b591c-c208-40ed-bcf6-41740cec1d5b",
+      "type": "ai",
+      "title": "Ambient Music AI",
+      "created_by": "4769da07-ea03-4d29-8cdf-1c70d287f05a",
+      "created_at": "2026-10-14T10:45:13.949Z",
+      "updated_at": "2026-10-14T10:45:13.949Z"
+    }
+  ],
+  "participants": [
+    {
+      "id": "79a48eed-da3d-4d03-8567-45173561c4cf",
+      "chat_id": "c5fac1c7-a710-4b00-b0ba-475acd8bb5e1",
+      "user_id": "d37f27a2-2fc8-4367-8790-c84cb55dcee0",
+      "created_at": "2026-10-14T10:26:48.161Z"
+    },
+    {
+      "id": "ae5868bc-b08f-4b59-a891-ce4e4a457d92",
+      "chat_id": "c5fac1c7-a710-4b00-b0ba-475acd8bb5e1",
+      "user_id": "c28fd10f-e607-4fc8-9504-77a37679b61c",
+      "created_at": "2026-10-14T10:26:48.161Z"
+    },
+    {
+      "id": "dd339b43-ef00-4da4-8bad-8f948cc838f6",
+      "chat_id": "e4d6f5fd-a93f-4340-b338-fd3ada55bcd0",
+      "user_id": "d37f27a2-2fc8-4367-8790-c84cb55dcee0",
+      "created_at": "2026-10-14T10:26:48.162Z"
+    },
+    {
+      "id": "425dcd10-48ef-4bf5-bc5b-a41056ea0158",
+      "chat_id": "b62b4c04-040c-408c-b8b0-f76f5e1c8aed",
+      "user_id": "4769da07-ea03-4d29-8cdf-1c70d287f05a",
+      "created_at": "2026-10-14T10:45:13.948Z"
+    },
+    {
+      "id": "5e94b4af-8fe8-40ce-a0f6-3b05e8ce5da7",
+      "chat_id": "b62b4c04-040c-408c-b8b0-f76f5e1c8aed",
+      "user_id": "aedff1ce-1a3f-4974-a787-ee06457c4d4a",
+      "created_at": "2026-10-14T10:45:13.948Z"
+    },
+    {
+      "id": "5eaf682b-6e19-45f4-b1b0-265fcb258f02",
+      "chat_id": "0f4b591c-c208-40ed-bcf6-41740cec1d5b",
+      "user_id": "4769da07-ea03-4d29-8cdf-1c70d287f05a",
+      "created_at": "2026-10-14T10:45:13.949Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "a689369e-4563-4082-986e-7f21c0b5a58f",
+      "chat_id": "c5fac1c7-a710-4b00-b0ba-475acd8bb5e1",
+      "sender_id": "d37f27a2-2fc8-4367-8790-c84cb55dcee0",
+      "sender_login": "ambient_producer_1791973608066",
+      "content": "Привет! Зацени мой новый coldcore трек",
+      "image_url": null,
+      "ai_metadata": null,
+      "created_at_formatted": "13:26",
+      "created_at": "2026-10-14T10:26:48.161Z"
+    },
+    {
+      "id": "92bbbe34-3a44-4b7d-9161-6e7e1ef720eb",
+      "chat_id": "e4d6f5fd-a93f-4340-b338-fd3ada55bcd0",
+      "sender_id": "ai-assistant",
+      "sender_login": "Ambient AI",
+      "content": "Привет! Я твой персональный Ambient AI музыкальный продюсер. Напиши мне текстовое описание настроения или прикрепи изображение (арт, обложку, пейзаж, кадр из видео), и я создам детальный структурный план трека: подходящие ambient-жанры, темп (BPM), тональность, инструменты, саунд-дизайн и готовый промпт для Suno/Udio.",
+      "image_url": null,
+      "ai_metadata": {
+        "genres": [
+          "Dark Ambient",
+          "Drone",
+          "Dreamcore",
+          "Liminal Space"
+        ],
+        "bpm": "48-56 BPM / Unquantized",
+        "key": "D minor (Ре минор)",
+        "instruments": [
+          "Analog Drift Pad (Roland Juno-106)",
+          "Granular Synth Texture",
+          "Sub-bass Drone 40Hz",
+          "Tape Loop Hiss & Vinyl Crackle"
+        ],
+        "soundDesign": "Длинный реверб (Decay > 8s), lowpass фильтрация на 3.5 kHz, стерео-дилэй с модуляцией высоты тона",
+        "sunoPrompt": "dark ambient, ethereal drone pads, deep sub bass, tape flutter, atmospheric, dreamy, haunting, cinematic soundscape, melancholic, 50 bpm",
+        "summary": "Готов к генерации атмосферного звукового ландшафта. Отправь референсный текст или прикрепи изображение (арт/пейзаж/кадр) для анализа."
+      },
+      "created_at_formatted": "13:26",
+      "created_at": "2026-10-14T10:26:48.162Z"
+    },
+    {
+      "id": "deebf6e8-1b0f-49a0-882a-971fcc56da5c",
+      "chat_id": "b62b4c04-040c-408c-b8b0-f76f5e1c8aed",
+      "sender_id": "4769da07-ea03-4d29-8cdf-1c70d287f05a",
+      "sender_login": "ambient_producer_1791974713877",
+      "content": "Привет! Зацени мой новый coldcore трек",
+      "image_url": null,
+      "ai_metadata": null,
+      "created_at_formatted": "13:45",
+      "created_at": "2026-10-14T10:45:13.948Z"
+    },
+    {
+      "id": "d41ba3bd-749a-4d41-a80a-cb54e93fa6fe",
+      "chat_id": "0f4b591c-c208-40ed-bcf6-41740cec1d5b",
+      "sender_id": "ai-assistant",
+      "sender_login": "Ambient AI",
+      "content": "Привет! Я твой персональный Ambient AI музыкальный продюсер. Напиши мне текстовое описание настроения или прикрепи изображение (арт, обложку, пейзаж, кадр из видео), и я создам детальный структурный план трека: подходящие ambient-жанры, темп (BPM), тональность, инструменты, саунд-дизайн и готовый промпт для Suno/Udio.",
+      "image_url": null,
+      "ai_metadata": {
+        "genres": [
+          "Dark Ambient",
+          "Drone",
+          "Dreamcore",
+          "Liminal Space"
+        ],
+        "bpm": "48-56 BPM / Unquantized",
+        "key": "D minor (Ре минор)",
+        "instruments": [
+          "Analog Drift Pad (Roland Juno-106)",
+          "Granular Synth Texture",
+          "Sub-bass Drone 40Hz",
+          "Tape Loop Hiss & Vinyl Crackle"
+        ],
+        "soundDesign": "Длинный реверб (Decay > 8s), lowpass фильтрация на 3.5 kHz, стерео-дилэй с модуляцией высоты тона",
+        "sunoPrompt": "dark ambient, ethereal drone pads, deep sub bass, tape flutter, atmospheric, dreamy, haunting, cinematic soundscape, melancholic, 50 bpm",
+        "summary": "Готов к генерации атмосферного звукового ландшафта. Отправь референсный текст или прикрепи изображение (арт/пейзаж/кадр) для анализа."
+      },
+      "created_at_formatted": "13:45",
+      "created_at": "2026-10-14T10:45:13.949Z"
+    }
+  ]
+}
