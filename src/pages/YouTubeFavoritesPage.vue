@@ -205,14 +205,14 @@ function handleSelectAllToggle() {
             </div>
 
             <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center gap-3">
-              <span>Избранные YouTube сеты (&gt; 1ч)</span>
+              <span>Избранные YouTube сеты (&ge; 30м)</span>
               <span class="text-xl px-2.5 py-0.5 rounded-xl bg-sword-card border border-sword-border text-sword-accent font-mono font-bold">
                 {{ favoritesStore.count }}
               </span>
             </h1>
 
             <p class="mt-2 text-sm text-sword-muted max-w-2xl leading-relaxed">
-              Ваши сохранённые эмбиент, дримкор и колдкор видео длительностью более 1 часа. Выбирайте понравившиеся сеты и экспортируйте их ссылки и сводку в формате JSON.
+              Ваши сохранённые эмбиент, дримкор и колдкор видео длительностью от 30 минут. Выбирайте понравившиеся сеты и экспортируйте их ссылки и сводку в формате JSON.
             </p>
           </div>
 
@@ -329,7 +329,7 @@ function handleSelectAllToggle() {
         </div>
         <h2 class="text-xl font-bold text-white">Список избранного пока пуст</h2>
         <p class="text-xs text-sword-muted leading-relaxed">
-          Вы можете сохранить любое эмбиент-видео длительностью более 1 часа в этот список, нажав на иконку закладки на карточке ролика или в модальном окне плеера.
+          Вы можете сохранить любое эмбиент-видео длительностью от 30 минут в этот список, нажав на иконку закладки на карточке ролика или в модальном окне плеера.
         </p>
         <div class="pt-2">
           <router-link
@@ -653,7 +653,7 @@ function handleSelectAllToggle() {
                 <div class="flex items-center gap-2 font-mono text-cyan-400 shrink-0 text-xs">
                   <div class="flex items-center gap-1">
                     <Clock class="w-3.5 h-3.5" />
-                    <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
+                    <span>{{ activeVideo.duration }} ({{ (activeVideo.durationSeconds || 0) >= 3600 ? '&gt; 1ч' : '&ge; 30м' }})</span>
                   </div>
                   <span class="text-sword-border">•</span>
                   <span class="text-sword-muted">{{ activeVideo.views }}</span>

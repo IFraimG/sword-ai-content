@@ -201,19 +201,22 @@ const displayedHashtags = computed(() => {
 
 // Recompute analytics from loaded videos
 function updateLocalAnalytics() {
-  const strictList = videos.value.filter((v) => v.durationSeconds > 3600);
+  const strictList = videos.value.filter((v) => v.durationSeconds >= 1800);
   const totalSeconds = strictList.reduce((acc, v) => acc + (v.durationSeconds || 0), 0);
   const avgSeconds = strictList.length > 0 ? Math.round(totalSeconds / strictList.length) : 0;
 
   const formatSec = (sec: number) => {
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
-    return `${h}h ${m}m`;
+    if (h > 0) {
+      return `${h}h ${m}m`;
+    }
+    return `${m}m`;
   };
 
   analytics.value = {
     totalVideos: strictList.length,
-    strictConstraint: 'duration > 1 hour (3600s)',
+    strictConstraint: 'duration >= 30 min (1800s)',
     totalDurationFormatted: formatSec(totalSeconds),
     avgDurationFormatted: formatSec(avgSeconds),
     nichesCount: {
@@ -243,8 +246,8 @@ async function loadVideos(niche = selectedNiche.value, query = searchQuery.value
       refresh: isRefresh,
     });
 
-    // Ensure all items strictly satisfy durationSeconds > 3600
-    const filtered = (res.items || []).filter((v) => v.durationSeconds > 3600);
+    // Ensure all items strictly satisfy durationSeconds >= 1800
+    const filtered = (res.items || []).filter((v) => v.durationSeconds >= 1800);
     videos.value = filtered;
 
     if (res.analytics) {
@@ -289,7 +292,7 @@ async function loadMoreVideos() {
       page: nextPage,
     });
 
-    const newItems = (res.items || []).filter((v) => v.durationSeconds > 3600);
+    const newItems = (res.items || []).filter((v) => v.durationSeconds >= 1800);
 
     if (newItems.length === 0) {
       if (nextPage < 10) {
@@ -597,7 +600,7 @@ onUnmounted(() => {
               <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span class="font-semibold text-sword-text">Live YouTube Stream</span>
               <span class="text-sword-border">•</span>
-              <span class="text-cyan-400 font-mono font-medium">Только видео &gt; 1:00:00</span>
+              <span class="text-cyan-400 font-mono font-medium">Только видео &ge; 30:00</span>
               <span class="text-sword-border">•</span>
               <span class="text-purple-400 font-mono text-[11px]">Lazy-Loading включен</span>
             </div>
@@ -612,7 +615,7 @@ onUnmounted(() => {
 
             <p class="text-sm sm:text-base text-sword-muted max-w-2xl leading-relaxed">
               Динамический поиск и аналитика полноформатных сетов с серверов YouTube в реальном времени.
-              При пролистывании автоматически подгружаются новые ссылки и превью, все миксы <strong class="text-sword-text">строго более 1 часа</strong>.
+              При пролистывании автоматически подгружаются новые ссылки и превью, все миксы <strong class="text-sword-text">минимум от 30 минут</strong>.
             </p>
           </div>
 
@@ -690,10 +693,10 @@ onUnmounted(() => {
               <div>
                 <div class="text-xs font-bold text-sword-text flex items-center gap-1.5">
                   <span>Фильтр длительности</span>
-                  <span class="px-1.5 py-0.2 rounded bg-sword-accent/20 text-sword-accent text-[10px] font-mono">1h+</span>
+                  <span class="px-1.5 py-0.2 rounded bg-sword-accent/20 text-sword-accent text-[10px] font-mono">30m+</span>
                 </div>
                 <div class="text-[11px] text-sword-muted">
-                  &le; 60 мин отсеиваются
+                  &lt; 30 мин отсеиваются
                 </div>
               </div>
             </div>
@@ -874,14 +877,14 @@ onUnmounted(() => {
         <!-- Total 1h+ Mixes -->
         <div class="bg-sword-card/70 border border-sword-border rounded-2xl p-4 flex flex-col justify-between">
           <div class="flex items-center justify-between text-sword-muted mb-2">
-            <span class="text-xs font-semibold">Собрано сетов (&gt; 1ч)</span>
+            <span class="text-xs font-semibold">Собрано сетов (&ge; 30м)</span>
             <Tv class="w-4 h-4 text-sword-accent" />
           </div>
           <div class="text-2xl sm:text-3xl font-black text-white">
             {{ analytics.totalVideos }}
           </div>
           <div class="text-[10px] text-emerald-400 font-mono mt-1 flex items-center gap-1">
-            <span>✓</span> Все хронометражем &gt; 60 мин
+            <span>✓</span> Все хронометражем &ge; 30 мин
           </div>
         </div>
 
@@ -959,7 +962,7 @@ onUnmounted(() => {
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <h2 class="text-lg font-bold text-white">
-              Подборка YouTube Embed (Длительность &gt; 1:00:00)
+              Подборка YouTube Embed (Длительность &ge; 30:00)
             </h2>
             <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-sword-card text-sword-accent border border-sword-border">
               {{ videos.length }} видео
@@ -1000,7 +1003,7 @@ onUnmounted(() => {
         >
           <Tv class="w-12 h-12 text-sword-muted mx-auto mb-3" />
           <h3 class="text-base font-bold text-white mb-1">
-            Видео длительностью &gt; 1 часа не найдены
+            Видео длительностью от 30 минут не найдены
           </h3>
           <p class="text-xs text-sword-muted max-w-md mx-auto mb-4">
             Попробуйте изменить поисковый запрос, переключиться на другое направление или запустить автообновление.
@@ -1087,11 +1090,11 @@ onUnmounted(() => {
                 <Bookmark v-else class="w-3.5 h-3.5" />
               </button>
 
-              <!-- Duration Badge (Bottom Right) STRICT > 1 HOUR -->
+              <!-- Duration Badge (Bottom Right) STRICT >= 30 MIN -->
               <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/85 border border-white/20 text-white font-mono text-[11px] font-bold backdrop-blur-md">
                 <span class="w-1.5 h-1.5 rounded-full bg-sword-accent animate-pulse"></span>
                 <span>{{ video.duration }}</span>
-                <span class="text-[9px] text-sword-accent font-sans px-1 rounded bg-sword-accent/20">1h+</span>
+                <span class="text-[9px] text-sword-accent font-sans px-1 rounded bg-sword-accent/20">{{ video.durationSeconds >= 3600 ? '1h+' : '30m+' }}</span>
               </div>
 
               <!-- Hover Play Button Icon -->
@@ -1205,7 +1208,7 @@ onUnmounted(() => {
             class="flex items-center gap-3 px-5 py-2.5 rounded-full bg-sword-card/90 border border-sword-accent/40 text-xs text-white shadow-xl animate-pulse backdrop-blur-sm"
           >
             <RefreshCw class="w-4 h-4 animate-spin text-sword-accent" />
-            <span>Подгрузка новых видео с YouTube (> 1 часа)...</span>
+            <span>Подгрузка новых видео с YouTube (от 30 минут)...</span>
           </div>
 
           <!-- Error with Retry button -->
@@ -1401,7 +1404,7 @@ onUnmounted(() => {
                 <div class="flex items-center gap-2 font-mono text-cyan-400 shrink-0 text-xs">
                   <div class="flex items-center gap-1">
                     <Clock class="w-3.5 h-3.5" />
-                    <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
+                    <span>{{ activeVideo.duration }} ({{ (activeVideo.durationSeconds || 0) >= 3600 ? '&gt; 1ч' : '&ge; 30м' }})</span>
                   </div>
                   <span class="text-sword-border">•</span>
                   <span class="text-sword-muted">{{ activeVideo.views }}</span>

@@ -24,8 +24,8 @@ export const useYouTubeFavoritesStore = defineStore('youtubeFavorites', () => {
       if (!raw) return [];
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Guarantee each video is valid and has duration > 3600
-        return parsed.filter((item) => item && item.id && item.durationSeconds > 3600);
+        // Guarantee each video is valid and has duration >= 1800 (30 mins)
+        return parsed.filter((item) => item && item.id && item.durationSeconds >= 1800);
       }
     } catch (e) {
       console.warn('Could not parse youtube favorites from localStorage', e);

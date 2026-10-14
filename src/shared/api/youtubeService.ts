@@ -58,8 +58,8 @@ export async function fetchYouTubeVideos(
     throw new Error('Некорректный формат ответа от сервера YouTube API');
   }
 
-  // Client-side strict filter enforcement: ensure every single returned item has duration > 3600s
-  const strictlyLongItems = data.items.filter((item) => item.durationSeconds > 3600);
+  // Client-side strict filter enforcement: ensure every single returned item has duration >= 1800s (30 mins)
+  const strictlyLongItems = data.items.filter((item) => item.durationSeconds >= 1800);
 
   return {
     ...data,

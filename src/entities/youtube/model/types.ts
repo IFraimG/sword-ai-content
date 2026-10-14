@@ -10,7 +10,7 @@ export interface YouTubeVideo {
   description?: string;
   channelTitle: string;
   duration: string; // e.g. "1:24:18"
-  durationSeconds: number; // MUST BE > 3600
+  durationSeconds: number; // >= 1800 (>= 30 mins)
   thumbnailUrl: string;
   embedUrl: string; // https://www.youtube.com/embed/{id}
   youtubeUrl: string; // https://www.youtube.com/watch?v={id}

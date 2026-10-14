@@ -14,14 +14,17 @@ const dynamicMemoryCache = new Map();
 const CACHE_TTL_MS = 15 * 60 * 1000;
 
 /**
- * Format duration in seconds to "H:MM:SS"
+ * Format duration in seconds to "H:MM:SS" or "MM:SS"
  */
 export function formatSecondsToHms(seconds) {
-  if (!seconds || isNaN(seconds)) return '1:00:00';
+  if (!seconds || isNaN(seconds)) return '30:00';
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
-  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+  return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
 /**
@@ -300,21 +303,26 @@ function extractDurationText(v) {
   // 4. Accessibility label inside title
   const titleA11y = v.title?.accessibility?.accessibilityData?.label;
   if (titleA11y) {
-    const durMatch = titleA11y.match(/(\d+\s*(?:hours?|hrs?|ч|час|часа|часов)[^,.]*(?:,\s*\d+\s*(?:minutes?|mins?|мин))?)/i);
+    const durMatch = titleA11y.match(/(\d+\s*(?:hours?|hrs?|ч|час|часа|часов|minutes?|mins?|мин|минут)[^,.]*(?:,\s*\d+\s*(?:minutes?|mins?|мин|seconds?|сек))?)/i);
     if (durMatch) {
       return durMatch[1];
     }
   }
 
-  // 5. Title text itself if hours are explicitly declared (e.g. "3 hours", "1 hour mix", "2 Hours of Space Ambient")
+  // 5. Title text itself if hours or minutes are explicitly declared
   const titleText =
     v.title?.runs?.map((r) => r.text).join('') ||
     v.title?.simpleText ||
     '';
-  const titleMatch = titleText.match(/(\b[1-9]\d*)\s*(?:hours?|hrs?|часов|часа|час)\b/i);
-  if (titleMatch) {
-    const h = parseInt(titleMatch[1], 10);
+  const titleMatchHours = titleText.match(/(\b[1-9]\d*)\s*(?:hours?|hrs?|часов|часа|час)\b/i);
+  if (titleMatchHours) {
+    const h = parseInt(titleMatchHours[1], 10);
     return `${h}:00:00`;
+  }
+  const titleMatchMins = titleText.match(/(\b[3-9]\d|\d{3,})\s*(?:minutes?|mins?|минут|минуты|мин)\b/i);
+  if (titleMatchMins) {
+    const m = parseInt(titleMatchMins[1], 10);
+    return `${m}:00`;
   }
 
   return '';
@@ -385,8 +393,8 @@ function processRenderers(renderers, query, niche = 'all', limit = 24) {
     const durationText = extractDurationText(v);
     const durationSeconds = parseDurationToSeconds(durationText);
 
-    // STRICT CONSTRAINT: Duration must be strictly greater than 1 hour (> 3600 seconds)
-    if (durationSeconds <= 3600) {
+    // STRICT CONSTRAINT: Duration must be minimum 30 minutes (>= 1800 seconds)
+    if (durationSeconds < 1800) {
       continue;
     }
 
@@ -596,8 +604,8 @@ async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
         if (!item.videoId || seenIds.has(item.videoId)) continue;
         const durSec = item.lengthSeconds || 0;
 
-        // STRICT CONSTRAINT: Duration must be strictly > 3600 seconds
-        if (durSec <= 3600) continue;
+        // STRICT CONSTRAINT: Duration must be minimum 30 minutes (>= 1800 seconds)
+        if (durSec < 1800) continue;
 
         seenIds.add(item.videoId);
         const title = item.title || 'Ambient 1 Hour Mix';
@@ -642,65 +650,70 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
     const raw = userQuery.trim();
     const cleanWord = raw.replace(/^#+/, '').trim();
     const variations = [
+      `${raw} ambient mix`,
       `${raw} 1 hour mix`,
+      `${cleanWord} 30 minutes continuous mix`,
       `${cleanWord} 2 hours ambient playlist`,
-      `${cleanWord} 1 hour aesthetic continuous mix`,
-      `${raw} full album 1 hour`,
-      `${cleanWord} relaxing deep session 2 hours`,
+      `${cleanWord} aesthetic mix`,
+      `${raw} full album`,
+      `${cleanWord} relaxing deep session 30 min`,
       `${raw} long aesthetic mix 1 hour`,
-      `${cleanWord} soundscape 2 hours`,
-      `${raw} sleep study meditation 2 hours`,
+      `${cleanWord} soundscape 30 minutes`,
+      `${raw} sleep study meditation`,
     ];
     return variations[(page - 1) % variations.length];
   }
 
   if (niche === 'dreamcore') {
     const dreamcoreQueries = [
+      'dreamcore aesthetic mix playlist',
       'dreamcore 1 hour mix playlist',
-      'dreamcore liminal space 2 hours ambient',
-      'weirdcore dreamcore aesthetic mix 1 hour',
-      'nostalgiacore kidcore retroaesthetic 2 hours',
-      'poolrooms dreamcore ambient music 1 hour',
-      'dreamcore childhood nostalgia mix 3 hours',
-      'liminal spaces dreamcore music 2 hours',
+      'dreamcore liminal space 30 minutes ambient',
+      'weirdcore dreamcore aesthetic mix',
+      'nostalgiacore kidcore retroaesthetic',
+      'poolrooms dreamcore ambient music',
+      'dreamcore childhood nostalgia mix',
+      'liminal spaces dreamcore music 30 minutes',
       'dreamcore vhs aesthetic ambient 1 hour',
       'dreamcoreaesthetic dreamscore 2 hours mix',
-      'vaporwave liminalspace aesthetic playlist 1 hour',
-      'miinstronaut liminal dreamcore 2 hours',
+      'vaporwave liminalspace aesthetic playlist',
+      'miinstronaut liminal dreamcore',
     ];
     return dreamcoreQueries[(page - 1) % dreamcoreQueries.length];
   }
 
   if (niche === 'coldcore') {
     const coldcoreQueries = [
+      'coldcore mix post punk',
       'coldcore 1 hour mix post punk',
-      'snowstorm snowambience blizzard 2 hours sleep',
-      'russian doomer music 1 hour best mix',
-      'coldcore winter vibes snowfall 1 hour',
-      'haunting dark ambient winterstorm 2 hours',
-      'cold night mix dark music 2 hours',
-      'sovietwave coldcore night mix 2 hours',
-      'snowy ambience winter storm relax 2 hours',
+      'snowstorm snowambience blizzard 30 minutes sleep',
+      'russian doomer music best mix',
+      'coldcore winter vibes snowfall 30 minutes',
+      'haunting dark ambient winterstorm',
+      'cold night mix dark music',
+      'sovietwave coldcore night mix',
+      'snowy ambience winter storm relax',
       'cold wave post-punk gloomy 1 hour mix',
-      'coldcore silent winter snowfall 1 hour',
-      'blizzard ambience night soundscape 3 hours',
+      'coldcore silent winter snowfall',
+      'blizzard ambience night soundscape',
     ];
     return coldcoreQueries[(page - 1) % coldcoreQueries.length];
   }
 
   if (niche === 'ambient') {
     const ambientQueries = [
+      'ambient music relaxation deep space',
       'ambient music 1 hour relaxation deep space',
-      'dark ambient drone 2 hours sleep study',
-      'chill mix sleep music calming 2 hours',
-      'brian eno ambient space journey 3 hours',
-      'relaxing music study playlist 2 hours',
-      'ambient piano rain deep rest 1 hour',
-      'calm music meditation 2 hours continuous',
-      'marconi union weightless ambient 10 hours',
-      'cryo chamber dark ambient 1 hour mix',
-      'aesthetic playlist trending ambient 2 hours',
-      'isolated forest ambient soundscape 2 hours',
+      'dark ambient drone 30 minutes sleep study',
+      'chill mix sleep music calming',
+      'brian eno ambient space journey',
+      'relaxing music study playlist 30 minutes',
+      'ambient piano rain deep rest',
+      'calm music meditation continuous',
+      'marconi union weightless ambient',
+      'cryo chamber dark ambient mix',
+      'aesthetic playlist trending ambient',
+      'isolated forest ambient soundscape',
     ];
     return ambientQueries[(page - 1) % ambientQueries.length];
   }
@@ -955,8 +968,8 @@ export async function youtubeRoutes(fastify, options) {
       request.log.error({ err: err.message, query: searchQuery }, 'YouTube live scraping failed');
     }
 
-    // STRICT SAFETY FILTER: every single video MUST be strictly > 3600 seconds
-    const strictResults = results.filter((v) => v.durationSeconds > 3600);
+    // STRICT SAFETY FILTER: every single video MUST be minimum 30 minutes (>= 1800 seconds)
+    const strictResults = results.filter((v) => v.durationSeconds >= 1800);
 
     // Compute niche analytics
     const totalDurationSeconds = strictResults.reduce((acc, v) => acc + (v.durationSeconds || 0), 0);
@@ -966,12 +979,15 @@ export async function youtubeRoutes(fastify, options) {
     const formatSeconds = (sec) => {
       const h = Math.floor(sec / 3600);
       const m = Math.floor((sec % 3600) / 60);
-      return `${h}h ${m}m`;
+      if (h > 0) {
+        return `${h}h ${m}m`;
+      }
+      return `${m}m`;
     };
 
     const analytics = {
       totalVideos: strictResults.length,
-      strictConstraint: 'duration > 1 hour (3600s)',
+      strictConstraint: 'duration >= 30 minutes (1800s)',
       totalDurationFormatted: formatSeconds(totalDurationSeconds),
       avgDurationFormatted: formatSeconds(avgDurationSeconds),
       nichesCount: {
