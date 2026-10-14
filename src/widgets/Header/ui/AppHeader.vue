@@ -13,11 +13,14 @@ import {
   X,
   Sparkles,
   Radio,
+  Bookmark,
 } from 'lucide-vue-next';
+import { useYouTubeFavoritesStore } from '@/entities/youtube/model/youtubeFavoritesStore';
 
 const router = useRouter();
 const route = useRoute();
 const store = useReelsStore();
+const favoritesStore = useYouTubeFavoritesStore();
 
 const isMobileMenuOpen = ref(false);
 
@@ -27,6 +30,7 @@ const navItems = [
   { path: '/instagram', label: 'Instagram', icon: Layers, platform: 'instagram' },
   { path: '/analytics', label: 'Аналитика', icon: BarChart3 },
   { path: '/youtube', label: 'YouTube Ambient (>1ч)', icon: Radio, platform: 'youtube' },
+  { path: '/youtube/favorites', label: 'Избранное YT', icon: Bookmark, platform: 'youtube-favorites' },
 ];
 
 function navigate(path: string) {
@@ -95,6 +99,12 @@ function navigate(path: string) {
               v-if="item.platform === 'youtube'"
               class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"
             ></span>
+            <span
+              v-if="item.platform === 'youtube-favorites' && favoritesStore.count > 0"
+              class="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-sword-accent text-black ml-0.5 shadow-sm"
+            >
+              {{ favoritesStore.count }}
+            </span>
           </button>
         </nav>
       </div>
@@ -153,6 +163,12 @@ function navigate(path: string) {
         >
           <component :is="item.icon" class="w-4 h-4 text-sword-accent" />
           <span>{{ item.label }}</span>
+          <span
+            v-if="item.platform === 'youtube-favorites' && favoritesStore.count > 0"
+            class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-sword-accent text-black ml-auto shadow-sm"
+          >
+            {{ favoritesStore.count }}
+          </span>
         </button>
       </div>
     </div>

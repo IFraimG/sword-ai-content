@@ -4,6 +4,7 @@ import TikTokPage from '@/pages/TikTokPage.vue';
 import InstagramPage from '@/pages/InstagramPage.vue';
 import AnalyticsPage from '@/pages/AnalyticsPage.vue';
 import YouTubeAmbientPage from '@/pages/YouTubeAmbientPage.vue';
+import YouTubeFavoritesPage from '@/pages/YouTubeFavoritesPage.vue';
 
 const routes = [
   {
@@ -35,6 +36,12 @@ const routes = [
     name: 'youtube-ambient',
     component: YouTubeAmbientPage,
     meta: { title: 'Sword — YouTube Ambient, Dreamcore & Coldcore (>1h)' },
+  },
+  {
+    path: '/youtube/favorites',
+    name: 'youtube-favorites',
+    component: YouTubeFavoritesPage,
+    meta: { title: 'Sword — Избранные YouTube сеты (>1h)' },
   },
   {
     path: '/:pathMatch(.*)*',

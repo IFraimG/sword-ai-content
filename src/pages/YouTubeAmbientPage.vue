@@ -39,7 +39,12 @@ import {
   ChevronDown,
   ChevronUp,
   Hash,
+  Bookmark,
+  BookmarkCheck,
 } from 'lucide-vue-next';
+import { useYouTubeFavoritesStore } from '@/entities/youtube/model/youtubeFavoritesStore';
+
+const favoritesStore = useYouTubeFavoritesStore();
 
 // Search & filter state
 const searchQuery = ref('');
@@ -613,6 +618,31 @@ onUnmounted(() => {
 
           <!-- Controls: Auto-refresh & Strict Filter Badge -->
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- Link to Favorites Page -->
+            <router-link
+              to="/youtube/favorites"
+              class="bg-sword-card/90 border border-sword-border/90 hover:border-sword-accent/60 p-3 rounded-2xl flex items-center justify-between sm:justify-start gap-3 shadow-xl backdrop-blur-sm transition-all group cursor-pointer"
+              title="Перейти в Избранные видео"
+            >
+              <div class="w-8 h-8 rounded-xl bg-sword-accent/15 border border-sword-accent/30 flex items-center justify-center text-sword-accent group-hover:scale-105 transition-transform shrink-0">
+                <Bookmark class="w-4 h-4 fill-sword-accent" />
+              </div>
+              <div class="text-left">
+                <div class="text-xs font-bold text-sword-text flex items-center gap-1.5">
+                  <span>Избранное</span>
+                  <span
+                    v-if="favoritesStore.count > 0"
+                    class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-sword-accent text-black font-extrabold"
+                  >
+                    {{ favoritesStore.count }}
+                  </span>
+                </div>
+                <div class="text-[11px] text-sword-muted">
+                  {{ favoritesStore.count > 0 ? `${favoritesStore.count} видео в списке` : 'Сохранённые видео' }}
+                </div>
+              </div>
+            </router-link>
+
             <!-- Auto-refresh Controller Panel -->
             <div class="bg-sword-card/90 border border-sword-border/90 p-3 rounded-2xl flex items-center justify-between sm:justify-start gap-3 shadow-xl backdrop-blur-sm">
               <button
@@ -1041,6 +1071,22 @@ onUnmounted(() => {
                 </span>
               </div>
 
+              <!-- Favorite Bookmark Button (Top Right) -->
+              <button
+                type="button"
+                class="absolute top-2.5 right-2.5 p-1.5 rounded-lg backdrop-blur-md transition-all z-10 cursor-pointer shadow-sm border"
+                :class="
+                  favoritesStore.isFavorite(video.id)
+                    ? 'bg-sword-accent/30 text-sword-accent border-sword-accent/60 shadow-sword-accent/20'
+                    : 'bg-black/60 hover:bg-black/80 text-white/70 hover:text-white border-white/20 hover:border-sword-accent/50'
+                "
+                :title="favoritesStore.isFavorite(video.id) ? 'Удалить из избранного' : 'Добавить в избранное'"
+                @click.stop="favoritesStore.toggleFavorite(video)"
+              >
+                <BookmarkCheck v-if="favoritesStore.isFavorite(video.id)" class="w-3.5 h-3.5 fill-sword-accent text-sword-accent" />
+                <Bookmark v-else class="w-3.5 h-3.5" />
+              </button>
+
               <!-- Duration Badge (Bottom Right) STRICT > 1 HOUR -->
               <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/85 border border-white/20 text-white font-mono text-[11px] font-bold backdrop-blur-md">
                 <span class="w-1.5 h-1.5 rounded-full bg-sword-accent animate-pulse"></span>
@@ -1127,6 +1173,22 @@ onUnmounted(() => {
                 >
                   <ExternalLink class="w-3.5 h-3.5" />
                 </a>
+
+                <!-- Favorite Bookmark Button -->
+                <button
+                  type="button"
+                  :title="favoritesStore.isFavorite(video.id) ? 'Удалить из избранного' : 'Добавить в избранное'"
+                  class="p-2 rounded-xl border transition-all cursor-pointer"
+                  :class="
+                    favoritesStore.isFavorite(video.id)
+                      ? 'bg-sword-accent/20 text-sword-accent border-sword-accent/50 shadow-sm'
+                      : 'bg-sword-surface/80 border-sword-border hover:border-sword-accent/60 text-sword-muted hover:text-white'
+                  "
+                  @click.stop="favoritesStore.toggleFavorite(video)"
+                >
+                  <BookmarkCheck v-if="favoritesStore.isFavorite(video.id)" class="w-3.5 h-3.5 fill-sword-accent text-sword-accent" />
+                  <Bookmark v-else class="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </article>
@@ -1232,6 +1294,23 @@ onUnmounted(() => {
               <span class="px-1 py-0.2 rounded bg-purple-500/20 text-[9px] font-mono border border-purple-500/30">LLaVA</span>
             </button>
 
+            <!-- Toggle Favorite Button -->
+            <button
+              type="button"
+              class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer"
+              :class="
+                favoritesStore.isFavorite(activeVideo.id)
+                  ? 'bg-sword-accent/20 text-sword-accent border-sword-accent/50 shadow-sm'
+                  : 'bg-sword-surface hover:bg-sword-card border-sword-border text-sword-muted hover:text-white'
+              "
+              :title="favoritesStore.isFavorite(activeVideo.id) ? 'Удалить из избранного' : 'Добавить в избранное'"
+              @click="favoritesStore.toggleFavorite(activeVideo)"
+            >
+              <BookmarkCheck v-if="favoritesStore.isFavorite(activeVideo.id)" class="w-3.5 h-3.5 fill-sword-accent text-sword-accent" />
+              <Bookmark v-else class="w-3.5 h-3.5" />
+              <span class="hidden sm:inline">{{ favoritesStore.isFavorite(activeVideo.id) ? 'В избранном' : 'В избранное' }}</span>
+            </button>
+
             <!-- Download Preview -->
             <button
               type="button"
@@ -1328,6 +1407,23 @@ onUnmounted(() => {
               </div>
 
               <div class="flex items-center gap-2 w-full sm:w-auto">
+                <!-- Toggle Favorite Button -->
+                <button
+                  type="button"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer"
+                  :class="
+                    favoritesStore.isFavorite(activeVideo.id)
+                      ? 'bg-sword-accent/20 text-sword-accent border-sword-accent/50 shadow-sm'
+                      : 'bg-sword-card hover:bg-sword-surface border-sword-border text-sword-muted hover:text-white'
+                  "
+                  :title="favoritesStore.isFavorite(activeVideo.id) ? 'Удалить из избранного' : 'Добавить в избранное'"
+                  @click="favoritesStore.toggleFavorite(activeVideo)"
+                >
+                  <BookmarkCheck v-if="favoritesStore.isFavorite(activeVideo.id)" class="w-3.5 h-3.5 fill-sword-accent text-sword-accent" />
+                  <Bookmark v-else class="w-3.5 h-3.5" />
+                  <span>{{ favoritesStore.isFavorite(activeVideo.id) ? 'В избранном' : 'В избранное' }}</span>
+                </button>
+
                 <!-- Open Chat Button in controls -->
                 <button
                   type="button"
