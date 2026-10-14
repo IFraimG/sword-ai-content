@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/entities/user/model/authStore';
+import { useChatStore } from '@/entities/chat/model/chatStore';
 import { getApiBaseUrl } from '@/shared/api/reelsApi';
 import {
   Users,
@@ -12,6 +14,7 @@ import {
   Sparkles,
   UserCheck,
   X,
+  MessageSquare,
 } from 'lucide-vue-next';
 
 interface RegisteredUser {
@@ -22,7 +25,24 @@ interface RegisteredUser {
   created_at?: string;
 }
 
+const router = useRouter();
 const authStore = useAuthStore();
+const chatStore = useChatStore();
+const startingChatUserId = ref<string | null>(null);
+
+async function startChatWithUser(targetUser: RegisteredUser) {
+  startingChatUserId.value = targetUser.id;
+  try {
+    const chat = await chatStore.openDirectChat(targetUser.id);
+    if (chat) {
+      router.push({ path: '/chats', query: { id: chat.id } });
+    }
+  } catch (err: any) {
+    console.error('Failed to start chat:', err);
+  } finally {
+    startingChatUserId.value = null;
+  }
+}
 
 const users = ref<RegisteredUser[]>([]);
 const searchQuery = ref('');
@@ -257,6 +277,18 @@ onMounted(() => {
             <span>{{ u.id.length > 10 ? u.id.substring(0, 8) + '...' : u.id }}</span>
           </div>
         </div>
+
+        <!-- Action: Write Message -->
+        <button
+          v-if="authStore.user?.id !== u.id"
+          type="button"
+          :disabled="startingChatUserId === u.id"
+          class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-sword-card hover:bg-sword-accent hover:text-black text-white border border-sword-border hover:border-sword-accent transition-all cursor-pointer shadow-sm group/btn disabled:opacity-50"
+          @click="startChatWithUser(u)"
+        >
+          <MessageSquare class="w-3.5 h-3.5 text-sword-accent group-hover/btn:text-black transition-colors" />
+          <span>{{ startingChatUserId === u.id ? 'Открытие диалога...' : 'Написать сообщение' }}</span>
+        </button>
       </div>
     </div>
 

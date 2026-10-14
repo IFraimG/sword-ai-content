@@ -145,3 +145,28 @@ export function verifyToken(token) {
     return null;
   }
 }
+
+/**
+ * Formats time into HH:MM format
+ */
+export function formatTimeHHMM(date = new Date()) {
+  const d = date instanceof Date ? date : new Date(date);
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+/**
+ * Extracts JWT token from request cookies or Authorization header
+ */
+export function extractToken(request) {
+  if (request.cookies && request.cookies[JWT_COOKIE_NAME]) {
+    return request.cookies[JWT_COOKIE_NAME];
+  }
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7).trim();
+  }
+  return null;
+}
+

@@ -9,6 +9,7 @@ import { musicRoutes } from './src/routes/music.js';
 import { youtubeRoutes } from './src/routes/youtube.js';
 import { authRoutes } from './src/routes/auth.js';
 import { usersRoutes } from './src/routes/users.js';
+import { chatsRoutes } from './src/routes/chats.js';
 
 const fastify = Fastify({
   logger: {
@@ -81,6 +82,12 @@ fastify.get('/', async () => {
       authLogout: 'POST /api/auth/logout',
       authMe: 'GET /api/auth/me',
       usersList: 'GET /api/users?query=...',
+      chatsList: 'GET /api/chats',
+      chatsDirect: 'POST /api/chats/direct',
+      chatsAi: 'POST /api/chats/ai',
+      chatMessages: 'GET /api/chats/:id/messages',
+      chatPostMessage: 'POST /api/chats/:id/messages',
+      chatStream: 'GET /api/chats/:id/stream (SSE)',
       trends: '/api/reels/trends',
       resolve: '/api/reels/resolve?url=...',
       videoProxy: '/api/proxy/video?url=...',
@@ -108,6 +115,8 @@ await fastify.register(musicRoutes);
 await fastify.register(youtubeRoutes);
 await fastify.register(authRoutes);
 await fastify.register(usersRoutes);
+await fastify.register(chatsRoutes);
+
 
 // Graceful shutdown handlers
 const signals = ['SIGINT', 'SIGTERM'];

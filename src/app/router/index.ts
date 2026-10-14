@@ -7,6 +7,7 @@ import YouTubeAmbientPage from '@/pages/YouTubeAmbientPage.vue';
 import YouTubeFavoritesPage from '@/pages/YouTubeFavoritesPage.vue';
 import AuthPage from '@/pages/AuthPage.vue';
 import UsersPage from '@/pages/UsersPage.vue';
+import ChatsPage from '@/pages/ChatsPage.vue';
 import { getCookie, JWT_COOKIE_NAME } from '@/shared/lib/cookie';
 
 const routes = [
@@ -57,6 +58,12 @@ const routes = [
     name: 'users',
     component: UsersPage,
     meta: { title: 'Sword — Пользователи платформы' },
+  },
+  {
+    path: '/chats',
+    name: 'chats',
+    component: ChatsPage,
+    meta: { title: 'Sword — Сообщения и Ambient ИИ' },
   },
   {
     path: '/:pathMatch(.*)*',

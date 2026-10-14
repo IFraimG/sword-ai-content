@@ -14,6 +14,7 @@ import {
   Radio,
   Bookmark,
   Users,
+  MessageSquare,
   LogOut,
   User,
   Menu,
@@ -36,6 +37,7 @@ const navItems = [
   { path: '/youtube', label: 'YouTube Ambient (>1ч)', icon: Radio, platform: 'youtube' },
   { path: '/youtube/favorites', label: 'Избранное YT', icon: Bookmark, platform: 'youtube-favorites' },
   { path: '/users', label: 'Пользователи', icon: Users, platform: 'users' },
+  { path: '/chats', label: 'Чаты', icon: MessageSquare, platform: 'chats' },
 ];
 
 function openMobileDrawer() {
