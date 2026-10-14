@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
-import AppHeader from '@/widgets/Header/ui/AppHeader.vue';
+import AppSidebar from '@/widgets/Sidebar/ui/AppSidebar.vue';
 import ReelDetailModal from '@/widgets/ReelDetailModal/ui/ReelDetailModal.vue';
 import ExportModal from '@/features/export-report/ui/ExportModal.vue';
 import MusicSearchModal from '@/widgets/MusicSearchModal/ui/MusicSearchModal.vue';
@@ -20,39 +20,41 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-sword-bg text-sword-text selection:bg-sword-accent selection:text-black">
-    <!-- Top Header -->
-    <AppHeader />
+  <div class="min-h-screen flex flex-col lg:flex-row bg-sword-bg text-sword-text selection:bg-sword-accent selection:text-black">
+    <!-- Left Navigation Sidebar + Mobile Responsive Drawer -->
+    <AppSidebar />
 
-    <!-- Main Content Area -->
-    <main class="flex-1 pb-12">
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
-    </main>
+    <!-- Main Content Area Column (to the right of sidebar on desktop) -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <main class="flex-1 pb-12">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </main>
+
+      <!-- Footer -->
+      <footer class="border-t border-sword-border/60 bg-sword-surface/40 py-6 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-sword-muted">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sword-text">SWORD</span>
+            <span>— Аналитическая платформа трендов TikTok и Instagram Reels</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span>Синхронизация каждые 2 мин</span>
+            <span>•</span>
+            <span>Клиентский режим (Serverless)</span>
+          </div>
+        </div>
+      </footer>
+    </div>
 
     <!-- Global Modals & Toast Alerts -->
     <ReelDetailModal />
     <ExportModal />
     <MusicSearchModal />
     <ToastContainer />
-
-    <!-- Footer -->
-    <footer class="border-t border-sword-border/60 bg-sword-surface/40 py-6 px-4">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-sword-muted">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-sword-text">SWORD</span>
-          <span>— Аналитическая платформа трендов TikTok и Instagram Reels</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <span>Синхронизация каждые 2 мин</span>
-          <span>•</span>
-          <span>Клиентский режим (Serverless)</span>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
