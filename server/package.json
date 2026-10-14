@@ -1,6 +1,6 @@
 {
   "name": "sword-ai-content-server",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Fastify backend API, PostgreSQL user auth and streaming proxy for Sword AI Content",
   "main": "index.js",
   "type": "module",
