@@ -1,12 +1,27 @@
-import { getUsersList } from '../db/index.js';
+import { getUsersList, ensureUserExists } from '../db/index.js';
+import { extractToken, verifyToken } from '../services/authService.js';
 
 export async function usersRoutes(fastify) {
   /**
    * GET /api/users
-   * Returns list of registered users with search by login
+   * Returns list of registered users with search by login or email
    */
   fastify.get('/api/users', async (request, reply) => {
     try {
+      // 1. If caller is authenticated, ensure their user record is persisted in DB
+      const token = extractToken(request);
+      if (token) {
+        const payload = verifyToken(token);
+        if (payload && payload.sub && payload.login) {
+          await ensureUserExists({
+            id: payload.sub,
+            login: payload.login,
+            email: payload.email || `${payload.login}@sword.app`,
+            createdAtFormatted: '14:10:2026',
+          });
+        }
+      }
+
       const search = request.query?.query || request.query?.search || request.query?.q || '';
       const limit = parseInt(request.query?.limit, 10) || 100;
 

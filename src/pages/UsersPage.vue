@@ -47,6 +47,11 @@ async function startChatWithUser(targetUser: RegisteredUser) {
   }
 }
 
+function isCurrentUser(u: RegisteredUser) {
+  if (!authStore.user) return false;
+  return authStore.user.id === u.id || authStore.user.login.toLowerCase() === u.login.toLowerCase();
+}
+
 const users = ref<RegisteredUser[]>([]);
 const searchQuery = ref('');
 const isLoading = ref(false);
@@ -74,7 +79,20 @@ async function loadUsers(query = searchQuery.value) {
     }
 
     const data = await res.json();
-    users.value = data.users || [];
+    const fetched: RegisteredUser[] = Array.isArray(data.users) ? data.users : [];
+
+    // Guarantee that currently authenticated user is always present in list
+    if (authStore.user && !fetched.some((u) => u.id === authStore.user?.id || u.login.toLowerCase() === authStore.user?.login.toLowerCase())) {
+      fetched.unshift({
+        id: authStore.user.id,
+        login: authStore.user.login,
+        email: authStore.user.email,
+        created_at_formatted: authStore.user.created_at_formatted,
+        created_at: authStore.user.created_at,
+      });
+    }
+
+    users.value = fetched;
   } catch (err: any) {
     error.value = err.message || 'Ошибка соединения с сервером';
   } finally {
@@ -84,9 +102,22 @@ async function loadUsers(query = searchQuery.value) {
 
 // Filtered users computed (local filtering or instant feedback)
 const filteredUsers = computed(() => {
-  if (!searchQuery.value.trim()) return users.value;
+  let list = [...users.value];
+
+  // Guarantee that currently authenticated user is in filtered list
+  if (authStore.user && !list.some((u) => u.id === authStore.user?.id || u.login.toLowerCase() === authStore.user?.login.toLowerCase())) {
+    list.unshift({
+      id: authStore.user.id,
+      login: authStore.user.login,
+      email: authStore.user.email,
+      created_at_formatted: authStore.user.created_at_formatted,
+      created_at: authStore.user.created_at,
+    });
+  }
+
+  if (!searchQuery.value.trim()) return list;
   const q = searchQuery.value.trim().toLowerCase().replace(/^@/, '');
-  return users.value.filter(
+  return list.filter(
     (u) =>
       u.login.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q)
@@ -94,7 +125,6 @@ const filteredUsers = computed(() => {
 });
 
 function handleSearchInput() {
-  // If needed, we can also query the server debounced, or filter reactively locally
   loadUsers(searchQuery.value);
 }
 
@@ -121,8 +151,11 @@ function getAvatarGradient(login: string) {
   return gradients[index];
 }
 
-onMounted(() => {
-  loadUsers();
+onMounted(async () => {
+  if (!authStore.isInitialized) {
+    await authStore.initAuth();
+  }
+  await loadUsers();
 });
 </script>
 
@@ -249,7 +282,7 @@ onMounted(() => {
 
               <!-- Current User Badge -->
               <span
-                v-if="authStore.user?.id === u.id"
+                v-if="isCurrentUser(u)"
                 class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-sword-accent text-black uppercase tracking-tight shrink-0 shadow-sm"
               >
                 Вы
@@ -281,7 +314,7 @@ onMounted(() => {
 
         <!-- Action: Write Message -->
         <button
-          v-if="authStore.user?.id !== u.id"
+          v-if="!isCurrentUser(u)"
           type="button"
           :disabled="startingChatUserId === u.id"
           class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold bg-sword-card hover:bg-sword-accent hover:text-black text-white border border-sword-border hover:border-sword-accent transition-all cursor-pointer shadow-sm group/btn disabled:opacity-50"
@@ -295,17 +328,23 @@ onMounted(() => {
 
     <!-- Empty Search State -->
     <div
-      v-else
+      v-else-if="!error"
       class="py-16 text-center flex flex-col items-center justify-center gap-3 bg-sword-surface/40 rounded-3xl border border-sword-border/60"
     >
       <div class="w-12 h-12 rounded-2xl bg-sword-card flex items-center justify-center text-sword-muted">
         <Search class="w-6 h-6" />
       </div>
-      <h3 class="text-base font-bold text-white">Пользователи не найдены</h3>
+      <h3 class="text-base font-bold text-white">
+        {{ searchQuery ? 'Пользователи не найдены' : 'Список пользователей пуст' }}
+      </h3>
       <p class="text-xs text-sword-muted max-w-sm">
-        По запросу «{{ searchQuery }}» нет совпадений. Попробуйте изменить поисковый запрос.
+        {{ searchQuery
+          ? `По запросу «${searchQuery}» нет совпадений. Попробуйте изменить поисковый запрос.`
+          : 'Зарегистрированные участники появятся здесь автоматически.'
+        }}
       </p>
       <button
+        v-if="searchQuery"
         type="button"
         class="mt-2 px-4 py-2 rounded-xl bg-sword-card hover:bg-sword-card/80 text-xs font-semibold text-sword-accent border border-sword-border transition-colors cursor-pointer"
         @click="clearSearch"

@@ -6,6 +6,7 @@ import {
   getChatMessages,
   createMessage,
   findUserById,
+  ensureUserExists,
 } from '../db/index.js';
 import { extractToken, verifyToken, formatTimeHHMM } from '../services/authService.js';
 import { generateAmbientMusicRecipe } from '../services/ambientMusicAiService.js';
@@ -48,12 +49,12 @@ async function authenticate(request, reply) {
 
   let user = await findUserById(payload.sub);
   if (!user && payload.login) {
-    user = {
+    user = await ensureUserExists({
       id: payload.sub,
       login: payload.login,
       email: payload.email || `${payload.login}@sword.app`,
-      created_at_formatted: '14:10:2026',
-    };
+      createdAtFormatted: '14:10:2026',
+    });
   }
 
   if (!user) {

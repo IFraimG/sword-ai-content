@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
-import { formatTimeHHMM } from '../services/authService.js';
+import { formatTimeHHMM, formatDateDDMMYYYY, hashPassword } from '../services/authService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,23 +70,70 @@ function saveFallbackChats() {
 }
 
 /**
+ * Export current database status for diagnostics
+ */
+export function getDbStatus() {
+  return {
+    type: isPostgresConnected ? 'postgres' : 'fallback',
+    isPostgresConnected,
+    fallbackUsersCount: fallbackUsers.length,
+  };
+}
+
+/**
+ * Adaptively connect to PostgreSQL
+ * Attempts Render internal connection (non-SSL) or external connection (SSL)
+ */
+async function connectToPostgres(databaseUrl) {
+  const { default: pg } = await import('pg');
+  const { Pool } = pg;
+
+  const isInternalRender = databaseUrl.includes('@dpg-') && !databaseUrl.includes('.render.com');
+
+  const configs = isInternalRender
+    ? [
+        { ssl: false, name: 'Render internal non-SSL' },
+        { ssl: { rejectUnauthorized: false }, name: 'SSL (rejectUnauthorized: false)' },
+      ]
+    : [
+        { ssl: { rejectUnauthorized: false }, name: 'SSL (rejectUnauthorized: false)' },
+        { ssl: false, name: 'non-SSL' },
+      ];
+
+  let lastErr = null;
+  for (const cfg of configs) {
+    try {
+      console.log(`🔌 [DB] Attempting PostgreSQL connection via ${cfg.name}...`);
+      const testPool = new Pool({
+        connectionString: databaseUrl,
+        ssl: cfg.ssl,
+        connectionTimeoutMillis: 7000,
+      });
+
+      const client = await testPool.connect();
+      client.release();
+      console.log(`✅ [DB] Successfully connected to PostgreSQL via ${cfg.name}`);
+      return testPool;
+    } catch (err) {
+      console.warn(`⚠️ [DB] Connection attempt via ${cfg.name} failed: ${err.message}`);
+      lastErr = err;
+    }
+  }
+
+  throw lastErr || new Error('Failed to connect to PostgreSQL with all available SSL modes');
+}
+
+/**
  * Initialize PostgreSQL connection and run table migrations
  */
 export async function initDb() {
+  loadFallbackData();
+
   const databaseUrl = process.env.DATABASE_URL;
 
   if (databaseUrl && databaseUrl.trim()) {
     try {
-      const { default: pg } = await import('pg');
-      const { Pool } = pg;
-
-      pool = new Pool({
-        connectionString: databaseUrl,
-        ssl: databaseUrl.includes('render.com') || process.env.NODE_ENV === 'production'
-          ? { rejectUnauthorized: false }
-          : undefined,
-        connectionTimeoutMillis: 5000,
-      });
+      pool = await connectToPostgres(databaseUrl.trim());
 
       // Test query and create schema
       const client = await pool.connect();
@@ -139,6 +186,40 @@ export async function initDb() {
         `);
         isPostgresConnected = true;
         console.log('✅ [DB] Connected to PostgreSQL on Render successfully. Schema initialized.');
+
+        // Seed / sync fallback users into PostgreSQL so none are lost
+        if (fallbackUsers.length > 0) {
+          for (const u of fallbackUsers) {
+            try {
+              await client.query(
+                `INSERT INTO users (id, login, email, password_hash, created_at_formatted, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6)
+                 ON CONFLICT (id) DO NOTHING`,
+                [
+                  u.id,
+                  u.login,
+                  u.email,
+                  u.password_hash || hashPassword('sword_persistent_fallback_seed'),
+                  u.created_at_formatted || '14:10:2026',
+                  u.created_at ? new Date(u.created_at) : new Date(),
+                ]
+              );
+            } catch (syncErr) {
+              // Ignore single user conflict
+            }
+          }
+        }
+
+        // Back-sync all PostgreSQL users to local cache
+        const allDbUsers = await client.query('SELECT id, login, email, created_at_formatted, created_at FROM users');
+        if (allDbUsers.rows.length > 0) {
+          for (const row of allDbUsers.rows) {
+            if (!fallbackUsers.some((fu) => fu.id === row.id)) {
+              fallbackUsers.push(row);
+            }
+          }
+          saveFallbackUsers();
+        }
       } finally {
         client.release();
       }
@@ -150,8 +231,6 @@ export async function initDb() {
   } else {
     console.log('ℹ️ [DB] DATABASE_URL not configured. Operating in local resilient fallback store.');
   }
-
-  loadFallbackData();
 }
 
 
@@ -288,7 +367,96 @@ export async function findUserById(id) {
 }
 
 /**
- * Retrieves list of registered users with optional search by login
+ * Ensures user is persisted in DB (PostgreSQL + fallback)
+ * Safe and idempotent: never overwrites or deletes existing data
+ */
+export async function ensureUserExists({ id, login, email, createdAtFormatted }) {
+  const normalizedLogin = (login || '').trim();
+  const normalizedEmail = (email || `${normalizedLogin}@sword.app`).trim().toLowerCase();
+  const formattedDate = createdAtFormatted || formatDateDDMMYYYY(new Date());
+
+  if (isPostgresConnected && pool) {
+    try {
+      // 1. Check if user already exists by ID, login, or email
+      const checkRes = await pool.query(
+        `SELECT id, login, email, created_at_formatted, created_at FROM users
+         WHERE id = $1 OR LOWER(login) = LOWER($2) OR LOWER(email) = LOWER($3)
+         LIMIT 1`,
+        [id, normalizedLogin, normalizedEmail]
+      );
+
+      if (checkRes.rows.length > 0) {
+        const u = checkRes.rows[0];
+        if (!fallbackUsers.some((fu) => fu.id === u.id)) {
+          fallbackUsers.push(u);
+          saveFallbackUsers();
+        }
+        return u;
+      }
+
+      // 2. Safe insert if not present
+      const dummyHash = hashPassword(crypto.randomUUID());
+      const insertRes = await pool.query(
+        `INSERT INTO users (id, login, email, password_hash, created_at_formatted, created_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())
+         ON CONFLICT (id) DO NOTHING
+         RETURNING id, login, email, created_at_formatted, created_at`,
+        [id, normalizedLogin, normalizedEmail, dummyHash, formattedDate]
+      );
+
+      if (insertRes.rows.length > 0) {
+        const inserted = insertRes.rows[0];
+        if (!fallbackUsers.some((fu) => fu.id === inserted.id)) {
+          fallbackUsers.push(inserted);
+          saveFallbackUsers();
+        }
+        return inserted;
+      }
+
+      // 3. Fallback select in case of conflict on login/email
+      const recheck = await pool.query(
+        `SELECT id, login, email, created_at_formatted, created_at FROM users
+         WHERE id = $1 OR LOWER(login) = LOWER($2) LIMIT 1`,
+        [id, normalizedLogin]
+      );
+      if (recheck.rows.length > 0) {
+        return recheck.rows[0];
+      }
+    } catch (err) {
+      console.warn('[DB] ensureUserExists postgres exception:', err.message);
+    }
+  }
+
+  // Fallback store
+  loadFallbackData();
+  let found = fallbackUsers.find(
+    (u) => u.id === id || u.login.toLowerCase() === normalizedLogin.toLowerCase() || u.email.toLowerCase() === normalizedEmail.toLowerCase()
+  );
+
+  if (!found) {
+    found = {
+      id,
+      login: normalizedLogin,
+      email: normalizedEmail,
+      password_hash: hashPassword(crypto.randomUUID()),
+      created_at_formatted: formattedDate,
+      created_at: new Date().toISOString(),
+    };
+    fallbackUsers.push(found);
+    saveFallbackUsers();
+  }
+
+  return {
+    id: found.id,
+    login: found.login,
+    email: found.email,
+    created_at_formatted: found.created_at_formatted,
+    created_at: found.created_at,
+  };
+}
+
+/**
+ * Retrieves list of registered users with optional search by login or email
  */
 export async function getUsersList({ search = '', limit = 100 } = {}) {
   const term = (search || '').trim().toLowerCase();
@@ -298,7 +466,7 @@ export async function getUsersList({ search = '', limit = 100 } = {}) {
     const params = [];
 
     if (term) {
-      queryText += ` WHERE LOWER(login) LIKE $1`;
+      queryText += ` WHERE LOWER(login) LIKE $1 OR LOWER(email) LIKE $1`;
       params.push(`%${term}%`);
     }
 
@@ -312,7 +480,7 @@ export async function getUsersList({ search = '', limit = 100 } = {}) {
   let list = [...fallbackUsers];
 
   if (term) {
-    list = list.filter((u) => u.login.toLowerCase().includes(term));
+    list = list.filter((u) => u.login.toLowerCase().includes(term) || u.email.toLowerCase().includes(term));
   }
 
   list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());

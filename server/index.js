@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import { config } from './src/config.js';
-import { initDb } from './src/db/index.js';
+import { initDb, getDbStatus } from './src/db/index.js';
 import { proxyRoutes } from './src/routes/proxy.js';
 import { reelsRoutes } from './src/routes/reels.js';
 import { musicRoutes } from './src/routes/music.js';
@@ -115,6 +115,7 @@ fastify.get('/api/health', async () => {
     timestamp: new Date().toISOString(),
     environment: config.environment,
     version: config.version,
+    db: getDbStatus(),
   };
 });
 
