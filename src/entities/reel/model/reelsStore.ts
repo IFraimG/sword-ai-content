@@ -30,6 +30,7 @@ export const useReelsStore = defineStore('reels', () => {
   const countdown = ref(SYNC_INTERVAL_SECONDS);
   const isLiveSyncing = ref(true);
   const isRefreshing = ref(false);
+  const isLoading = ref(true);
   const lastSyncTime = ref(new Date().toISOString());
   let timerId: number | null = null;
 
@@ -196,7 +197,6 @@ export const useReelsStore = defineStore('reels', () => {
         selectedCountry.value = 'all';
       }
     }
-    reels.value = ensureRichContent(reels.value, selectedContinent.value, selectedCountry.value, selectedNiche.value);
   }
 
   function setCountry(country: CountryId) {
@@ -207,12 +207,10 @@ export const useReelsStore = defineStore('reels', () => {
         selectedContinent.value = countryObj.continent;
       }
     }
-    reels.value = ensureRichContent(reels.value, selectedContinent.value, selectedCountry.value, selectedNiche.value);
   }
 
   function setNiche(niche: Niche) {
     selectedNiche.value = niche;
-    reels.value = ensureRichContent(reels.value, selectedContinent.value, selectedCountry.value, selectedNiche.value);
   }
 
   function resetGeoFilter() {
@@ -220,11 +218,13 @@ export const useReelsStore = defineStore('reels', () => {
     selectedCountry.value = 'all';
   }
 
-  async function triggerRefresh() {
+  async function triggerRefresh(force = false) {
     isRefreshing.value = true;
     try {
       const res = await fetchTrends({
         limit: 100,
+        sortBy: sortBy.value,
+        search: searchQuery.value || undefined,
         continent: selectedContinent.value !== 'all' ? selectedContinent.value : undefined,
         country: selectedCountry.value !== 'all' ? selectedCountry.value : undefined,
         niche: selectedNiche.value !== 'all' ? selectedNiche.value : undefined,
@@ -234,12 +234,17 @@ export const useReelsStore = defineStore('reels', () => {
         isApiConnected.value = true;
       } else {
         isApiConnected.value = false;
-        reels.value = simulateRealtimeTick(reels.value);
+        if (reels.value.length > 0) {
+          reels.value = simulateRealtimeTick(reels.value);
+        }
       }
     } catch {
       isApiConnected.value = false;
-      reels.value = simulateRealtimeTick(reels.value);
+      if (reels.value.length > 0) {
+        reels.value = simulateRealtimeTick(reels.value);
+      }
     } finally {
+      isLoading.value = false;
       countdown.value = SYNC_INTERVAL_SECONDS;
       lastSyncTime.value = new Date().toISOString();
       isRefreshing.value = false;
@@ -318,6 +323,7 @@ export const useReelsStore = defineStore('reels', () => {
     SYNC_INTERVAL_SECONDS,
     isLiveSyncing,
     isRefreshing,
+    isLoading,
     lastSyncTime,
     activeReelDetail,
     isExportModalOpen,

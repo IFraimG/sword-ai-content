@@ -1,8 +1,8 @@
-import { PLATFORM_REELS } from '../services/platformCatalog.js';
+import { getLiveReels } from '../services/reelsLiveScraper.js';
 import { resolvePlatformStream } from '../services/platformResolver.js';
 
 export async function reelsRoutes(fastify, options) {
-  // GET /api/reels/trends - filtered feed with pagination
+  // GET /api/reels/trends - dynamically parsed live feed with pagination and filters
   fastify.get('/api/reels/trends', async (request, reply) => {
     const {
       platform = 'all',
@@ -11,74 +11,36 @@ export async function reelsRoutes(fastify, options) {
       niche = 'all',
       search = '',
       sortBy = 'rank',
-      limit = 10,
+      limit = 20,
       offset = 0,
+      refresh = 'false',
     } = request.query;
 
-    const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
-    const parsedOffset = Math.max(0, parseInt(offset, 10) || 0);
+    try {
+      const result = await getLiveReels({
+        platform,
+        continent,
+        country,
+        niche,
+        search,
+        sortBy,
+        limit,
+        offset,
+        forceRefresh: refresh === 'true',
+      });
 
-    let filtered = [...PLATFORM_REELS];
-
-    // Filter by platform
-    if (platform && platform !== 'all') {
-      filtered = filtered.filter((r) => r.platform === platform);
+      return result;
+    } catch (err) {
+      request.log.error({ err: err.message }, 'Failed to fetch live reels');
+      return reply.status(500).send({
+        error: 'Ошибка получения живого списка рилсов',
+        items: [],
+        total: 0,
+        offset: 0,
+        limit: parseInt(limit, 10) || 20,
+        hasMore: false,
+      });
     }
-
-    // Filter by continent
-    if (continent && continent !== 'all') {
-      filtered = filtered.filter((r) => r.continent === continent);
-    }
-
-    // Filter by country
-    if (country && country !== 'all') {
-      filtered = filtered.filter((r) => r.country === country);
-    }
-
-    // Filter by niche
-    if (niche && niche !== 'all') {
-      filtered = filtered.filter((r) => r.niche === niche);
-    }
-
-    // Filter by search query
-    if (search && search.trim()) {
-      const q = search.trim().toLowerCase();
-      filtered = filtered.filter((r) =>
-        r.title.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q) ||
-        r.authorUsername.toLowerCase().includes(q) ||
-        r.hashtags.some((tag) => tag.toLowerCase().includes(q))
-      );
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'views':
-          return b.metrics.views - a.metrics.views;
-        case 'velocity':
-          return b.metrics.velocityScore - a.metrics.velocityScore;
-        case 'engagement':
-          return b.metrics.engagementRate - a.metrics.engagementRate;
-        case 'recent':
-          return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
-        case 'rank':
-        default:
-          return a.trendingRank - b.trendingRank;
-      }
-    });
-
-    const total = filtered.length;
-    const paginatedItems = filtered.slice(parsedOffset, parsedOffset + parsedLimit);
-    const hasMore = parsedOffset + parsedLimit < total;
-
-    return {
-      items: paginatedItems,
-      total,
-      offset: parsedOffset,
-      limit: parsedLimit,
-      hasMore,
-    };
   });
 
   // GET /api/reels/resolve - dynamically resolve real platform stream for a TikTok or Instagram link
@@ -100,10 +62,11 @@ export async function reelsRoutes(fastify, options) {
     return streamInfo;
   });
 
-  // GET /api/reels/:id - single reel details
+  // GET /api/reels/:id - single reel details from live cache
   fastify.get('/api/reels/:id', async (request, reply) => {
     const { id } = request.params;
-    const found = PLATFORM_REELS.find((r) => r.id === id);
+    const { items } = await getLiveReels({ limit: 100 });
+    const found = items.find((r) => r.id === id);
 
     if (!found) {
       return reply.status(404).send({ error: 'Reel not found' });

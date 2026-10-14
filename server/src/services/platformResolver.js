@@ -123,18 +123,21 @@ export async function resolvePlatformStream(platform, originalUrl, serverOrigin 
 
     if (platform === 'instagram' || originalUrl.includes('instagram.com')) {
       // Instagram streams are guarded by strict platform session tokens.
-      // Extract official embed URL for safe platform viewing without fake streams
+      // Extract official embed URL for safe platform viewing with cover thumbnail
       const reelMatch = originalUrl.match(/\/(reel|p)\/([A-Za-z0-9_-]+)/);
       const code = reelMatch ? reelMatch[2] : '';
       const embedUrl = code ? `https://www.instagram.com/reel/${code}/embed/captioned/` : null;
+      const cover = code ? `https://www.instagram.com/p/${code}/media/?size=l` : null;
 
       const result = {
-        available: false,
+        available: Boolean(embedUrl),
         platform: 'instagram',
-        reason: 'Платформа Instagram требует авторизации в приложении для прямого стриминга видеопотока',
+        reason: 'Интерактивный плеер Instagram Embed',
         videoUrl: null,
         audioUrl: null,
         embedUrl,
+        cover,
+        shortcode: code,
       };
 
       streamCache.set(originalUrl, { timestamp: Date.now(), data: result });

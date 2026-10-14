@@ -47,6 +47,7 @@ const videoFailed = ref(false);
 const isResolvingStream = ref(false);
 const streamUnavailableReason = ref('');
 const currentVideoUrl = ref('');
+const currentEmbedUrl = ref('');
 const videoRef = ref<HTMLVideoElement | null>(null);
 const isVideoReady = ref(false);
 const videoDuration = ref<number | null>(null);
@@ -84,6 +85,7 @@ watch(
     streamUnavailableReason.value = '';
     videoDuration.value = null;
     currentCoverUrl.value = '';
+    currentEmbedUrl.value = '';
     downloadStatus.value = '';
     isDownloading.value = false;
 
@@ -95,10 +97,16 @@ watch(
 
     if (!reel.value) {
       currentVideoUrl.value = '';
+      currentEmbedUrl.value = '';
       return;
     }
 
-    // If reel already has a stream URL
+    // If reel already has an embed URL (e.g. from live scraper)
+    if ((reel.value as any).embedUrl) {
+      currentEmbedUrl.value = (reel.value as any).embedUrl;
+    }
+
+    // If reel already has a direct stream URL
     if (reel.value.videoUrl) {
       currentVideoUrl.value = reel.value.videoUrl;
       return;
@@ -109,25 +117,32 @@ watch(
       isResolvingStream.value = true;
       try {
         const resolved = await resolveReelStream(reel.value.platform, reel.value.originalUrl);
-        if (resolved && resolved.available && resolved.videoUrl) {
-          currentVideoUrl.value = resolved.videoUrl;
+        if (resolved && resolved.available) {
+          if (resolved.videoUrl) {
+            currentVideoUrl.value = resolved.videoUrl;
+          }
+          if (resolved.embedUrl) {
+            currentEmbedUrl.value = resolved.embedUrl;
+          }
           if (resolved.duration) {
             videoDuration.value = resolved.duration;
           }
           if (resolved.cover) {
             currentCoverUrl.value = resolved.cover;
           }
-        } else {
+        } else if (!currentEmbedUrl.value) {
           videoFailed.value = true;
           streamUnavailableReason.value = resolved?.reason || 'Прямой веб-стриминг видеопотока ограничен платформой';
         }
       } catch (err: any) {
-        videoFailed.value = true;
-        streamUnavailableReason.value = 'Сервер разрешения потоков временно недоступен';
+        if (!currentEmbedUrl.value) {
+          videoFailed.value = true;
+          streamUnavailableReason.value = 'Сервер разрешения потоков временно недоступен';
+        }
       } finally {
         isResolvingStream.value = false;
       }
-    } else {
+    } else if (!currentEmbedUrl.value) {
       videoFailed.value = true;
       streamUnavailableReason.value = 'Ссылка на оригинальное видео платформы отсутствует';
     }
@@ -293,6 +308,17 @@ function handleOpenMusicDiscovery() {
             @canplay="handleVideoLoaded"
             @error="handleVideoError"
           ></video>
+
+          <!-- Interactive Platform Embed (Instagram & Embedded Reels) -->
+          <iframe
+            v-else-if="currentEmbedUrl && !videoFailed"
+            :key="currentEmbedUrl"
+            :src="currentEmbedUrl"
+            class="w-full h-full border-0 rounded-2xl bg-black"
+            allowtransparency="true"
+            allow="encrypted-media; autoplay; clipboard-write"
+            loading="lazy"
+          ></iframe>
 
           <!-- Platform Restricted / Stream Unavailable State -->
           <div

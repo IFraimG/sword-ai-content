@@ -77,8 +77,18 @@ function handleTagClick(tag: string) {
     <!-- Filter Bar -->
     <ReelFilterBar />
 
+    <!-- Loading State -->
+    <div
+      v-if="store.isLoading"
+      class="flex flex-col items-center justify-center py-24 px-4 text-center"
+    >
+      <div class="w-12 h-12 rounded-full border-3 border-pink-500 border-t-transparent animate-spin mb-4"></div>
+      <h3 class="text-sm font-bold text-white">Загрузка живых рилсов Instagram...</h3>
+      <p class="text-xs text-sword-muted mt-1">Опрос живых шлюзов и обновление трендов</p>
+    </div>
+
     <!-- Instagram Reels Grid with Infinite Scroll -->
-    <div v-if="store.instagramReels.length > 0" class="flex flex-col gap-6">
+    <div v-else-if="store.instagramReels.length > 0" class="flex flex-col gap-6">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <ReelCard
           v-for="reel in visibleReels"

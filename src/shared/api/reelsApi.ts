@@ -259,14 +259,16 @@ export async function resolveReelStream(
     const reelMatch = originalUrl.match(/\/(reel|p)\/([A-Za-z0-9_-]+)/);
     const code = reelMatch ? reelMatch[2] : '';
     const embedUrl = code ? `https://www.instagram.com/reel/${code}/embed/captioned/` : null;
+    const cover = code ? `https://www.instagram.com/p/${code}/media/?size=l` : undefined;
 
     return {
-      available: false,
+      available: Boolean(embedUrl),
       platform: 'instagram',
-      reason: 'Платформа Instagram требует авторизации в приложении для прямого стриминга видеопотока',
+      reason: 'Интерактивный плеер Instagram Embed',
       videoUrl: null,
       audioUrl: null,
       embedUrl,
+      cover,
     };
   }
 
