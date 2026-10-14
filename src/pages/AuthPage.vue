@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/entities/user/model/authStore';
-import { useToast } from '@/shared/lib/toast/useToast';
+import { toast } from '@/shared/lib/toast/toastService';
 import {
   User,
   Mail,
@@ -17,7 +17,6 @@ import {
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
-const toast = useToast();
 
 const mode = ref<'login' | 'register'>('login');
 
