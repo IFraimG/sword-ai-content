@@ -61,15 +61,143 @@ export function parseDurationToSeconds(durationText) {
 }
 
 /**
- * Detect ambient niche from text
+ * All 42 target search hashtags requested by user (each can appear in video individually)
+ */
+export const EXPANDED_SEARCH_HASHTAGS = [
+  '#ambient',
+  '#dreamcore',
+  '#weirdcore',
+  '#nostalgiacore',
+  '#miinstronaut',
+  '#liminalspace',
+  '#coldcore',
+  '#haunting',
+  '#ambientmusic',
+  '#album',
+  '#playlist',
+  '#kidcore',
+  '#nostalgia',
+  '#retroaesthetic',
+  '#chillmix',
+  '#sleepmusic',
+  '#studymusic',
+  '#dreamcoreaesthetic',
+  '#studyplaylist',
+  '#relaxingmusic',
+  '#calmingmusic',
+  '#trending',
+  '#darkambient',
+  '#snowstorm',
+  '#snowambience',
+  '#blizzardambience',
+  '#winterstorm',
+  '#calm',
+  '#relax',
+  '#snowfall',
+  '#dreamscore',
+  '#calmmusic',
+  '#meditation',
+  '#aesthetic',
+  '#vaporwave',
+  '#wintermix',
+  '#nightambience',
+  '#snowyambience',
+  '#wintervibes',
+  '#coldnightmix',
+  '#darkmusic',
+  '#aestheticplaylist',
+];
+
+const HASHTAG_DETECTION_PATTERNS = [
+  { tag: '#dreamcore', regex: /dreamcore/i },
+  { tag: '#weirdcore', regex: /weirdcore/i },
+  { tag: '#nostalgiacore', regex: /nostalgiacore/i },
+  { tag: '#miinstronaut', regex: /miinstronaut|astronaut/i },
+  { tag: '#liminalspace', regex: /liminal|liminal\s*space|backrooms|poolrooms/i },
+  { tag: '#coldcore', regex: /coldcore/i },
+  { tag: '#haunting', regex: /haunting|ghostly|eerie/i },
+  { tag: '#ambientmusic', regex: /ambient\s*music/i },
+  { tag: '#album', regex: /album|full\s*album/i },
+  { tag: '#playlist', regex: /playlist/i },
+  { tag: '#kidcore', regex: /kidcore/i },
+  { tag: '#nostalgia', regex: /nostalgia|nostalgic/i },
+  { tag: '#retroaesthetic', regex: /retro\s*aesthetic|vintage|vhs/i },
+  { tag: '#chillmix', regex: /chill\s*mix|chillout/i },
+  { tag: '#sleepmusic', regex: /sleep\s*music|for\s*sleep/i },
+  { tag: '#studymusic', regex: /study\s*music|for\s*study|studying/i },
+  { tag: '#dreamcoreaesthetic', regex: /dreamcore\s*aesthetic/i },
+  { tag: '#studyplaylist', regex: /study\s*playlist/i },
+  { tag: '#relaxingmusic', regex: /relaxing\s*music|relaxing/i },
+  { tag: '#calmingmusic', regex: /calming\s*music|calming/i },
+  { tag: '#trending', regex: /trending|viral/i },
+  { tag: '#darkambient', regex: /dark\s*ambient/i },
+  { tag: '#snowstorm', regex: /snowstorm|snow\s*storm/i },
+  { tag: '#snowambience', regex: /snow\s*ambience|snow\s*ambiance/i },
+  { tag: '#blizzardambience', regex: /blizzard/i },
+  { tag: '#winterstorm', regex: /winter\s*storm/i },
+  { tag: '#calm', regex: /\bcalm\b|calming/i },
+  { tag: '#relax', regex: /\brelax\b|relaxation/i },
+  { tag: '#snowfall', regex: /snowfall|falling\s*snow/i },
+  { tag: '#dreamscore', regex: /dreamscore/i },
+  { tag: '#calmmusic', regex: /calm\s*music/i },
+  { tag: '#meditation', regex: /meditation|meditative/i },
+  { tag: '#aesthetic', regex: /aesthetic/i },
+  { tag: '#vaporwave', regex: /vaporwave/i },
+  { tag: '#wintermix', regex: /winter\s*mix/i },
+  { tag: '#nightambience', regex: /night\s*ambience|night\s*ambiance/i },
+  { tag: '#snowyambience', regex: /snowy\s*ambience|snowy/i },
+  { tag: '#wintervibes', regex: /winter\s*vibes|\bwinter\b/i },
+  { tag: '#coldnightmix', regex: /cold\s*night/i },
+  { tag: '#darkmusic', regex: /dark\s*music/i },
+  { tag: '#aestheticplaylist', regex: /aesthetic\s*playlist/i },
+  { tag: '#ambient', regex: /ambient/i },
+];
+
+/**
+ * Extracts and maps individual hashtags that are present in the video title, description, or search query
+ */
+export function extractVideoHashtags(title = '', description = '', query = '', niche = 'ambient') {
+  const combined = `${title} ${description} ${query}`.toLowerCase();
+  const tagsSet = new Set();
+
+  if (niche && niche !== 'all') {
+    tagsSet.add(`#${niche}`);
+  }
+  tagsSet.add('#1hourplus');
+
+  // If query is an explicit hashtag, preserve it in the video's tag list
+  const cleanQ = (query || '').trim().toLowerCase();
+  if (cleanQ.startsWith('#')) {
+    tagsSet.add(cleanQ);
+  }
+
+  // Check each individual hashtag pattern independently
+  for (const item of HASHTAG_DETECTION_PATTERNS) {
+    if (item.regex.test(combined)) {
+      tagsSet.add(item.tag);
+    }
+  }
+
+  return Array.from(tagsSet);
+}
+
+/**
+ * Detect ambient niche from text (supports all 42 hashtags and associated genres)
  */
 export function detectNiche(text, fallback = 'ambient') {
   const lower = (text || '').toLowerCase();
   if (
     lower.includes('dreamcore') ||
     lower.includes('weirdcore') ||
+    lower.includes('nostalgiacore') ||
+    lower.includes('nostalgia') ||
+    lower.includes('kidcore') ||
+    lower.includes('liminalspace') ||
     lower.includes('liminal') ||
-    lower.includes('nostalgi') ||
+    lower.includes('dreamcoreaesthetic') ||
+    lower.includes('dreamscore') ||
+    lower.includes('retroaesthetic') ||
+    lower.includes('vaporwave') ||
     lower.includes('backrooms') ||
     lower.includes('poolrooms')
   ) {
@@ -77,6 +205,19 @@ export function detectNiche(text, fallback = 'ambient') {
   }
   if (
     lower.includes('coldcore') ||
+    lower.includes('haunting') ||
+    lower.includes('snowstorm') ||
+    lower.includes('snowambience') ||
+    lower.includes('blizzardambience') ||
+    lower.includes('blizzard') ||
+    lower.includes('winterstorm') ||
+    lower.includes('snowfall') ||
+    lower.includes('wintermix') ||
+    lower.includes('nightambience') ||
+    lower.includes('snowyambience') ||
+    lower.includes('wintervibes') ||
+    lower.includes('coldnightmix') ||
+    lower.includes('darkmusic') ||
     lower.includes('cold wave') ||
     lower.includes('doomer') ||
     lower.includes('winter') ||
@@ -88,11 +229,23 @@ export function detectNiche(text, fallback = 'ambient') {
   }
   if (
     lower.includes('ambient') ||
+    lower.includes('ambientmusic') ||
+    lower.includes('darkambient') ||
+    lower.includes('chillmix') ||
+    lower.includes('sleepmusic') ||
+    lower.includes('studymusic') ||
+    lower.includes('studyplaylist') ||
+    lower.includes('relaxingmusic') ||
+    lower.includes('calmingmusic') ||
+    lower.includes('calmmusic') ||
+    lower.includes('calm') ||
+    lower.includes('relax') ||
+    lower.includes('meditation') ||
+    lower.includes('miinstronaut') ||
+    lower.includes('aestheticplaylist') ||
+    lower.includes('trending') ||
     lower.includes('drone') ||
     lower.includes('space') ||
-    lower.includes('calm') ||
-    lower.includes('sleep') ||
-    lower.includes('meditat') ||
     lower.includes('weightless')
   ) {
     return 'ambient';
@@ -289,15 +442,7 @@ function processRenderers(renderers, query, niche = 'all', limit = 24) {
       views,
       publishedAt,
       niche: videoNiche,
-      tags: [
-        `#${videoNiche}`,
-        '#1hourplus',
-        ...(title.toLowerCase().includes('liminal') ? ['#liminalspace'] : []),
-        ...(title.toLowerCase().includes('weird') ? ['#weirdcore'] : []),
-        ...(title.toLowerCase().includes('drone') ? ['#droneambient'] : []),
-        ...(title.toLowerCase().includes('doomer') ? ['#doomerwave'] : []),
-        ...(title.toLowerCase().includes('winter') ? ['#winterwave'] : []),
-      ],
+      tags: extractVideoHashtags(title, description, query, videoNiche),
     });
 
     if (videos.length >= limit) break;
@@ -471,7 +616,7 @@ async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
           views: item.viewCount ? `${item.viewCount.toLocaleString()} views` : 'Popular',
           publishedAt: item.publishedText || '',
           niche: videoNiche,
-          tags: [`#${videoNiche}`, '#1hourplus'],
+          tags: extractVideoHashtags(title, item.description || '', query, videoNiche),
         });
 
         if (videos.length >= limit) break;
@@ -490,17 +635,21 @@ async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
 
 /**
  * Generates progressive search query variations for pagination & lazy-loading
+ * incorporating all 42 target hashtags
  */
 function getProgressiveSearchQuery(userQuery, niche, page = 1) {
   if (userQuery && userQuery.trim()) {
-    const q = userQuery.trim();
+    const raw = userQuery.trim();
+    const cleanWord = raw.replace(/^#+/, '').trim();
     const variations = [
-      `${q} 1 hour mix`,
-      `${q} 2 hours ambient playlist`,
-      `${q} 3 hours continuous mix`,
-      `${q} full album 1 hour`,
-      `${q} relaxing deep session 2 hours`,
-      `${q} long aesthetic mix 1 hour`,
+      `${raw} 1 hour mix`,
+      `${cleanWord} 2 hours ambient playlist`,
+      `${cleanWord} 1 hour aesthetic continuous mix`,
+      `${raw} full album 1 hour`,
+      `${cleanWord} relaxing deep session 2 hours`,
+      `${raw} long aesthetic mix 1 hour`,
+      `${cleanWord} soundscape 2 hours`,
+      `${raw} sleep study meditation 2 hours`,
     ];
     return variations[(page - 1) % variations.length];
   }
@@ -510,11 +659,14 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
       'dreamcore 1 hour mix playlist',
       'dreamcore liminal space 2 hours ambient',
       'weirdcore dreamcore aesthetic mix 1 hour',
+      'nostalgiacore kidcore retroaesthetic 2 hours',
       'poolrooms dreamcore ambient music 1 hour',
       'dreamcore childhood nostalgia mix 3 hours',
-      'dreamcore alone in empty world ambient 1 hour',
       'liminal spaces dreamcore music 2 hours',
       'dreamcore vhs aesthetic ambient 1 hour',
+      'dreamcoreaesthetic dreamscore 2 hours mix',
+      'vaporwave liminalspace aesthetic playlist 1 hour',
+      'miinstronaut liminal dreamcore 2 hours',
     ];
     return dreamcoreQueries[(page - 1) % dreamcoreQueries.length];
   }
@@ -522,38 +674,48 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
   if (niche === 'coldcore') {
     const coldcoreQueries = [
       'coldcore 1 hour mix post punk',
+      'snowstorm snowambience blizzard 2 hours sleep',
       'russian doomer music 1 hour best mix',
-      'coldcore doomer wave 2 hours post-punk',
-      'atmospheric coldcore winter ambient 1 hour',
+      'coldcore winter vibes snowfall 1 hour',
+      'haunting dark ambient winterstorm 2 hours',
+      'cold night mix dark music 2 hours',
       'sovietwave coldcore night mix 2 hours',
+      'snowy ambience winter storm relax 2 hours',
       'cold wave post-punk gloomy 1 hour mix',
       'coldcore silent winter snowfall 1 hour',
-      'doomer wave post punk melancholia 2 hours',
+      'blizzard ambience night soundscape 3 hours',
     ];
     return coldcoreQueries[(page - 1) % coldcoreQueries.length];
   }
 
   if (niche === 'ambient') {
     const ambientQueries = [
-      'ambient 1 hour relaxation deep space',
+      'ambient music 1 hour relaxation deep space',
       'dark ambient drone 2 hours sleep study',
+      'chill mix sleep music calming 2 hours',
       'brian eno ambient space journey 3 hours',
-      'space ambient cosmic drone relaxation 2 hours',
+      'relaxing music study playlist 2 hours',
       'ambient piano rain deep rest 1 hour',
+      'calm music meditation 2 hours continuous',
       'marconi union weightless ambient 10 hours',
       'cryo chamber dark ambient 1 hour mix',
+      'aesthetic playlist trending ambient 2 hours',
       'isolated forest ambient soundscape 2 hours',
     ];
     return ambientQueries[(page - 1) % ambientQueries.length];
   }
 
-  // All niches general queries
+  // All niches general queries spanning dreamcore, coldcore, snowstorm, liminal and ambient
   const allQueries = [
     'ambient dreamcore coldcore 1 hour mix',
+    'snowstorm blizzard ambience dark ambient 2 hours',
+    'liminalspace weirdcore aesthetic playlist 1 hour',
+    'chillmix sleepmusic studymusic ambient 2 hours',
     'dreamcore coldcore ambient 2 hours playlist',
-    'liminal doomer deep ambient 1 hour',
+    'relaxing music calming snowfall 2 hours',
     'space ambient weirdcore post-punk 2 hours',
     'dark ambient dreamcore nostalgia 1 hour',
+    'winter mix night ambience coldcore 2 hours',
     'atmospheric continuous aesthetic mix 2 hours',
   ];
   return allQueries[(page - 1) % allQueries.length];

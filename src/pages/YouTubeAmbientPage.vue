@@ -36,6 +36,9 @@ import {
   Download,
   Bot,
   MessageSquare,
+  ChevronDown,
+  ChevronUp,
+  Hash,
 } from 'lucide-vue-next';
 
 // Search & filter state
@@ -77,17 +80,119 @@ const nicheTabs: { id: YouTubeNiche; label: string; icon: any; color: string }[]
   { id: 'coldcore', label: 'Coldcore', icon: Snowflake, color: 'text-cyan-400' },
 ];
 
-// Popular quick hashtags
-const quickTags = [
-  '#dreamcore',
-  '#coldcore',
+// Full list of 42 search hashtags requested by user (individually selectable & searchable)
+const allHashtags = [
   '#ambient',
-  '#liminalspace',
+  '#dreamcore',
   '#weirdcore',
-  '#spaceambient',
-  '#doomerwave',
-  '#winterwave',
+  '#nostalgiacore',
+  '#miinstronaut',
+  '#liminalspace',
+  '#coldcore',
+  '#haunting',
+  '#ambientmusic',
+  '#album',
+  '#playlist',
+  '#kidcore',
+  '#nostalgia',
+  '#retroaesthetic',
+  '#chillmix',
+  '#sleepmusic',
+  '#studymusic',
+  '#dreamcoreaesthetic',
+  '#studyplaylist',
+  '#relaxingmusic',
+  '#calmingmusic',
+  '#trending',
+  '#darkambient',
+  '#snowstorm',
+  '#snowambience',
+  '#blizzardambience',
+  '#winterstorm',
+  '#calm',
+  '#relax',
+  '#snowfall',
+  '#dreamscore',
+  '#calmmusic',
+  '#meditation',
+  '#aesthetic',
+  '#vaporwave',
+  '#wintermix',
+  '#nightambience',
+  '#snowyambience',
+  '#wintervibes',
+  '#coldnightmix',
+  '#darkmusic',
+  '#aestheticplaylist',
 ];
+
+const selectedHashtagCategory = ref<'all' | 'dreamcore' | 'coldcore' | 'ambient'>('all');
+const isHashtagsExpanded = ref(false);
+
+const dreamcoreTags = [
+  '#dreamcore',
+  '#weirdcore',
+  '#nostalgiacore',
+  '#miinstronaut',
+  '#liminalspace',
+  '#kidcore',
+  '#nostalgia',
+  '#retroaesthetic',
+  '#dreamcoreaesthetic',
+  '#dreamscore',
+  '#vaporwave',
+  '#aesthetic',
+  '#aestheticplaylist',
+];
+
+const coldcoreTags = [
+  '#coldcore',
+  '#haunting',
+  '#snowstorm',
+  '#snowambience',
+  '#blizzardambience',
+  '#winterstorm',
+  '#snowfall',
+  '#wintermix',
+  '#nightambience',
+  '#snowyambience',
+  '#wintervibes',
+  '#coldnightmix',
+  '#darkmusic',
+];
+
+const ambientTags = [
+  '#ambient',
+  '#ambientmusic',
+  '#chillmix',
+  '#sleepmusic',
+  '#studymusic',
+  '#studyplaylist',
+  '#relaxingmusic',
+  '#calmingmusic',
+  '#calm',
+  '#relax',
+  '#calmmusic',
+  '#meditation',
+  '#darkambient',
+  '#trending',
+  '#album',
+  '#playlist',
+];
+
+const filteredHashtags = computed(() => {
+  if (selectedHashtagCategory.value === 'dreamcore') return dreamcoreTags;
+  if (selectedHashtagCategory.value === 'coldcore') return coldcoreTags;
+  if (selectedHashtagCategory.value === 'ambient') return ambientTags;
+  return allHashtags;
+});
+
+const displayedHashtags = computed(() => {
+  if (isHashtagsExpanded.value) {
+    return filteredHashtags.value;
+  }
+  return filteredHashtags.value.slice(0, 15);
+});
 
 // Recompute analytics from loaded videos
 function updateLocalAnalytics() {
@@ -623,23 +728,111 @@ onUnmounted(() => {
           </form>
         </div>
 
-        <!-- Quick Hashtags Bar -->
-        <div class="mt-4 flex items-center gap-2 flex-wrap text-xs">
-          <span class="text-sword-muted text-[11px] font-semibold">Популярные хэштеги:</span>
-          <button
-            v-for="tag in quickTags"
-            :key="tag"
-            type="button"
-            :class="[
-              'px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors cursor-pointer border',
-              activeHashtag === tag
-                ? 'bg-sword-accent/20 text-sword-accent border-sword-accent/40 font-bold'
-                : 'bg-sword-surface/40 text-sword-muted hover:text-sword-text border-sword-border/60 hover:border-sword-border'
-            ]"
-            @click="onSelectTag(tag)"
-          >
-            {{ tag }}
-          </button>
+        <!-- Quick Hashtags Bar with 42 target hashtags -->
+        <div class="mt-5 pt-4 border-t border-sword-border/40 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-sword-muted text-[11px] font-semibold flex items-center gap-1">
+                <Hash class="w-3.5 h-3.5 text-sword-accent" />
+                <span>Хэштеги поиска ({{ allHashtags.length }}):</span>
+              </span>
+
+              <!-- Category filter pills -->
+              <div class="flex items-center gap-1 text-[10px]">
+                <button
+                  type="button"
+                  :class="[
+                    'px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer',
+                    selectedHashtagCategory === 'all'
+                      ? 'bg-sword-card text-white border border-sword-accent/50'
+                      : 'text-sword-muted hover:text-white bg-sword-surface/50'
+                  ]"
+                  @click="selectedHashtagCategory = 'all'"
+                >
+                  Все ({{ allHashtags.length }})
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer',
+                    selectedHashtagCategory === 'dreamcore'
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                      : 'text-sword-muted hover:text-purple-300 bg-sword-surface/50'
+                  ]"
+                  @click="selectedHashtagCategory = 'dreamcore'"
+                >
+                  Dreamcore & Liminal ({{ dreamcoreTags.length }})
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer',
+                    selectedHashtagCategory === 'coldcore'
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                      : 'text-sword-muted hover:text-cyan-300 bg-sword-surface/50'
+                  ]"
+                  @click="selectedHashtagCategory = 'coldcore'"
+                >
+                  Coldcore & Зима ({{ coldcoreTags.length }})
+                </button>
+                <button
+                  type="button"
+                  :class="[
+                    'px-2 py-0.5 rounded-md font-medium transition-colors cursor-pointer',
+                    selectedHashtagCategory === 'ambient'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : 'text-sword-muted hover:text-emerald-300 bg-sword-surface/50'
+                  ]"
+                  @click="selectedHashtagCategory = 'ambient'"
+                >
+                  Ambient & Релакс ({{ ambientTags.length }})
+                </button>
+              </div>
+            </div>
+
+            <!-- Active Tag Indicator & Reset -->
+            <div v-if="activeHashtag" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sword-accent/20 border border-sword-accent/40 text-sword-accent text-[11px] font-semibold animate-fade-in">
+              <span>Активен: {{ activeHashtag }}</span>
+              <button
+                type="button"
+                class="hover:text-white transition-colors cursor-pointer ml-1"
+                title="Сбросить хэштег"
+                @click="onSelectTag(activeHashtag)"
+              >
+                <X class="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Tags List -->
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button
+              v-for="tag in displayedHashtags"
+              :key="tag"
+              type="button"
+              :class="[
+                'px-2 py-1 rounded-lg text-[11px] font-medium transition-all cursor-pointer border',
+                activeHashtag === tag
+                  ? 'bg-sword-accent text-black border-sword-accent font-bold shadow-sm shadow-sword-accent/20'
+                  : 'bg-sword-surface/50 text-sword-muted hover:text-sword-text border-sword-border/60 hover:border-sword-accent/50 hover:bg-sword-card'
+              ]"
+              :title="`Искать видео по хэштегу ${tag}`"
+              @click="onSelectTag(tag)"
+            >
+              {{ tag }}
+            </button>
+
+            <!-- Toggle Expand / Collapse button -->
+            <button
+              v-if="filteredHashtags.length > 15"
+              type="button"
+              class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium text-sword-muted hover:text-white bg-sword-card/60 hover:bg-sword-card border border-sword-border/60 transition-colors cursor-pointer"
+              @click="isHashtagsExpanded = !isHashtagsExpanded"
+            >
+              <component :is="isHashtagsExpanded ? ChevronUp : ChevronDown" class="w-3 h-3" />
+              <span>{{ isHashtagsExpanded ? 'Свернуть' : `Все ${filteredHashtags.length}` }}</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -887,13 +1080,16 @@ onUnmounted(() => {
 
                 <!-- Tags -->
                 <div class="mt-2 flex items-center gap-1.5 flex-wrap">
-                  <span
-                    v-for="tag in (video.tags || []).slice(0, 3)"
+                  <button
+                    v-for="tag in (video.tags || []).slice(0, 4)"
                     :key="tag"
-                    class="text-[10px] text-sword-muted/90 bg-sword-surface/80 px-1.5 py-0.5 rounded border border-sword-border/60"
+                    type="button"
+                    class="text-[10px] text-sword-muted/90 bg-sword-surface/80 hover:bg-sword-card px-1.5 py-0.5 rounded border border-sword-border/60 hover:border-sword-accent/60 hover:text-white transition-colors cursor-pointer"
+                    :title="`Искать видео по хэштегу ${tag}`"
+                    @click.stop="onSelectTag(tag)"
                   >
                     {{ tag }}
-                  </span>
+                  </button>
                 </div>
               </div>
 

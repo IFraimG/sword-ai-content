@@ -76,12 +76,12 @@ export function analyzeAtmosphereEngine({
   const lowerDesc = (description || '').toLowerCase();
   const combined = `${lowerTitle} ${lowerDesc} ${lowerPrompt}`;
 
-  // Analyze aesthetic dimensions
-  const isSpace = /space|космос|universe|galaxy|nebula|astral|starfield|interstellar/i.test(combined);
-  const isDream = /dreamcore|weirdcore|liminal|poolrooms|backrooms|nostalg|детств|сон/i.test(combined);
-  const isCold = /coldcore|doomer|winter|snow|post-punk|меланхол|stalker|зима|ночь/i.test(combined);
-  const isDark = /dark|drone|deep|abyss|cryo|forbidden|тёмн|мрачн/i.test(combined);
-  const isCalm = /relax|healing|sleep|peace|quiet|calm|meditat|тишин|покой/i.test(combined);
+  // Analyze aesthetic dimensions (aligned with 42 target hashtags)
+  const isSpace = /space|космос|universe|galaxy|nebula|astral|starfield|interstellar|miinstronaut/i.test(combined);
+  const isDream = /dreamcore|weirdcore|nostalgiacore|liminal|poolrooms|backrooms|nostalg|детств|сон|kidcore|dreamscore|vaporwave|retroaesthetic/i.test(combined);
+  const isCold = /coldcore|doomer|winter|snow|post-punk|меланхол|stalker|зима|ночь|snowstorm|snowambience|blizzard|winterstorm|snowfall|wintermix|nightambience|snowyambience|wintervibes|coldnightmix|darkmusic|haunting/i.test(combined);
+  const isDark = /dark|drone|deep|abyss|cryo|forbidden|тёмн|мрачн|darkambient|haunting/i.test(combined);
+  const isCalm = /relax|healing|sleep|peace|quiet|calm|meditat|тишин|покой|chillmix|sleepmusic|studymusic|calmingmusic|calmmusic/i.test(combined);
 
   // Determine primary mood & aesthetic
   let primaryMood = 'Глубокое созерцание и ментальное умиротворение';
