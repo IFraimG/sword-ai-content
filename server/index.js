@@ -21,8 +21,18 @@ const fastify = Fastify({
 // Enable CORS for frontend clients
 await fastify.register(cors, {
   origin: true,
-  methods: ['GET', 'POST', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Range', 'Authorization', 'Cookie'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Range',
+    'Authorization',
+    'Cookie',
+    'x-auth-token',
+    'X-Auth-Token',
+  ],
   exposedHeaders: ['Content-Range', 'Content-Length', 'Accept-Ranges', 'Content-Disposition', 'Set-Cookie'],
   credentials: true,
 });

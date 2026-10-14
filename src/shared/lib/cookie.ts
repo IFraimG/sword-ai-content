@@ -52,7 +52,7 @@ export function deleteCookie(name: string): void {
 }
 
 /**
- * Returns authorization headers containing the Bearer token and X-Auth-Token from cookie (if available)
+ * Returns authorization headers containing the Bearer token from cookie (if available)
  */
 export function getAuthHeaders(customHeaders: Record<string, string> = {}): Record<string, string> {
   const token = getCookie(JWT_COOKIE_NAME);
@@ -62,8 +62,8 @@ export function getAuthHeaders(customHeaders: Record<string, string> = {}): Reco
   };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
-    headers['X-Auth-Token'] = token;
   }
   return headers;
 }
+
 
