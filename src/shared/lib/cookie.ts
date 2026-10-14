@@ -34,9 +34,10 @@ export function setCookie(name: string, value: string, days = 7): void {
 
   const maxAgeSeconds = days * 24 * 60 * 60;
   const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  const sameSite = isSecure ? 'None' : 'Lax';
   const secureFlag = isSecure ? '; Secure' : '';
 
-  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax${secureFlag}`;
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=${sameSite}${secureFlag}`;
 }
 
 /**
@@ -44,5 +45,25 @@ export function setCookie(name: string, value: string, days = 7): void {
  */
 export function deleteCookie(name: string): void {
   if (typeof document === 'undefined') return;
-  document.cookie = `${encodeURIComponent(name)}=; Max-Age=0; Path=/; SameSite=Lax`;
+  const isSecure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  const sameSite = isSecure ? 'None' : 'Lax';
+  const secureFlag = isSecure ? '; Secure' : '';
+  document.cookie = `${encodeURIComponent(name)}=; Max-Age=0; Path=/; SameSite=${sameSite}${secureFlag}`;
 }
+
+/**
+ * Returns authorization headers containing the Bearer token and X-Auth-Token from cookie (if available)
+ */
+export function getAuthHeaders(customHeaders: Record<string, string> = {}): Record<string, string> {
+  const token = getCookie(JWT_COOKIE_NAME);
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...customHeaders,
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+    headers['X-Auth-Token'] = token;
+  }
+  return headers;
+}
+

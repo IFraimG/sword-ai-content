@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/entities/user/model/authStore';
 import { useChatStore } from '@/entities/chat/model/chatStore';
 import { getApiBaseUrl } from '@/shared/api/reelsApi';
+import { getAuthHeaders } from '@/shared/lib/cookie';
+import { toast } from '@/shared/lib/toast/toastService';
 import {
   Users,
   Search,
@@ -39,6 +41,7 @@ async function startChatWithUser(targetUser: RegisteredUser) {
     }
   } catch (err: any) {
     console.error('Failed to start chat:', err);
+    toast.error(err.message || 'Не удалось открыть диалог');
   } finally {
     startingChatUserId.value = null;
   }
@@ -62,9 +65,7 @@ async function loadUsers(query = searchQuery.value) {
 
     const res = await fetch(url.toString(), {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
 

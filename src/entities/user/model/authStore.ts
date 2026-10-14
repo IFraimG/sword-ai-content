@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getCookie, setCookie, deleteCookie, JWT_COOKIE_NAME } from '@/shared/lib/cookie';
+import { getCookie, setCookie, deleteCookie, getAuthHeaders, JWT_COOKIE_NAME } from '@/shared/lib/cookie';
 import { getApiBaseUrl } from '@/shared/api/reelsApi';
 
 export interface AuthUser {
@@ -42,10 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/auth/me`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAuthHeaders(),
         credentials: 'include',
       });
 
@@ -156,6 +153,7 @@ export const useAuthStore = defineStore('auth', () => {
       const apiBase = getApiBaseUrl();
       await fetch(`${apiBase}/api/auth/logout`, {
         method: 'POST',
+        headers: getAuthHeaders(),
         credentials: 'include',
       });
     } catch {

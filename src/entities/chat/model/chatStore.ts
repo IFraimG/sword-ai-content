@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getApiBaseUrl } from '@/shared/api/reelsApi';
-import { getCookie } from '@/shared/lib/cookie';
+import { getCookie, getAuthHeaders } from '@/shared/lib/cookie';
 
 export interface ChatRecipient {
   id: string;
@@ -80,7 +80,7 @@ export const useChatStore = defineStore('chat', () => {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/chats`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
       });
 
@@ -107,7 +107,7 @@ export const useChatStore = defineStore('chat', () => {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/chats/${chatId}/messages`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
       });
 
@@ -226,7 +226,7 @@ export const useChatStore = defineStore('chat', () => {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/chats/direct`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({ targetUserId }),
       });
@@ -263,7 +263,7 @@ export const useChatStore = defineStore('chat', () => {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/chats/ai`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
       });
 
@@ -302,7 +302,7 @@ export const useChatStore = defineStore('chat', () => {
       const apiBase = getApiBaseUrl();
       const res = await fetch(`${apiBase}/api/chats/${chatId}/messages`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify(params),
       });

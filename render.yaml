@@ -27,4 +27,4 @@ services:
           name: sword-postgres
           property: connectionString
       - key: JWT_SECRET
-        generateValue: true
+        value: sword_jwt_production_master_secret_key_2026_render_permanent

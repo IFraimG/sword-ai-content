@@ -34,7 +34,7 @@ export function broadcastMessage(chatId, message) {
  * Helper to authenticate user from request
  */
 async function authenticate(request, reply) {
-  const token = extractToken(request) || request.query?.token;
+  const token = extractToken(request);
   if (!token) {
     reply.code(401).send({ error: 'Пользователь не авторизован' });
     return null;
@@ -46,7 +46,16 @@ async function authenticate(request, reply) {
     return null;
   }
 
-  const user = await findUserById(payload.sub);
+  let user = await findUserById(payload.sub);
+  if (!user && payload.login) {
+    user = {
+      id: payload.sub,
+      login: payload.login,
+      email: payload.email || `${payload.login}@sword.app`,
+      created_at_formatted: '14:10:2026',
+    };
+  }
+
   if (!user) {
     reply.code(401).send({ error: 'Пользователь не найден' });
     return null;

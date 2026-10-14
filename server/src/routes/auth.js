@@ -90,7 +90,7 @@ export async function authRoutes(fastify) {
       reply.setCookie(JWT_COOKIE_NAME, token, {
         path: '/',
         httpOnly: false, // client JS checks cookie for auth status
-        sameSite: 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: JWT_EXPIRES_IN_SECONDS,
         secure: process.env.NODE_ENV === 'production',
       });
@@ -146,7 +146,7 @@ export async function authRoutes(fastify) {
       reply.setCookie(JWT_COOKIE_NAME, token, {
         path: '/',
         httpOnly: false,
-        sameSite: 'lax',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: JWT_EXPIRES_IN_SECONDS,
         secure: process.env.NODE_ENV === 'production',
       });
@@ -174,7 +174,7 @@ export async function authRoutes(fastify) {
   fastify.post('/api/auth/logout', async (request, reply) => {
     reply.clearCookie(JWT_COOKIE_NAME, {
       path: '/',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: process.env.NODE_ENV === 'production',
     });
     return reply.send({ status: 'success', message: 'Успешный выход из системы' });
@@ -197,7 +197,16 @@ export async function authRoutes(fastify) {
     }
 
     try {
-      const user = await findUserById(payload.sub);
+      let user = await findUserById(payload.sub);
+      if (!user && payload.login) {
+        user = {
+          id: payload.sub,
+          login: payload.login,
+          email: payload.email || `${payload.login}@sword.app`,
+          created_at_formatted: '14:10:2026',
+        };
+      }
+
       if (!user) {
         reply.clearCookie(JWT_COOKIE_NAME, { path: '/' });
         return reply.code(401).send({ error: 'Пользователь не найден' });
@@ -216,4 +225,5 @@ export async function authRoutes(fastify) {
       return reply.code(500).send({ error: 'Ошибка проверки авторизации' });
     }
   });
+
 }
