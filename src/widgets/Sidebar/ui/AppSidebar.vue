@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
 import { useYouTubeFavoritesStore } from '@/entities/youtube/model/youtubeFavoritesStore';
+import { useAuthStore } from '@/entities/user/model/authStore';
 import LiveTicker from '@/features/real-time-ticker/ui/LiveTicker.vue';
 import BaseButton from '@/shared/ui/BaseButton.vue';
 import {
@@ -12,6 +13,9 @@ import {
   Layers,
   Radio,
   Bookmark,
+  Users,
+  LogOut,
+  User,
   Menu,
   X,
 } from 'lucide-vue-next';
@@ -20,6 +24,7 @@ const router = useRouter();
 const route = useRoute();
 const store = useReelsStore();
 const favoritesStore = useYouTubeFavoritesStore();
+const authStore = useAuthStore();
 
 const isMobileDrawerOpen = ref(false);
 
@@ -30,6 +35,7 @@ const navItems = [
   { path: '/analytics', label: 'Аналитика', icon: BarChart3, platform: 'analytics' },
   { path: '/youtube', label: 'YouTube Ambient (>1ч)', icon: Radio, platform: 'youtube' },
   { path: '/youtube/favorites', label: 'Избранное YT', icon: Bookmark, platform: 'youtube-favorites' },
+  { path: '/users', label: 'Пользователи', icon: Users, platform: 'users' },
 ];
 
 function openMobileDrawer() {
@@ -43,6 +49,12 @@ function closeMobileDrawer() {
 function navigate(path: string) {
   router.push(path);
   closeMobileDrawer();
+}
+
+async function handleLogout() {
+  await authStore.logout();
+  closeMobileDrawer();
+  router.push('/auth');
 }
 
 // Auto-close drawer on route change
@@ -122,17 +134,19 @@ onUnmounted(() => {
       </router-link>
     </div>
 
-    <!-- Right: Quick Actions (Export button) -->
+    <!-- Right: Quick Actions -->
     <div class="flex items-center gap-2">
-      <!-- YouTube favorites quick shortcut if items exist -->
+      <!-- User login badge if authenticated -->
       <router-link
-        v-if="favoritesStore.count > 0"
-        to="/youtube/favorites"
-        class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sword-surface border border-sword-border/80 text-xs font-semibold text-sword-accent hover:border-sword-accent transition-colors"
-        title="Избранное YouTube"
+        v-if="authStore.user"
+        to="/users"
+        class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sword-card border border-sword-border/80 text-xs text-white"
+        title="Текущий профиль"
       >
-        <Bookmark class="w-3.5 h-3.5 fill-sword-accent" />
-        <span class="font-mono font-bold">{{ favoritesStore.count }}</span>
+        <div class="w-4 h-4 rounded-full bg-sword-accent/20 flex items-center justify-center text-[10px] text-sword-accent font-bold">
+          @
+        </div>
+        <span class="font-bold text-xs truncate max-w-[80px]">{{ authStore.user.login }}</span>
       </router-link>
 
       <BaseButton
@@ -150,7 +164,6 @@ onUnmounted(() => {
   <!-- ========================================================================= -->
   <!-- 2. MOBILE SLIDE-OVER DRAWER OVERLAY (opens over page with dimmed backdrop)-->
   <!-- ========================================================================= -->
-  <!-- Dimmed Backdrop (Внешнее пространство слегка затемняется) -->
   <Transition name="fade">
     <div
       v-if="isMobileDrawerOpen"
@@ -160,7 +173,6 @@ onUnmounted(() => {
     ></div>
   </Transition>
 
-  <!-- Slide-Over Sidebar Drawer -->
   <Transition name="slide-drawer">
     <aside
       v-if="isMobileDrawerOpen"
@@ -261,6 +273,32 @@ onUnmounted(() => {
               </div>
             </button>
           </nav>
+
+          <!-- User Profile Display (Below Nav items) -->
+          <div v-if="authStore.user" class="mt-3 p-3 rounded-2xl bg-sword-card/80 border border-sword-border/80 flex items-center justify-between gap-3 shadow-md">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-sword-surface to-sword-card border border-sword-accent/40 flex items-center justify-center text-sword-accent font-bold text-xs shrink-0 shadow-sm uppercase">
+                {{ authStore.user.login.substring(0, 2) }}
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="text-xs font-bold text-white truncate" :title="`@${authStore.user.login}`">
+                  @{{ authStore.user.login }}
+                </span>
+                <span class="text-[10px] text-sword-muted truncate" :title="authStore.user.email">
+                  {{ authStore.user.email }}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="p-1.5 rounded-lg text-sword-muted hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
+              title="Выйти из аккаунта"
+              @click="handleLogout"
+            >
+              <LogOut class="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -279,7 +317,7 @@ onUnmounted(() => {
         </BaseButton>
 
         <div class="text-[10px] text-center text-sword-muted/50 font-mono">
-          SWORD V2.0 • Offline-Ready
+          SWORD V2.0 • PostgreSQL + Render
         </div>
       </div>
     </aside>
@@ -378,6 +416,36 @@ onUnmounted(() => {
             </div>
           </button>
         </nav>
+
+        <!-- User Profile Card (Below Navigation links: @login & smaller email) -->
+        <div v-if="authStore.user" class="mt-3 p-3 rounded-2xl bg-sword-surface/90 border border-sword-border/80 flex items-center justify-between gap-2.5 shadow-md shrink-0">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <!-- User Avatar -->
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-sword-card to-sword-surface border border-sword-accent/40 flex items-center justify-center text-sword-accent font-bold text-xs shrink-0 shadow-sm uppercase">
+              {{ authStore.user.login.substring(0, 2) }}
+            </div>
+
+            <!-- Login (@login) & Email -->
+            <div class="flex flex-col min-w-0">
+              <span class="text-xs font-bold text-white truncate" :title="`@${authStore.user.login}`">
+                @{{ authStore.user.login }}
+              </span>
+              <span class="text-[10px] text-sword-muted truncate" :title="authStore.user.email">
+                {{ authStore.user.email }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Logout Button -->
+          <button
+            type="button"
+            class="p-1.5 rounded-lg text-sword-muted hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
+            title="Выйти из аккаунта"
+            @click="handleLogout"
+          >
+            <LogOut class="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -400,7 +468,7 @@ onUnmounted(() => {
       <!-- App version & Mode Info -->
       <div class="flex items-center justify-between text-[10px] font-mono text-sword-muted/50 px-1">
         <span>SWORD v2.0</span>
-        <span>Client + Fastify</span>
+        <span>PostgreSQL + JWT</span>
       </div>
     </div>
   </aside>
@@ -429,7 +497,7 @@ onUnmounted(() => {
   transform: translateX(-100%);
 }
 
-/* Custom scrollbar for nav links if needed */
+/* Custom scrollbar for nav links */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }

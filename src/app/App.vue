@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useReelsStore } from '@/entities/reel/model/reelsStore';
+import { useAuthStore } from '@/entities/user/model/authStore';
 import AppSidebar from '@/widgets/Sidebar/ui/AppSidebar.vue';
 import ReelDetailModal from '@/widgets/ReelDetailModal/ui/ReelDetailModal.vue';
 import ExportModal from '@/features/export-report/ui/ExportModal.vue';
 import MusicSearchModal from '@/widgets/MusicSearchModal/ui/MusicSearchModal.vue';
 import ToastContainer from '@/shared/ui/ToastContainer.vue';
-import { formatDate } from '@/shared/lib/formatters';
 
+const route = useRoute();
 const store = useReelsStore();
+const authStore = useAuthStore();
+
+const isAuthPage = computed(() => route.path === '/auth');
 
 onMounted(() => {
+  authStore.initAuth();
   store.startAutoRefresh();
 });
 
@@ -20,7 +26,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col lg:flex-row bg-sword-bg text-sword-text selection:bg-sword-accent selection:text-black">
+  <!-- Standalone Auth View (Clean screen without sidebar, footer or other elements) -->
+  <div v-if="isAuthPage" class="min-h-screen bg-sword-bg text-sword-text selection:bg-sword-accent selection:text-black">
+    <router-view />
+    <ToastContainer />
+  </div>
+
+  <!-- Main Application Layout with Left Sidebar -->
+  <div v-else class="min-h-screen flex flex-col lg:flex-row bg-sword-bg text-sword-text selection:bg-sword-accent selection:text-black">
     <!-- Left Navigation Sidebar + Mobile Responsive Drawer -->
     <AppSidebar />
 

@@ -2,10 +2,13 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import { config } from './src/config.js';
+import { initDb } from './src/db/index.js';
 import { proxyRoutes } from './src/routes/proxy.js';
 import { reelsRoutes } from './src/routes/reels.js';
 import { musicRoutes } from './src/routes/music.js';
 import { youtubeRoutes } from './src/routes/youtube.js';
+import { authRoutes } from './src/routes/auth.js';
+import { usersRoutes } from './src/routes/users.js';
 
 const fastify = Fastify({
   logger: {
@@ -14,16 +17,56 @@ const fastify = Fastify({
   disableRequestLogging: false,
 });
 
-// Enable CORS for frontend clients (development and production deployments)
+// Enable CORS for frontend clients
 await fastify.register(cors, {
   origin: true,
   methods: ['GET', 'POST', 'OPTIONS', 'HEAD'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Range', 'Authorization'],
-  exposedHeaders: ['Content-Range', 'Content-Length', 'Accept-Ranges', 'Content-Disposition'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Range', 'Authorization', 'Cookie'],
+  exposedHeaders: ['Content-Range', 'Content-Length', 'Accept-Ranges', 'Content-Disposition', 'Set-Cookie'],
   credentials: true,
 });
 
 await fastify.register(sensible);
+
+// Native Cookie Parser & Serializer Hook (RFC 6265 compliant)
+fastify.addHook('onRequest', (request, reply, done) => {
+  const cookieHeader = request.headers.cookie;
+  request.cookies = {};
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach((pair) => {
+      const idx = pair.indexOf('=');
+      if (idx > -1) {
+        const key = pair.substring(0, idx).trim();
+        const val = decodeURIComponent(pair.substring(idx + 1).trim());
+        request.cookies[key] = val;
+      }
+    });
+  }
+
+  reply.setCookie = (name, value, options = {}) => {
+    let cookieStr = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+    if (options.maxAge !== undefined) cookieStr += `; Max-Age=${options.maxAge}`;
+    if (options.path) cookieStr += `; Path=${options.path}`;
+    if (options.sameSite) cookieStr += `; SameSite=${options.sameSite}`;
+    if (options.secure) cookieStr += `; Secure`;
+    if (options.httpOnly) cookieStr += `; HttpOnly`;
+
+    const existing = reply.getHeader('Set-Cookie');
+    if (!existing) {
+      reply.header('Set-Cookie', cookieStr);
+    } else if (Array.isArray(existing)) {
+      reply.header('Set-Cookie', [...existing, cookieStr]);
+    } else {
+      reply.header('Set-Cookie', [existing, cookieStr]);
+    }
+  };
+
+  reply.clearCookie = (name, options = {}) => {
+    reply.setCookie(name, '', { ...options, maxAge: 0 });
+  };
+
+  done();
+});
 
 // Root & Healthcheck
 fastify.get('/', async () => {
@@ -33,6 +76,11 @@ fastify.get('/', async () => {
     status: 'online',
     endpoints: {
       health: '/api/health',
+      authRegister: 'POST /api/auth/register',
+      authLogin: 'POST /api/auth/login',
+      authLogout: 'POST /api/auth/logout',
+      authMe: 'GET /api/auth/me',
+      usersList: 'GET /api/users?query=...',
       trends: '/api/reels/trends',
       resolve: '/api/reels/resolve?url=...',
       videoProxy: '/api/proxy/video?url=...',
@@ -58,6 +106,8 @@ await fastify.register(proxyRoutes);
 await fastify.register(reelsRoutes);
 await fastify.register(musicRoutes);
 await fastify.register(youtubeRoutes);
+await fastify.register(authRoutes);
+await fastify.register(usersRoutes);
 
 // Graceful shutdown handlers
 const signals = ['SIGINT', 'SIGTERM'];
@@ -74,8 +124,9 @@ signals.forEach((signal) => {
   });
 });
 
-// Start Server
+// Initialize Database & Start Server
 try {
+  await initDb();
   await fastify.listen({ port: config.port, host: config.host });
   console.log(`\n🚀 Sword AI Fastify Server listening on http://${config.host}:${config.port}`);
   console.log(`📡 Healthcheck: http://${config.host}:${config.port}/api/health\n`);
