@@ -1348,7 +1348,7 @@ onUnmounted(() => {
         <!-- Modal Content (Player + Optional Side Chat) -->
         <div class="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
           <!-- Left Column (Video Player + Controls) -->
-          <div class="flex-1 flex flex-col overflow-y-auto">
+          <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-w-0">
             <!-- YouTube Embed Iframe Container -->
             <div class="relative aspect-video w-full bg-black shrink-0">
               <iframe
@@ -1391,26 +1391,29 @@ onUnmounted(() => {
             </div>
 
             <!-- Modal Bottom Details & Controls -->
-            <div class="p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div class="flex items-center gap-3 text-xs text-sword-muted">
-                <div class="flex items-center gap-1 font-bold text-sword-text">
-                  <Headphones class="w-4 h-4 text-sword-accent" />
-                  <span>{{ activeVideo.channelTitle }}</span>
+            <div class="p-3 sm:p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col gap-2.5">
+              <!-- Video Metadata Row -->
+              <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-sword-muted">
+                <div class="flex items-center gap-1.5 font-bold text-sword-text min-w-0">
+                  <Headphones class="w-4 h-4 text-sword-accent shrink-0" />
+                  <span class="truncate max-w-[280px] sm:max-w-md" :title="activeVideo.channelTitle">{{ activeVideo.channelTitle }}</span>
                 </div>
-                <span>•</span>
-                <div class="flex items-center gap-1 font-mono text-cyan-400">
-                  <Clock class="w-3.5 h-3.5" />
-                  <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
+                <div class="flex items-center gap-2 font-mono text-cyan-400 shrink-0 text-xs">
+                  <div class="flex items-center gap-1">
+                    <Clock class="w-3.5 h-3.5" />
+                    <span>{{ activeVideo.duration }} (&gt; 1ч)</span>
+                  </div>
+                  <span class="text-sword-border">•</span>
+                  <span class="text-sword-muted">{{ activeVideo.views }}</span>
                 </div>
-                <span>•</span>
-                <span>{{ activeVideo.views }}</span>
               </div>
 
-              <div class="flex items-center gap-2 w-full sm:w-auto">
+              <!-- Action Buttons Row (wraps cleanly to next line without horizontal scroll) -->
+              <div class="flex flex-wrap items-center gap-2 w-full pt-1.5 border-t border-sword-border/40">
                 <!-- Toggle Favorite Button -->
                 <button
                   type="button"
-                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer shrink-0"
                   :class="
                     favoritesStore.isFavorite(activeVideo.id)
                       ? 'bg-sword-accent/20 text-sword-accent border-sword-accent/50 shadow-sm'
@@ -1427,7 +1430,7 @@ onUnmounted(() => {
                 <!-- Open Chat Button in controls -->
                 <button
                   type="button"
-                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer shrink-0"
                   :class="isChatOpen ? 'bg-purple-600 text-white border-purple-400' : 'bg-sword-card hover:bg-purple-500/10 border-sword-border text-sword-muted hover:text-purple-300'"
                   @click="isChatOpen = !isChatOpen"
                 >
@@ -1439,7 +1442,7 @@ onUnmounted(() => {
                 <button
                   type="button"
                   :disabled="isDownloadingPreview"
-                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card hover:bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-sword-muted hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card hover:bg-sword-card/80 border border-sword-border hover:border-sword-accent/50 text-sword-muted hover:text-white transition-all cursor-pointer disabled:opacity-50 shrink-0"
                   title="Скачать превью видео в максимальном разрешении"
                   @click="downloadPreview(activeVideo)"
                 >
@@ -1452,7 +1455,7 @@ onUnmounted(() => {
                   :href="activeVideo.youtubeUrl"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card border border-sword-border text-sword-muted hover:text-white transition-colors"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sword-card border border-sword-border text-sword-muted hover:text-white transition-colors shrink-0"
                 >
                   <span>Смотреть на YouTube</span>
                   <ExternalLink class="w-3.5 h-3.5" />
@@ -1461,7 +1464,7 @@ onUnmounted(() => {
                 <BaseButton
                   variant="outline"
                   size="sm"
-                  class="text-xs"
+                  class="text-xs shrink-0 sm:ml-auto"
                   @click="playNextMix"
                 >
                   <span>Следующий микс</span>
