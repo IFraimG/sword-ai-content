@@ -54,10 +54,10 @@ const formattedTime = computed(() => formatDuration(store.countdown));
 
         <button
           type="button"
-          class="p-1 rounded-lg text-sword-muted hover:text-sword-accent hover:bg-sword-card transition-colors"
+          class="p-1 rounded-lg text-sword-muted hover:text-sword-accent hover:bg-sword-card transition-colors cursor-pointer"
           :class="{ 'pointer-events-none': store.isRefreshing }"
           title="Обновить тренды сейчас"
-          @click="store.triggerRefresh"
+          @click="store.triggerRefresh(true)"
         >
           <RefreshCw
             :class="[

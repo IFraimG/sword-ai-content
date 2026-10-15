@@ -218,7 +218,8 @@ export const useReelsStore = defineStore('reels', () => {
     selectedCountry.value = 'all';
   }
 
-  async function triggerRefresh(force = false) {
+  async function triggerRefresh(force: boolean | unknown = false) {
+    const isForce = force === true;
     isRefreshing.value = true;
     try {
       const res = await fetchTrends({
@@ -228,6 +229,7 @@ export const useReelsStore = defineStore('reels', () => {
         continent: selectedContinent.value !== 'all' ? selectedContinent.value : undefined,
         country: selectedCountry.value !== 'all' ? selectedCountry.value : undefined,
         niche: selectedNiche.value !== 'all' ? selectedNiche.value : undefined,
+        refresh: isForce,
       });
       if (res && res.items && res.items.length > 0) {
         reels.value = res.items;

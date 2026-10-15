@@ -50,6 +50,7 @@ export interface FetchTrendsParams {
   sortBy?: string;
   limit?: number;
   offset?: number;
+  refresh?: boolean;
 }
 
 export interface TrendsResponse {
@@ -112,6 +113,7 @@ export async function fetchTrends(params: FetchTrendsParams = {}): Promise<Trend
     if (params.sortBy) query.set('sortBy', params.sortBy);
     if (params.limit !== undefined) query.set('limit', String(params.limit));
     if (params.offset !== undefined) query.set('offset', String(params.offset));
+    if (params.refresh) query.set('refresh', 'true');
 
     const url = `${base}/api/reels/trends?${query.toString()}`;
     const response = await fetch(url, {
