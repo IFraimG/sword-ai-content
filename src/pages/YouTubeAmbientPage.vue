@@ -1271,7 +1271,7 @@ onUnmounted(() => {
         :class="isChatOpen ? 'max-w-6xl' : 'max-w-4xl'"
       >
         <!-- Modal Top Bar -->
-        <div class="p-4 bg-sword-card/90 border-b border-sword-border flex items-center justify-between gap-3">
+        <div class="p-4 bg-sword-card/90 border-b border-sword-border flex items-center justify-between gap-3 shrink-0">
           <div class="flex items-center gap-2.5 truncate">
             <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse shrink-0"></span>
             <span class="font-bold text-sm text-white truncate">
@@ -1351,7 +1351,7 @@ onUnmounted(() => {
         <!-- Modal Content (Player + Optional Side Chat) -->
         <div class="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
           <!-- Left Column (Video Player + Controls) -->
-          <div class="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-w-0">
+          <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto overflow-x-hidden">
             <!-- YouTube Embed Iframe Container -->
             <div class="relative aspect-video w-full bg-black shrink-0">
               <iframe
@@ -1367,7 +1367,7 @@ onUnmounted(() => {
             <!-- Invitation Callout Banner to Analyze Atmosphere (if chat is closed) -->
             <div
               v-if="!isChatOpen"
-              class="mx-4 mt-3 p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-sword-card to-sword-card border border-purple-500/30 flex items-center justify-between gap-3 text-xs animate-fade-in"
+              class="mx-4 mt-3 p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-sword-card to-sword-card border border-purple-500/30 flex items-center justify-between gap-3 text-xs animate-fade-in shrink-0"
             >
               <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
@@ -1394,7 +1394,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Modal Bottom Details & Controls -->
-            <div class="p-3 sm:p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col gap-2.5">
+            <div class="p-3 sm:p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col gap-2.5 shrink-0">
               <!-- Video Metadata Row -->
               <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-sword-muted">
                 <div class="flex items-center gap-1.5 font-bold text-sword-text min-w-0">
@@ -1479,7 +1479,7 @@ onUnmounted(() => {
           <!-- Right Side Chat Column (LLaVA 1.5 7B Vision) -->
           <div
             v-if="isChatOpen"
-            class="w-full lg:w-[420px] shrink-0 border-t lg:border-t-0 lg:border-l border-sword-border h-[460px] lg:h-auto flex flex-col"
+            class="w-full lg:w-[420px] shrink-0 border-t lg:border-t-0 lg:border-l border-sword-border h-[460px] lg:h-auto flex flex-col min-h-0"
           >
             <AtmosphereChatDrawer
               :video="activeVideo"

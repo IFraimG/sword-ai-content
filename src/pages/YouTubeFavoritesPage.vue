@@ -531,13 +531,11 @@ function handleSelectAllToggle() {
         @click.self="closePlayerModal"
       >
         <div
-          class="relative w-full bg-sword-card border border-sword-border rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row transition-all duration-300"
+          class="relative w-full bg-sword-card border border-sword-border rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] transition-all duration-300"
           :class="isChatOpen ? 'max-w-6xl' : 'max-w-4xl'"
         >
-          <!-- Left Column: Player & Video Info -->
-          <div class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-            <!-- Modal Header Bar -->
-            <div class="p-4 bg-sword-surface border-b border-sword-border flex items-center justify-between gap-3 shrink-0">
+          <!-- Modal Header Bar (Global across player and chat) -->
+          <div class="p-4 bg-sword-surface border-b border-sword-border flex items-center justify-between gap-3 shrink-0">
               <div class="flex items-center gap-2 min-w-0">
                 <span
                   class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shrink-0 border"
@@ -598,11 +596,15 @@ function handleSelectAllToggle() {
                 >
                   <X class="w-5 h-5" />
                 </button>
-              </div>
             </div>
+          </div>
 
-            <!-- YouTube Embed Iframe Container -->
-            <div class="relative aspect-video w-full bg-black shrink-0">
+          <!-- Modal Body (Player + Optional Side Chat) -->
+          <div class="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
+            <!-- Left Column: Video Player & Details -->
+            <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-y-auto overflow-x-hidden">
+              <!-- YouTube Embed Iframe Container -->
+              <div class="relative aspect-video w-full bg-black shrink-0">
               <iframe
                 :src="`${activeVideo.embedUrl}?autoplay=1&enablejsapi=1&rel=0`"
                 :title="activeVideo.title"
@@ -616,7 +618,7 @@ function handleSelectAllToggle() {
             <!-- Invitation Callout Banner to Analyze Atmosphere (if chat is closed) -->
             <div
               v-if="!isChatOpen"
-              class="mx-4 mt-3 p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-sword-card to-sword-card border border-purple-500/30 flex items-center justify-between gap-3 text-xs animate-fade-in"
+              class="mx-4 mt-3 p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-sword-card to-sword-card border border-purple-500/30 flex items-center justify-between gap-3 text-xs animate-fade-in shrink-0"
             >
               <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
@@ -643,7 +645,7 @@ function handleSelectAllToggle() {
             </div>
 
             <!-- Modal Bottom Details & Controls -->
-            <div class="p-3 sm:p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col gap-2.5">
+            <div class="p-3 sm:p-4 bg-sword-surface border-t border-sword-border mt-auto flex flex-col gap-2.5 shrink-0">
               <!-- Video Metadata Row -->
               <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-sword-muted">
                 <div class="flex items-center gap-1.5 font-bold text-sword-text min-w-0">
@@ -712,7 +714,7 @@ function handleSelectAllToggle() {
           <!-- Right Side Chat Column (LLaVA 1.5 7B Vision) -->
           <div
             v-if="isChatOpen"
-            class="w-full lg:w-[420px] shrink-0 border-t lg:border-t-0 lg:border-l border-sword-border h-[460px] lg:h-auto flex flex-col"
+            class="w-full lg:w-[420px] shrink-0 border-t lg:border-t-0 lg:border-l border-sword-border h-[460px] lg:h-auto flex flex-col min-h-0"
           >
             <AtmosphereChatDrawer
               :video="activeVideo"
@@ -722,6 +724,7 @@ function handleSelectAllToggle() {
           </div>
         </div>
       </div>
-    </Teleport>
+    </div>
+  </Teleport>
   </div>
 </template>
