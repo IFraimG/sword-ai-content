@@ -265,6 +265,7 @@ export const useChatStore = defineStore('chat', () => {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: 'include',
+        body: JSON.stringify({}),
       });
 
       if (!res.ok) {

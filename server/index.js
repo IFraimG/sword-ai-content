@@ -16,6 +16,22 @@ const fastify = Fastify({
     level: config.environment === 'production' ? 'info' : 'info',
   },
   disableRequestLogging: false,
+  bodyLimit: 15 * 1024 * 1024,
+});
+
+// Handle empty JSON bodies safely without FST_ERR_CTP_EMPTY_JSON_BODY error
+fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => {
+  if (!body || body.trim() === '') {
+    done(null, {});
+    return;
+  }
+  try {
+    const json = JSON.parse(body);
+    done(null, json);
+  } catch (err) {
+    err.statusCode = 400;
+    done(err, undefined);
+  }
 });
 
 // Enable CORS for frontend clients

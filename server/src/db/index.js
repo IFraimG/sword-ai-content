@@ -20,6 +20,19 @@ let fallbackChatsData = {
   messages: [],
 };
 
+export function isMockUser(u) {
+  if (!u) return false;
+  const login = (u.login || '').toLowerCase();
+  const email = (u.email || '').toLowerCase();
+  return (
+    login.startsWith('ambient_producer_') ||
+    login.startsWith('coldcore_fan_') ||
+    login.includes('ambient_producer') ||
+    login.includes('coldcore_fan') ||
+    email.endsWith('@ambient.fm')
+  );
+}
+
 function loadFallbackData() {
   try {
     if (fs.existsSync(fallbackUsersFilePath)) {
@@ -32,6 +45,7 @@ function loadFallbackData() {
     console.warn('[DB Fallback] Could not read fallback users file:', err.message);
     fallbackUsers = [];
   }
+  fallbackUsers = (fallbackUsers || []).filter((u) => !isMockUser(u));
 
   try {
     if (fs.existsSync(fallbackChatsFilePath)) {
@@ -47,6 +61,18 @@ function loadFallbackData() {
     console.warn('[DB Fallback] Could not read fallback chats file:', err.message);
     fallbackChatsData = { chats: [], participants: [], messages: [] };
   }
+
+  // Filter out any mock chats/participants/messages
+  fallbackChatsData.messages = (fallbackChatsData.messages || []).filter(
+    (m) =>
+      !m.sender_login?.toLowerCase().includes('ambient_producer') &&
+      !m.sender_login?.toLowerCase().includes('coldcore_fan')
+  );
+  fallbackChatsData.chats = (fallbackChatsData.chats || []).filter(
+    (c) =>
+      !c.title?.toLowerCase().includes('ambient_producer') &&
+      !c.title?.toLowerCase().includes('coldcore_fan')
+  );
 }
 
 function saveFallbackUsers() {
@@ -199,9 +225,49 @@ export async function initDb() {
         isPostgresConnected = true;
         console.log('✅ [DB] Connected to PostgreSQL on Render successfully. Schema initialized.');
 
-        // Seed / sync fallback users into PostgreSQL so none are lost
+        // 1. Purge artificial mock accounts from PostgreSQL
+        try {
+          await client.query(`
+            DELETE FROM messages 
+            WHERE sender_login LIKE 'ambient_producer_%' 
+               OR sender_login LIKE 'coldcore_fan_%' 
+               OR sender_login LIKE '%ambient_producer%' 
+               OR sender_login LIKE '%coldcore_fan%';
+
+            DELETE FROM chat_participants 
+            WHERE user_id IN (
+              SELECT id FROM users 
+              WHERE login LIKE 'ambient_producer_%' 
+                 OR login LIKE 'coldcore_fan_%' 
+                 OR email LIKE '%@ambient.fm'
+            );
+
+            DELETE FROM chats 
+            WHERE created_by IN (
+              SELECT id FROM users 
+              WHERE login LIKE 'ambient_producer_%' 
+                 OR login LIKE 'coldcore_fan_%' 
+                 OR email LIKE '%@ambient.fm'
+            );
+
+            DELETE FROM chats 
+            WHERE type = 'direct' 
+              AND id NOT IN (SELECT chat_id FROM chat_participants GROUP BY chat_id HAVING count(*) >= 2);
+
+            DELETE FROM users 
+            WHERE login LIKE 'ambient_producer_%' 
+               OR login LIKE 'coldcore_fan_%' 
+               OR email LIKE '%@ambient.fm';
+          `);
+          console.log('🧹 [DB] Purged artificial mock accounts from PostgreSQL.');
+        } catch (cleanupErr) {
+          console.warn('⚠️ [DB] Mock cleanup note:', cleanupErr.message);
+        }
+
+        // 2. Seed / sync fallback users into PostgreSQL so none are lost (excluding mock users)
         if (fallbackUsers.length > 0) {
           for (const u of fallbackUsers) {
+            if (isMockUser(u)) continue;
             try {
               await client.query(
                 `INSERT INTO users (id, login, email, password_hash, created_at_formatted, created_at)
@@ -222,10 +288,11 @@ export async function initDb() {
           }
         }
 
-        // Back-sync all PostgreSQL users to local cache
+        // 3. Back-sync all PostgreSQL users to local cache (excluding mock users)
         const allDbUsers = await client.query('SELECT id, login, email, created_at_formatted, created_at FROM users');
         if (allDbUsers.rows.length > 0) {
           for (const row of allDbUsers.rows) {
+            if (isMockUser(row)) continue;
             if (!fallbackUsers.some((fu) => fu.id === row.id)) {
               fallbackUsers.push(row);
             }
@@ -476,11 +543,16 @@ export async function getUsersList({ search = '', limit = 100 } = {}) {
   const term = (search || '').trim().toLowerCase();
 
   if (isPostgresConnected && pool) {
-    let queryText = `SELECT id, login, email, created_at_formatted, created_at FROM users`;
+    let queryText = `SELECT id, login, email, created_at_formatted, created_at FROM users
+      WHERE login NOT LIKE 'ambient_producer_%'
+        AND login NOT LIKE 'coldcore_fan_%'
+        AND login NOT LIKE '%ambient_producer%'
+        AND login NOT LIKE '%coldcore_fan%'
+        AND email NOT LIKE '%@ambient.fm'`;
     const params = [];
 
     if (term) {
-      queryText += ` WHERE LOWER(login) LIKE $1 OR LOWER(email) LIKE $1`;
+      queryText += ` AND (LOWER(login) LIKE $1 OR LOWER(email) LIKE $1)`;
       params.push(`%${term}%`);
     }
 
@@ -491,7 +563,7 @@ export async function getUsersList({ search = '', limit = 100 } = {}) {
   }
 
   loadFallbackData();
-  let list = [...fallbackUsers];
+  let list = fallbackUsers.filter((u) => !isMockUser(u));
 
   if (term) {
     list = list.filter((u) => u.login.toLowerCase().includes(term) || u.email.toLowerCase().includes(term));
@@ -540,6 +612,7 @@ export async function getUserChats(userId) {
         ORDER BY created_at DESC
         LIMIT 1
       ) m ON true
+      WHERE (c.type = 'ai' OR (other_u.id IS NOT NULL AND other_u.login NOT LIKE 'ambient_producer_%' AND other_u.login NOT LIKE 'coldcore_fan_%' AND other_u.email NOT LIKE '%@ambient.fm'))
       ORDER BY c.updated_at DESC
     `;
     const res = await pool.query(query, [userId]);
@@ -569,7 +642,14 @@ export async function getUserChats(userId) {
     .filter((p) => p.user_id === userId)
     .map((p) => p.chat_id);
 
-  const chats = fallbackChatsData.chats.filter((c) => userChatIds.includes(c.id));
+  const chats = fallbackChatsData.chats.filter((c) => {
+    if (!userChatIds.includes(c.id)) return false;
+    if (c.type === 'ai') return true;
+    const otherPart = fallbackChatsData.participants.find((p) => p.chat_id === c.id && p.user_id !== userId);
+    if (!otherPart) return false;
+    const u = fallbackUsers.find((user) => user.id === otherPart.user_id);
+    return u && !isMockUser(u);
+  });
   chats.sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime());
 
   return chats.map((c) => {

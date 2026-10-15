@@ -155,6 +155,7 @@ export const useAuthStore = defineStore('auth', () => {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: 'include',
+        body: JSON.stringify({}),
       });
     } catch {
       // Ignore network errors on logout

@@ -79,7 +79,18 @@ async function loadUsers(query = searchQuery.value) {
     }
 
     const data = await res.json();
-    const fetched: RegisteredUser[] = Array.isArray(data.users) ? data.users : [];
+    const rawFetched: RegisteredUser[] = Array.isArray(data.users) ? data.users : [];
+    const fetched: RegisteredUser[] = rawFetched.filter((u) => {
+      const l = (u.login || '').toLowerCase();
+      const e = (u.email || '').toLowerCase();
+      return (
+        !l.startsWith('ambient_producer_') &&
+        !l.startsWith('coldcore_fan_') &&
+        !l.includes('ambient_producer') &&
+        !l.includes('coldcore_fan') &&
+        !e.endsWith('@ambient.fm')
+      );
+    });
 
     // Guarantee that currently authenticated user is always present in list
     if (authStore.user && !fetched.some((u) => u.id === authStore.user?.id || u.login.toLowerCase() === authStore.user?.login.toLowerCase())) {

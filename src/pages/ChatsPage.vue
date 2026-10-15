@@ -38,11 +38,22 @@ const messagesContainerRef = ref<HTMLElement | null>(null);
 const copiedPromptId = ref<string | null>(null);
 const isMobileChatOpen = ref(false);
 
-// Filtered chat list by search query
+// Filtered chat list by search query (defensively excluding artificial mock accounts)
 const filteredChats = computed(() => {
-  if (!searchQuery.value.trim()) return chatStore.chats;
+  const isMockName = (name?: string) => {
+    if (!name) return false;
+    const l = name.toLowerCase();
+    return l.includes('ambient_producer') || l.includes('coldcore_fan') || l.endsWith('@ambient.fm');
+  };
+
+  const validChats = chatStore.chats.filter((c) => {
+    if (c.type === 'ai') return true;
+    return !isMockName(c.recipient?.login) && !isMockName(c.recipient?.email) && !isMockName(c.title);
+  });
+
+  if (!searchQuery.value.trim()) return validChats;
   const q = searchQuery.value.trim().toLowerCase();
-  return chatStore.chats.filter(
+  return validChats.filter(
     (c) =>
       c.title.toLowerCase().includes(q) ||
       (c.recipient?.login && c.recipient.login.toLowerCase().includes(q)) ||
