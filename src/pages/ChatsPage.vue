@@ -61,6 +61,11 @@ const filteredChats = computed(() => {
   );
 });
 
+// Total unread messages across all active chats
+const totalUnreadCount = computed(() => {
+  return filteredChats.value.reduce((acc, c) => acc + (c.unread_count || 0), 0);
+});
+
 // Auto-scroll messages to bottom
 function scrollToBottom(smooth = true) {
   nextTick(() => {
@@ -205,6 +210,8 @@ function getAvatarGradient(login: string) {
   return gradients[index];
 }
 
+let chatsRefreshInterval: any = null;
+
 onMounted(async () => {
   await chatStore.loadChats();
   if (route.query.id && typeof route.query.id === 'string') {
@@ -215,9 +222,18 @@ onMounted(async () => {
     // Select first chat on desktop if none selected
     selectChat(chatStore.chats[0]);
   }
+
+  // Poll chats list every 5 seconds to get incoming message notifications across other chats
+  chatsRefreshInterval = setInterval(() => {
+    chatStore.loadChats();
+  }, 5000);
 });
 
 onUnmounted(() => {
+  if (chatsRefreshInterval) {
+    clearInterval(chatsRefreshInterval);
+    chatsRefreshInterval = null;
+  }
   chatStore.cleanupStream();
 });
 </script>
@@ -243,9 +259,19 @@ onUnmounted(() => {
               </div>
               <h2 class="text-base font-extrabold text-white">Сообщения</h2>
             </div>
-            <span class="text-xs font-mono font-bold text-sword-muted px-2 py-0.5 rounded-full bg-sword-card border border-sword-border">
-              {{ chatStore.chats.length }}
-            </span>
+            <div class="flex items-center gap-1.5">
+              <span
+                v-if="totalUnreadCount > 0"
+                class="text-[11px] font-bold text-amber-300 bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1"
+                title="Непрочитанные сообщения"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                +{{ totalUnreadCount }}
+              </span>
+              <span class="text-xs font-mono font-bold text-sword-muted px-2 py-0.5 rounded-full bg-sword-card border border-sword-border">
+                {{ chatStore.chats.length }}
+              </span>
+            </div>
           </div>
 
           <!-- DEDICATED AI CHAT BUTTON -->
@@ -296,10 +322,12 @@ onUnmounted(() => {
             :key="c.id"
             type="button"
             :class="[
-              'w-full p-3.5 flex items-start gap-3 text-left transition-colors cursor-pointer group',
+              'w-full p-3.5 flex items-start gap-3 text-left transition-colors cursor-pointer group relative',
               chatStore.activeChatId === c.id
                 ? 'bg-sword-card/80 border-l-4 border-l-sword-accent'
-                : 'hover:bg-sword-surface/50 border-l-4 border-l-transparent'
+                : (c.unread_count && c.unread_count > 0)
+                  ? 'bg-cyan-950/20 hover:bg-cyan-950/30 border-l-4 border-l-cyan-400'
+                  : 'hover:bg-sword-surface/50 border-l-4 border-l-transparent'
             ]"
             @click="selectChat(c)"
           >
@@ -328,6 +356,15 @@ onUnmounted(() => {
               >
                 AI
               </span>
+
+              <!-- Unread glow dot on avatar for new messages -->
+              <span
+                v-if="c.unread_count && c.unread_count > 0 && chatStore.activeChatId !== c.id"
+                class="absolute -top-1 -right-1 flex h-3.5 w-3.5"
+              >
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-cyan-400 border-2 border-sword-surface shadow-md"></span>
+              </span>
             </div>
 
             <!-- Chat Info Preview -->
@@ -335,18 +372,39 @@ onUnmounted(() => {
               <div class="flex items-center justify-between gap-1 mb-1">
                 <span
                   :class="[
-                    'text-xs font-bold truncate transition-colors',
-                    chatStore.activeChatId === c.id ? 'text-sword-accent' : 'text-white group-hover:text-sword-accent'
+                    'text-xs font-bold truncate transition-colors flex items-center gap-1.5',
+                    chatStore.activeChatId === c.id
+                      ? 'text-sword-accent'
+                      : (c.unread_count && c.unread_count > 0)
+                        ? 'text-cyan-300 font-extrabold'
+                        : 'text-white group-hover:text-sword-accent'
                   ]"
                 >
-                  {{ c.title }}
+                  <span>{{ c.title }}</span>
                 </span>
-                <span v-if="c.last_message?.created_at_formatted" class="text-[10px] text-sword-muted/70 shrink-0 font-mono">
-                  {{ c.last_message.created_at_formatted }}
-                </span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span v-if="c.last_message?.created_at_formatted" class="text-[10px] text-sword-muted/70 font-mono">
+                    {{ c.last_message.created_at_formatted }}
+                  </span>
+                  <!-- Highlighted Unread Badge Counter -->
+                  <span
+                    v-if="c.unread_count && c.unread_count > 0 && chatStore.activeChatId !== c.id"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-black bg-cyan-400 text-black shadow-lg shadow-cyan-400/40 animate-pulse"
+                    title="Новые непрочитанные сообщения"
+                  >
+                    {{ c.unread_count > 99 ? '99+' : c.unread_count }}
+                  </span>
+                </div>
               </div>
 
-              <p class="text-[11px] text-sword-muted truncate leading-relaxed">
+              <p
+                :class="[
+                  'text-[11px] truncate leading-relaxed',
+                  (c.unread_count && c.unread_count > 0 && chatStore.activeChatId !== c.id)
+                    ? 'text-slate-200 font-medium'
+                    : 'text-sword-muted'
+                ]"
+              >
                 <span v-if="c.last_message?.sender_login" class="text-slate-400 font-semibold">
                   {{ c.last_message.sender_login === authStore.user?.login ? 'Вы: ' : '' }}
                 </span>

@@ -202,9 +202,11 @@ export async function initDb() {
             id VARCHAR(64) PRIMARY KEY,
             chat_id VARCHAR(64) NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
             user_id VARCHAR(64) NOT NULL,
+            last_read_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(chat_id, user_id)
           );
+          ALTER TABLE chat_participants ADD COLUMN IF NOT EXISTS last_read_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
           CREATE INDEX IF NOT EXISTS idx_chat_participants_user ON chat_participants(user_id);
           CREATE INDEX IF NOT EXISTS idx_chat_participants_chat ON chat_participants(chat_id);
 
@@ -581,7 +583,7 @@ export async function getUsersList({ search = '', limit = 100 } = {}) {
 }
 
 /**
- * Retrieves all chats for a given user (with last message and recipient details)
+ * Retrieves all chats for a given user (with last message, recipient details, and unread count)
  */
 export async function getUserChats(userId) {
   if (isPostgresConnected && pool) {
@@ -593,6 +595,7 @@ export async function getUserChats(userId) {
         c.created_by,
         c.created_at,
         c.updated_at,
+        cp.last_read_at,
         other_u.id as recipient_id,
         other_u.login as recipient_login,
         other_u.email as recipient_email,
@@ -600,7 +603,14 @@ export async function getUserChats(userId) {
         m.content as last_message_content,
         m.sender_login as last_message_sender,
         m.created_at_formatted as last_message_time,
-        m.created_at as last_message_created_at
+        m.created_at as last_message_created_at,
+        (
+          SELECT COUNT(*)::int
+          FROM messages unread_m
+          WHERE unread_m.chat_id = c.id
+            AND unread_m.sender_id != $1
+            AND (cp.last_read_at IS NULL OR unread_m.created_at > cp.last_read_at)
+        ) as unread_count
       FROM chats c
       JOIN chat_participants cp ON cp.chat_id = c.id AND cp.user_id = $1
       LEFT JOIN chat_participants other_cp ON other_cp.chat_id = c.id AND other_cp.user_id != $1
@@ -623,6 +633,7 @@ export async function getUserChats(userId) {
       created_by: r.created_by,
       created_at: r.created_at,
       updated_at: r.updated_at,
+      unread_count: Number(r.unread_count) || 0,
       recipient: r.type === 'ai'
         ? { id: 'ai-assistant', login: 'Ambient AI', email: 'ai@sword.ambient' }
         : (r.recipient_id ? { id: r.recipient_id, login: r.recipient_login, email: r.recipient_email } : null),
@@ -656,6 +667,9 @@ export async function getUserChats(userId) {
     let recipient = null;
     let title = c.title || 'Чат';
 
+    const myParticipant = fallbackChatsData.participants.find((p) => p.chat_id === c.id && p.user_id === userId);
+    const lastReadAt = myParticipant?.last_read_at ? new Date(myParticipant.last_read_at).getTime() : 0;
+
     if (c.type === 'ai') {
       recipient = { id: 'ai-assistant', login: 'Ambient AI', email: 'ai@sword.ambient' };
       title = c.title || 'Ambient Music AI';
@@ -675,6 +689,12 @@ export async function getUserChats(userId) {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     const lastMsg = chatMsgs[0] || null;
 
+    const unreadCount = chatMsgs.filter((m) => {
+      if (m.sender_id === userId) return false;
+      const msgTime = new Date(m.created_at).getTime();
+      return msgTime > lastReadAt;
+    }).length;
+
     return {
       id: c.id,
       type: c.type,
@@ -682,6 +702,7 @@ export async function getUserChats(userId) {
       created_by: c.created_by,
       created_at: c.created_at,
       updated_at: c.updated_at,
+      unread_count: unreadCount,
       recipient,
       last_message: lastMsg ? {
         id: lastMsg.id,
@@ -1163,5 +1184,31 @@ export async function createMessage({
 
   saveFallbackChats();
   return newMsg;
+}
+
+/**
+ * Marks all messages in a chat as read for a given user
+ */
+export async function markChatAsRead(chatId, userId) {
+  const now = new Date();
+  if (isPostgresConnected && pool) {
+    await pool.query(`
+      UPDATE chat_participants
+      SET last_read_at = $1
+      WHERE chat_id = $2 AND user_id = $3
+    `, [now, chatId, userId]);
+    return true;
+  }
+
+  // Fallback mode
+  loadFallbackData();
+  const participant = fallbackChatsData.participants.find(
+    (p) => p.chat_id === chatId && p.user_id === userId
+  );
+  if (participant) {
+    participant.last_read_at = now.toISOString();
+    saveFallbackChats();
+  }
+  return true;
 }
 

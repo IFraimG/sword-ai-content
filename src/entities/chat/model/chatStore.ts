@@ -26,6 +26,7 @@ export interface Chat {
   updated_at: string;
   recipient?: ChatRecipient | null;
   last_message?: ChatLastMessage | null;
+  unread_count?: number;
 }
 
 export interface AiMetadata {
@@ -209,11 +210,39 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   /**
+   * Marks a chat as read both locally and on the server
+   */
+  async function markChatAsRead(chatId: string) {
+    if (!chatId) return;
+    // Update locally immediately
+    const chat = chats.value.find((c) => c.id === chatId);
+    if (chat && chat.unread_count && chat.unread_count > 0) {
+      chat.unread_count = 0;
+    }
+
+    try {
+      const apiBase = getApiBaseUrl();
+      await fetch(`${apiBase}/api/chats/${chatId}/read`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({}),
+      });
+    } catch (err) {
+      console.warn('[ChatStore] Error marking chat as read on server:', err);
+    }
+  }
+
+  /**
    * Selects an active chat and connects to its real-time stream
    */
   async function selectChat(chatId: string) {
-    if (activeChatId.value === chatId) return;
+    if (activeChatId.value === chatId) {
+      await markChatAsRead(chatId);
+      return;
+    }
     activeChatId.value = chatId;
+    await markChatAsRead(chatId);
     await loadMessages(chatId);
     subscribeToChatStream(chatId);
   }
@@ -360,6 +389,7 @@ export const useChatStore = defineStore('chat', () => {
     isSendingMessage,
     loadChats,
     selectChat,
+    markChatAsRead,
     openDirectChat,
     openAiChat,
     sendMessage,

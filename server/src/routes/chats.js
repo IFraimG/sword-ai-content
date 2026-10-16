@@ -5,6 +5,7 @@ import {
   getChatById,
   getChatMessages,
   createMessage,
+  markChatAsRead,
   findUserById,
   ensureUserExists,
 } from '../db/index.js';
@@ -168,6 +169,24 @@ export async function chatsRoutes(fastify) {
     } catch (err) {
       fastify.log.error(err, 'Failed to get chat messages');
       return reply.code(500).send({ error: 'Не удалось загрузить сообщения' });
+    }
+  });
+
+  /**
+   * POST /api/chats/:id/read
+   * Marks all messages in the chat as read by authenticated user
+   */
+  fastify.post('/api/chats/:id/read', async (request, reply) => {
+    const user = await authenticate(request, reply);
+    if (!user) return;
+
+    const { id: chatId } = request.params;
+    try {
+      await markChatAsRead(chatId, user.id);
+      return reply.send({ success: true, chatId });
+    } catch (err) {
+      fastify.log.error(err, 'Failed to mark chat as read');
+      return reply.code(500).send({ error: 'Не удалось обновить статус прочитанности' });
     }
   });
 
