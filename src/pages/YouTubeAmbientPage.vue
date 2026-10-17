@@ -718,6 +718,8 @@ onUnmounted(() => {
           </div>
         </div>
 
+        <!-- Quick Filter Tabs & Search Controls -->
+        <div class="mt-8 pt-6 border-t border-sword-border/60 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
           <!-- Genre Tabs & New Videos Filter -->
           <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             <button
