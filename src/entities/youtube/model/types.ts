@@ -15,7 +15,10 @@ export interface YouTubeVideo {
   embedUrl: string; // https://www.youtube.com/embed/{id}
   youtubeUrl: string; // https://www.youtube.com/watch?v={id}
   views: string;
+  viewCount?: number;
   publishedAt: string;
+  publishedSecondsAgo?: number;
+  isNew?: boolean;
   niche: 'ambient' | 'dreamcore' | 'coldcore';
   tags: string[];
 }

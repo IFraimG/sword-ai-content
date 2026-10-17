@@ -50,6 +50,7 @@ const favoritesStore = useYouTubeFavoritesStore();
 const searchQuery = ref('');
 const selectedNiche = ref<YouTubeNiche>('all');
 const activeHashtag = ref<string>('');
+const isNewFilterActive = ref(false);
 
 // Data state (strictly from server, no static/local video lists)
 const videos = ref<YouTubeVideo[]>([]);
@@ -244,6 +245,7 @@ async function loadVideos(niche = selectedNiche.value, query = searchQuery.value
       limit: 20,
       page: 1,
       refresh: isRefresh,
+      filter: isNewFilterActive.value ? 'new' : 'all',
     });
 
     // Ensure all items strictly satisfy durationSeconds >= 1800
@@ -290,6 +292,7 @@ async function loadMoreVideos() {
       niche: selectedNiche.value,
       limit: 16,
       page: nextPage,
+      filter: isNewFilterActive.value ? 'new' : 'all',
     });
 
     const newItems = (res.items || []).filter((v) => v.durationSeconds >= 1800);
@@ -411,6 +414,18 @@ function onSelectNiche(niche: YouTubeNiche) {
   selectedNiche.value = niche;
   activeHashtag.value = '';
   loadVideos(niche, searchQuery.value);
+}
+
+function toggleNewFilter() {
+  isNewFilterActive.value = !isNewFilterActive.value;
+  showToast({
+    message: isNewFilterActive.value
+      ? 'Включен фильтр "Новые видео": поиск по свежим релизам с небольшим числом просмотров'
+      : 'Фильтр "Новые видео" отключен',
+    type: 'info',
+    duration: 2500,
+  });
+  loadVideos(selectedNiche.value, searchQuery.value);
 }
 
 function onSelectTag(tag: string) {
@@ -703,9 +718,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Quick Filter Tabs & Search Controls -->
-        <div class="mt-8 pt-6 border-t border-sword-border/60 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-          <!-- Genre Tabs -->
+          <!-- Genre Tabs & New Videos Filter -->
           <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             <button
               v-for="tab in nicheTabs"
@@ -722,6 +735,37 @@ onUnmounted(() => {
               <component :is="tab.icon" :class="['w-4 h-4', tab.color]" />
               <span>{{ tab.label }}</span>
             </button>
+
+            <!-- Vertical Divider -->
+            <div class="h-6 w-px bg-sword-border/60 mx-1 shrink-0"></div>
+
+            <!-- New Videos Filter Toggle Button -->
+            <button
+              type="button"
+              :class="[
+                'flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer select-none border shrink-0',
+                isNewFilterActive
+                  ? 'bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 text-amber-300 border-amber-400/80 shadow-lg shadow-amber-500/20 ring-1 ring-amber-400/40'
+                  : 'text-sword-muted hover:text-sword-text bg-sword-surface/50 border-transparent hover:border-sword-border'
+              ]"
+              title="Находить недавно вышедшие видео по ambient с небольшим количеством просмотров (по новизне)"
+              @click="toggleNewFilter"
+            >
+              <Sparkles :class="['w-4 h-4', isNewFilterActive ? 'text-amber-400 animate-pulse' : 'text-sword-muted']" />
+              <span>Новые видео</span>
+              <span
+                v-if="isNewFilterActive"
+                class="px-1.5 py-0.2 rounded-full text-[9px] font-mono bg-amber-400 text-black font-extrabold animate-pulse"
+              >
+                ON
+              </span>
+              <span
+                v-else
+                class="px-1.5 py-0.2 rounded text-[9px] font-mono bg-sword-card border border-sword-border/60 text-sword-muted/80"
+              >
+                Новинки
+              </span>
+            </button>
           </div>
 
           <!-- Search & Scrape Input -->
@@ -734,7 +778,7 @@ onUnmounted(() => {
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Поиск по YouTube: запрос или #хэштег..."
+                :placeholder="isNewFilterActive ? 'Поиск по новым видео: запрос или #хэштег...' : 'Поиск по YouTube: запрос или #хэштег...'"
                 class="w-full bg-sword-card/90 border border-sword-border rounded-xl pl-9 pr-3 py-2 text-xs text-sword-text placeholder:text-sword-muted focus:outline-none focus:border-sword-accent transition-colors"
               />
               <button
@@ -960,12 +1004,19 @@ onUnmounted(() => {
       <!-- Video Feed Grid Section -->
       <section>
         <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <h2 class="text-lg font-bold text-white">
               Подборка YouTube Embed (Длительность &ge; 30:00)
             </h2>
             <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-sword-card text-sword-accent border border-sword-border">
               {{ videos.length }} видео
+            </span>
+            <span
+              v-if="isNewFilterActive"
+              class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse"
+            >
+              <Sparkles class="w-3 h-3 text-amber-400" />
+              <span>Фильтр: Новые видео (по новизне)</span>
             </span>
           </div>
 
@@ -1052,8 +1103,8 @@ onUnmounted(() => {
               <!-- Overlay gradient -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 group-hover:from-black/90 transition-colors"></div>
 
-              <!-- Niche Badge (Top Left) -->
-              <div class="absolute top-2.5 left-2.5">
+              <!-- Niche & New Badges (Top Left) -->
+              <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
                 <span
                   v-if="video.niche === 'dreamcore'"
                   class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-purple-950/80 text-purple-300 border border-purple-500/40 backdrop-blur-md"
@@ -1071,6 +1122,15 @@ onUnmounted(() => {
                   class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 backdrop-blur-md"
                 >
                   Ambient
+                </span>
+
+                <!-- Fresh / New Video Badge -->
+                <span
+                  v-if="video.isNew || isNewFilterActive"
+                  class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/30 text-amber-300 border border-amber-400/60 backdrop-blur-md flex items-center gap-1 shadow-md shadow-amber-500/20"
+                >
+                  <Sparkles class="w-2.5 h-2.5 text-amber-400" />
+                  <span>Новое</span>
                 </span>
               </div>
 
@@ -1119,12 +1179,18 @@ onUnmounted(() => {
 
                 <!-- Channel and Meta -->
                 <div class="mt-2 flex items-center justify-between text-xs text-sword-muted">
-                  <span class="font-medium truncate max-w-[65%]" :title="video.channelTitle">
+                  <span class="font-medium truncate max-w-[55%]" :title="video.channelTitle">
                     {{ video.channelTitle }}
                   </span>
-                  <span class="text-[11px] shrink-0 font-mono text-sword-muted">
-                    {{ video.views }}
-                  </span>
+                  <div class="flex items-center gap-1.5 shrink-0 text-[11px] font-mono">
+                    <span v-if="video.publishedAt" :class="isNewFilterActive ? 'text-amber-300 font-semibold' : 'text-sword-muted/80'">
+                      {{ video.publishedAt }}
+                    </span>
+                    <span v-if="video.publishedAt && video.views" class="text-sword-muted/40">•</span>
+                    <span :class="isNewFilterActive ? 'text-cyan-300 font-semibold' : 'text-sword-muted'">
+                      {{ video.views }}
+                    </span>
+                  </div>
                 </div>
 
                 <!-- Tags -->
@@ -1244,7 +1310,7 @@ onUnmounted(() => {
               </span>
             </button>
             <span class="text-[11px] text-sword-muted/60">
-              Показано {{ videos.length }} миксов (> 1ч)
+              Показано {{ videos.length }} миксов (&ge; 30м)
             </span>
           </div>
 
@@ -1254,7 +1320,7 @@ onUnmounted(() => {
             class="text-xs text-sword-muted/70 font-mono py-3 flex items-center gap-2"
           >
             <span class="text-emerald-400">✓</span>
-            <span>Все доступные сеты (> 1ч) по текущему запросу загружены (всего {{ videos.length }})</span>
+            <span>Все доступные сеты (&ge; 30м) по текущему запросу загружены (всего {{ videos.length }})</span>
           </div>
         </div>
       </section>

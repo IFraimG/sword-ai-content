@@ -16,12 +16,13 @@ export interface FetchYouTubeVideosParams {
   limit?: number;
   page?: number;
   refresh?: boolean;
+  filter?: 'all' | 'new';
 }
 
 export async function fetchYouTubeVideos(
   params: FetchYouTubeVideosParams = {}
 ): Promise<YouTubeSearchResponse> {
-  const { query = '', niche = 'all', limit = 24, page = 1, refresh = false } = params;
+  const { query = '', niche = 'all', limit = 24, page = 1, refresh = false, filter = 'all' } = params;
   const base = getApiBaseUrl();
 
   if (!base) {
@@ -34,6 +35,7 @@ export async function fetchYouTubeVideos(
   if (limit) qParams.set('limit', String(limit));
   if (page && page > 1) qParams.set('page', String(page));
   if (refresh) qParams.set('refresh', 'true');
+  if (filter && filter !== 'all') qParams.set('filter', filter);
 
   const url = `${base}/api/youtube/search?${qParams.toString()}`;
 

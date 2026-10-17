@@ -64,6 +64,64 @@ export function parseDurationToSeconds(durationText) {
 }
 
 /**
+ * Parses view count string (e.g. "27 views", "10,929 views", "1.5K views", "4.5 тыс. просмотров") into integer
+ */
+export function parseViewCount(viewText) {
+  if (!viewText || typeof viewText !== 'string') return 0;
+  const clean = viewText.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (clean.includes('no views') || clean.includes('нет просмотров')) return 0;
+
+  const match = clean.match(/([\d\s.,]+)\s*(k|тыс|m|млн|b|млрд)?/i);
+  if (!match) return 0;
+
+  let rawNum = match[1].trim();
+  const unit = (match[2] || '').toLowerCase();
+
+  if (unit) {
+    rawNum = rawNum.replace(/\s+/g, '').replace(/,/g, '.');
+  } else {
+    rawNum = rawNum.replace(/\s+/g, '');
+    if (/^\d{1,3}([,.]\d{3})+$/.test(rawNum)) {
+      rawNum = rawNum.replace(/[,.]/g, '');
+    } else {
+      rawNum = rawNum.replace(/,/g, '.');
+    }
+  }
+
+  let val = parseFloat(rawNum);
+  if (isNaN(val)) return 0;
+
+  if (unit === 'k' || unit === 'тыс') val *= 1000;
+  else if (unit === 'm' || unit === 'млн') val *= 1000000;
+  else if (unit === 'b' || unit === 'млрд') val *= 1000000000;
+  return Math.round(val);
+}
+
+/**
+ * Parses published time text (e.g. "14 hours ago", "2 days ago", "1 week ago", "3 дня назад") into approximate seconds ago
+ */
+export function parsePublishedToSecondsAgo(publishedText) {
+  if (!publishedText || typeof publishedText !== 'string') return 999999999;
+  const clean = publishedText.toLowerCase().trim();
+
+  const match = clean.match(/(\d+)\s*(second|sec|minute|min|hour|hr|day|week|month|year|сек|минут|час|ден|дня|дней|недел|месяц|год|лет)/i);
+  if (!match) return 999999999;
+
+  const val = parseInt(match[1], 10);
+  const unit = match[2].toLowerCase();
+
+  if (unit.startsWith('sec') || unit.startsWith('сек')) return val;
+  if (unit.startsWith('min') || unit.startsWith('мин')) return val * 60;
+  if (unit.startsWith('hour') || unit.startsWith('hr') || unit.startsWith('час')) return val * 3600;
+  if (unit.startsWith('day') || unit.startsWith('ден') || unit.startsWith('дня') || unit.startsWith('дней')) return val * 86400;
+  if (unit.startsWith('week') || unit.startsWith('недел')) return val * 7 * 86400;
+  if (unit.startsWith('month') || unit.startsWith('месяц')) return val * 30 * 86400;
+  if (unit.startsWith('year') || unit.startsWith('год') || unit.startsWith('лет')) return val * 365 * 86400;
+
+  return 999999999;
+}
+
+/**
  * All 42 target search hashtags requested by user (each can appear in video individually)
  */
 export const EXPANDED_SEARCH_HASHTAGS = [
@@ -423,6 +481,12 @@ function processRenderers(renderers, query, niche = 'all', limit = 24) {
       v.publishedTimeText?.runs?.map((r) => r.text).join('') ||
       '';
 
+    const viewCount = parseViewCount(views);
+    const publishedSecondsAgo = parsePublishedToSecondsAgo(publishedAt);
+    const isNew =
+      publishedSecondsAgo <= 90 * 86400 ||
+      /hour|hr|day|week|month|час|ден|дня|дней|недел|месяц/i.test(publishedAt);
+
     const thumbnails = v.thumbnail?.thumbnails || [];
     const bestThumb =
       thumbnails.length > 0
@@ -448,7 +512,10 @@ function processRenderers(renderers, query, niche = 'all', limit = 24) {
       embedUrl: `https://www.youtube.com/embed/${videoId}`,
       youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
       views,
+      viewCount,
       publishedAt,
+      publishedSecondsAgo,
+      isNew,
       niche: videoNiche,
       tags: extractVideoHashtags(title, description, query, videoNiche),
     });
@@ -496,9 +563,9 @@ async function searchViaInnertubeAndroid(query, niche = 'all', limit = 24) {
 }
 
 /**
- * Strategy 2: YouTube Innertube WEB client (with valid base64 filter EgIYAw== for > 20m)
+ * Strategy 2: YouTube Innertube WEB client (with valid base64 filter EgIYAg== or EgQIBBgC for new mixes)
  */
-async function searchViaInnertubeWeb(query, niche = 'all', limit = 24) {
+async function searchViaInnertubeWeb(query, niche = 'all', limit = 24, filter = 'all') {
   const tryFetch = async (params) => {
     const body = {
       context: {
@@ -535,18 +602,29 @@ async function searchViaInnertubeWeb(query, niche = 'all', limit = 24) {
     return processRenderers(renderers, query, niche, limit);
   };
 
+  if (filter === 'new') {
+    try {
+      // EgQIBBgC = This month + Over 20 min
+      const freshResults = await tryFetch('EgQIBBgC');
+      if (freshResults.length > 0) return freshResults;
+    } catch {
+      // continue to default
+    }
+  }
+
   try {
-    return await tryFetch('EgIYAw==');
+    return await tryFetch('EgIYAg==');
   } catch {
-    return await tryFetch(null);
+    return await tryFetch('EgIYAw==').catch(() => tryFetch(null));
   }
 }
 
 /**
  * Strategy 3: YouTube Web HTML Scraper (fixed URL encoding and consent headers)
  */
-async function searchViaHtml(query, niche = 'all', limit = 24) {
-  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=EgIYAw%3D%3D`;
+async function searchViaHtml(query, niche = 'all', limit = 24, filter = 'all') {
+  const filterParam = filter === 'new' ? 'EgQIBBgC' : 'EgIYAw%3D%3D';
+  const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=${filterParam}`;
 
   const response = await fetch(searchUrl, {
     headers: {
@@ -580,7 +658,7 @@ async function searchViaHtml(query, niche = 'all', limit = 24) {
 /**
  * Strategy 4: Public Invidious API instances (specialized in long duration videos without blocking)
  */
-async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
+async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1, filter = 'all') {
   const instances = [
     'https://invidious.nerdvpn.de',
     'https://inv.nadeko.net',
@@ -588,9 +666,11 @@ async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
     'https://invidious.drgns.space',
   ];
 
+  const sortParam = filter === 'new' ? '&sort_by=upload_date&date=month' : '';
+
   for (const instance of instances) {
     try {
-      const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&duration=long&page=${page}`;
+      const url = `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&duration=long&page=${page}${sortParam}`;
       const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
       if (!res.ok) continue;
 
@@ -643,12 +723,31 @@ async function searchViaInvidious(query, niche = 'all', limit = 24, page = 1) {
 
 /**
  * Generates progressive search query variations for pagination & lazy-loading
- * incorporating all 42 target hashtags
+ * incorporating all 42 target hashtags, and prioritizing new/recent releases if filter === 'new'
  */
-function getProgressiveSearchQuery(userQuery, niche, page = 1) {
+function getProgressiveSearchQuery(userQuery, niche, page = 1, filter = 'all') {
+  const isNew = filter === 'new';
+
   if (userQuery && userQuery.trim()) {
     const raw = userQuery.trim();
     const cleanWord = raw.replace(/^#+/, '').trim();
+
+    if (isNew) {
+      const newVariations = [
+        `${raw} new ambient mix`,
+        `${raw} recent upload 30 minutes`,
+        `${cleanWord} latest ambient 1 hour`,
+        `${cleanWord} 2025 2026 ambient mix`,
+        `${raw} new release full album`,
+        `${cleanWord} fresh ambient soundscape`,
+        `${raw} new session 30 min`,
+        `${cleanWord} recent ambient mix 1 hour`,
+        `${raw} new dark ambient dreamcore`,
+        `${cleanWord} latest upload continuous mix`,
+      ];
+      return newVariations[(page - 1) % newVariations.length];
+    }
+
     const variations = [
       `${raw} ambient mix`,
       `${raw} 1 hour mix`,
@@ -662,6 +761,62 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
       `${raw} sleep study meditation`,
     ];
     return variations[(page - 1) % variations.length];
+  }
+
+  if (isNew) {
+    if (niche === 'dreamcore') {
+      const dreamcoreNewQueries = [
+        'new dreamcore ambient mix',
+        'recent dreamcore 30 minutes mix',
+        'dreamcore liminal space new mix',
+        'latest weirdcore dreamcore playlist 1 hour',
+        'new nostalgiacore dreamcore aesthetic',
+        'recent dreamcore ambient music 30 minutes',
+        'new dreamscore liminal spaces mix',
+        'dreamcore aesthetic 2025 mix',
+      ];
+      return dreamcoreNewQueries[(page - 1) % dreamcoreNewQueries.length];
+    }
+
+    if (niche === 'coldcore') {
+      const coldcoreNewQueries = [
+        'new coldcore mix post punk',
+        'recent snowstorm blizzard ambience 30 min',
+        'latest coldcore winter vibes snowfall',
+        'new haunting dark ambient winterstorm',
+        'cold night mix new upload 1 hour',
+        'recent sovietwave coldcore mix',
+        'new snowy ambience winter storm',
+        'coldcore 2025 mix 1 hour',
+      ];
+      return coldcoreNewQueries[(page - 1) % coldcoreNewQueries.length];
+    }
+
+    if (niche === 'ambient') {
+      const ambientNewQueries = [
+        'new ambient mix 30 minutes',
+        'recent ambient release deep space',
+        'latest dark ambient drone 1 hour',
+        'new ambient music relaxation 30 minutes',
+        'recent sleep music calming ambient',
+        'new atmospheric ambient soundscape',
+        'latest ambient playlist 1 hour',
+        'ambient mix 2025 2026 30 minutes',
+      ];
+      return ambientNewQueries[(page - 1) % ambientNewQueries.length];
+    }
+
+    const allNewQueries = [
+      'new ambient mix 30 minutes',
+      'recent ambient dreamcore coldcore mix',
+      'latest atmospheric ambient soundscape 1 hour',
+      'new snowstorm blizzard dark ambient mix',
+      'recent liminal dreamcore playlist 30 minutes',
+      'new ambient music relaxation 1 hour',
+      'latest chill mix sleep ambient 2025',
+      'recent coldcore dreamcore ambient 1 hour',
+    ];
+    return allNewQueries[(page - 1) % allNewQueries.length];
   }
 
   if (niche === 'dreamcore') {
@@ -737,7 +892,7 @@ function getProgressiveSearchQuery(userQuery, niche, page = 1) {
 /**
  * Unified live scraper cascading across 4 robust strategies
  */
-export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24, page = 1) {
+export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24, page = 1, filter = 'all') {
   let results = [];
   const existingIds = new Set();
 
@@ -761,7 +916,7 @@ export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24, p
   // Strategy 2: YouTube Innertube Web Client (with valid base64 filter)
   if (results.length < limit) {
     try {
-      const webItems = await searchViaInnertubeWeb(query, niche, limit);
+      const webItems = await searchViaInnertubeWeb(query, niche, limit, filter);
       addItems(webItems);
     } catch (err) {
       // Continue to next strategy
@@ -771,7 +926,7 @@ export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24, p
   // Strategy 3: YouTube HTML Web Scraper (direct page parse)
   if (results.length < limit) {
     try {
-      const htmlItems = await searchViaHtml(query, niche, limit);
+      const htmlItems = await searchViaHtml(query, niche, limit, filter);
       addItems(htmlItems);
     } catch (err) {
       // Continue to next strategy
@@ -781,11 +936,36 @@ export async function scrapeYouTubeLongMixes(query, niche = 'all', limit = 24, p
   // Strategy 4: Invidious Public Gateways (reliable datacenter fallback with pagination)
   if (results.length < limit) {
     try {
-      const invidiousItems = await searchViaInvidious(query, niche, limit, page);
+      const invidiousItems = await searchViaInvidious(query, niche, limit, page, filter);
       addItems(invidiousItems);
     } catch (err) {
       // Ignore
     }
+  }
+
+  // If filter === 'new', filter for fresh videos with low view counts and sort by novelty
+  if (filter === 'new' && results.length > 0) {
+    // 1. Separate fresh mixes with low/modest view count (< 100k) and recent upload
+    const freshGems = results.filter((v) => {
+      const isUnder100k = (v.viewCount || 0) <= 100000;
+      const isRecent =
+        (v.publishedSecondsAgo || 0) <= 90 * 86400 ||
+        /hour|hr|day|week|month|час|ден|дня|дней|недел|месяц/i.test(v.publishedAt);
+      return isUnder100k && isRecent;
+    });
+
+    const candidates = freshGems.length >= 3 ? freshGems : results;
+
+    // 2. Sort strictly by recency (newest first), then by lowest views
+    candidates.sort((a, b) => {
+      const diff = (a.publishedSecondsAgo || 999999999) - (b.publishedSecondsAgo || 999999999);
+      if (Math.abs(diff) > 86400) {
+        return diff;
+      }
+      return (a.viewCount || 0) - (b.viewCount || 0);
+    });
+
+    return candidates.slice(0, limit);
   }
 
   return results.slice(0, limit);
@@ -942,14 +1122,15 @@ export async function youtubeRoutes(fastify, options) {
 
   // Main YouTube search & live stream route
   fastify.get('/api/youtube/search', async (request, reply) => {
-    const { q, niche = 'all', limit = 24, page = 1, refresh = 'false' } = request.query;
+    const { q, niche = 'all', limit = 24, page = 1, refresh = 'false', filter = 'all' } = request.query;
 
     const parsedLimit = Math.min(50, Math.max(1, parseInt(limit, 10) || 24));
     const parsedPage = Math.max(1, parseInt(page, 10) || 1);
     const isRefresh = refresh === 'true' || refresh === true;
+    const selectedFilter = filter === 'new' ? 'new' : 'all';
 
-    const searchQuery = getProgressiveSearchQuery(q, niche, parsedPage);
-    const cacheKey = `${niche}_${(q || '').trim()}_p${parsedPage}`;
+    const searchQuery = getProgressiveSearchQuery(q, niche, parsedPage, selectedFilter);
+    const cacheKey = `${niche}_${(q || '').trim()}_${selectedFilter}_p${parsedPage}`;
 
     // Check dynamic in-memory RAM cache (bypassed if auto-refresh or refresh=true)
     if (!isRefresh && dynamicMemoryCache.has(cacheKey)) {
@@ -963,7 +1144,7 @@ export async function youtubeRoutes(fastify, options) {
     let source = 'live-scraper';
 
     try {
-      results = await scrapeYouTubeLongMixes(searchQuery, niche, parsedLimit, parsedPage);
+      results = await scrapeYouTubeLongMixes(searchQuery, niche, parsedLimit, parsedPage, selectedFilter);
     } catch (err) {
       request.log.error({ err: err.message, query: searchQuery }, 'YouTube live scraping failed');
     }
@@ -1001,6 +1182,7 @@ export async function youtubeRoutes(fastify, options) {
     const responsePayload = {
       query: searchQuery,
       niche,
+      filter: selectedFilter,
       page: parsedPage,
       hasMore: strictResults.length > 0 && parsedPage < 30, // Allows lazy loading for continuous infinite scroll
       count: strictResults.length,
